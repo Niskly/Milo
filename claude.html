@@ -141,7 +141,7 @@
 
             <!-- 
               Main Input Area
-              FIX 3: Set to bg-black, removed border and shadow
+              FIX 2: Set to bg-black, no border/shadow
             -->
             <form id="chat-form" class="bg-black p-2.5 flex flex-col w-full max-w-4xl mx-auto">
                 <!-- Top row: Model select, Image preview -->
@@ -381,7 +381,11 @@
                 
                 // Add buttons to code blocks
                 aiBubble.querySelectorAll('pre').forEach((preElement) => {
-                    hljs.highlightBlock(preElement.querySelector('code'));
+                    // FIX 2: Use highlightElement instead of highlightBlock
+                    const codeBlock = preElement.querySelector('code');
+                    if (codeBlock) {
+                        hljs.highlightElement(codeBlock);
+                    }
                     // Pass the pre element to add buttons
                     addCodeBlockButtons(preElement); 
                 });
@@ -397,12 +401,10 @@
                         typingIndicator.remove();
                     }
                 } else {
-                    // FIX 2: Stringify the error object in the console
                     console.error('Error calling Chat AI:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
                     if(typingIndicator) typingIndicator.remove();
                     if(aiBubble) aiBubble.remove();
                     
-                    // NEW: Better error handling
                     const errorString = (typeof error === 'string') ? error : (error.message ? error.message : JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
                     appendMessage('ai_error', [{ type: 'text', text: `Sorry, an API error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
                 }
@@ -470,7 +472,7 @@
                     buttonElement.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon>';
                 }, 2000);
             } catch (err) {
-                buttonElement.innerHTML = '<ion-icon name="alert-circle-outline" class="w-4 h-4"></ion-icon>';
+                buttonElement.innerHTML = '<ion-icon name="alert-circle-outline" class="w-4 h-4"></ion-staticVFS.VFSFile@36f0e9f1on>';
             }
         }
 
@@ -634,7 +636,8 @@
                 bubbleWrapper.querySelectorAll('pre').forEach((preElement) => {
                     const codeBlock = preElement.querySelector('code');
                     if (codeBlock) {
-                        hljs.highlightBlock(codeBlock);
+                        // FIX 2: Use highlightElement instead of highlightBlock
+                        hljs.highlightElement(codeBlock);
                         addCodeBlockButtons(preElement);
                     }
                 });
@@ -713,3 +716,4 @@
     </script>
 </body>
 </html>
+
