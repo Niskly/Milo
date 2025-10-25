@@ -51,9 +51,11 @@
 
 
         /* --- Copy Button for Code --- */
+        /* This style is now applied dynamically in addCodeBlockButtons
         .copy-btn {
             @apply absolute top-2.5 right-2.5 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-50 hover:opacity-100;
         }
+        */
 
         /* --- AI Typing Spinner --- */
         .dot-flashing {
@@ -406,9 +408,11 @@
                 modeLabelImage.classList.add('text-slate-500', 'dark:text-slate-400');
             }
             // Update welcome message based on mode
+            /* REMOVED BUGGY CALL
             if (chatHistory.length === 0) {
                  appendWelcomeMessage();
             }
+            */
         }
 
         // --- File & Image Handling ---
@@ -590,9 +594,12 @@
 
                 // Final processing
                 aiContentElement.innerHTML = marked.parse(fullResponse);
-                aiContentElement.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightBlock(block);
-                    addCopyButton(block.parentElement);
+                aiContentElement.querySelectorAll('pre').forEach((preElement) => {
+                    const codeBlock = preElement.querySelector('code');
+                    if (codeBlock) {
+                        hljs.highlightBlock(codeBlock);
+                        addCodeBlockButtons(preElement);
+                    }
                 });
                 
                 chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
@@ -623,34 +630,73 @@
         }
 
         // --- DOM Manipulation ---
-        function addCopyButton(preElement) {
-            const button = document.createElement('button');
-            button.className = 'copy-btn';
-            button.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
+        function addCodeBlockButtons(preElement) {
+            const codeBlock = preElement.querySelector('code');
+            if (!codeBlock) return;
+
+            // Container for buttons
+            const btnContainer = document.createElement('div');
+            btnContainer.className = 'absolute top-2.5 right-2.5 flex gap-2';
             
-            button.addEventListener('click', () => {
-                const code = preElement.querySelector('code').innerText;
+            // Copy Button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
+            copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
+            
+            copyBtn.addEventListener('click', () => {
+                const textarea = preElement.querySelector('textarea.code-editor');
+                const code = textarea ? textarea.value : codeBlock.innerText;
+                
                 try {
-                    const textarea = document.createElement('textarea');
-                    textarea.value = code;
-                    textarea.style.position = 'absolute';
-                    textarea.style.left = '-9999px';
-                    document.body.appendChild(textarea);
-                    textarea.select();
+                    const tempTextarea = document.createElement('textarea');
+                    tempTextarea.value = code;
+                    tempTextarea.style.position = 'absolute';
+                    tempTextarea.style.left = '-9999px';
+                    document.body.appendChild(tempTextarea);
+                    tempTextarea.select();
                     document.execCommand('copy');
-                    document.body.removeChild(textarea);
+                    document.body.removeChild(tempTextarea);
                     
-                    button.innerHTML = '<ion-icon name="checkmark-outline" class="w-4 h-4"></ion-icon> <span>Copied!</span>';
+                    copyBtn.innerHTML = '<ion-icon name="checkmark-outline" class="w-4 h-4"></ion-icon> <span>Copied!</span>';
                     setTimeout(() => { 
-                        button.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
+                        copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
                     }, 2000);
                 } catch (err) {
-                    button.innerHTML = '<span>Error</span>';
+                    copyBtn.innerHTML = '<span>Error</span>';
                 }
             });
             
-            preElement.style.position = 'relative';
-            preElement.appendChild(button);
+            // Edit/Save Button
+            const editBtn = document.createElement('button');
+            editBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
+            editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
+            
+            editBtn.addEventListener('click', () => {
+                let textarea = preElement.querySelector('textarea.code-editor');
+                
+                if (textarea) { // --- We are SAVING ---
+                    const newCode = textarea.value;
+                    codeBlock.innerText = newCode;
+                    hljs.highlightBlock(codeBlock);
+                    preElement.removeChild(textarea);
+                    codeBlock.style.display = '';
+                    editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
+                } else { // --- We are EDITING ---
+                    textarea = document.createElement('textarea');
+                    textarea.value = codeBlock.innerText;
+                    textarea.className = 'code-editor w-full h-48 bg-slate-900 text-slate-200 font-mono text-sm p-4 rounded-b-lg border-t border-slate-700 resize-y focus:outline-none';
+                    textarea.style.fontFamily = 'monospace';
+                    
+                    preElement.appendChild(textarea);
+                    codeBlock.style.display = 'none'; // Hide the highlighted code
+                    editBtn.innerHTML = '<ion-icon name="save-outline" class="w-4 h-4"></ion-icon> <span>Save</span>';
+                    textarea.focus();
+                }
+            });
+
+            btnContainer.appendChild(copyBtn);
+            btnContainer.appendChild(editBtn);
+            preElement.appendChild(btnContainer);
         }
 
         function appendMessage(type, contentParts = []) {
@@ -749,10 +795,13 @@
                 chatHistory.forEach(message => {
                     appendMessage(message.role === 'user' ? 'user' : 'ai', message.content);
                 });
-                // Re-apply code highlighting
-                chatLog.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightBlock(block);
-                    addCopyButton(block.parentElement);
+                // Re-apply code highlighting and buttons
+                chatLog.querySelectorAll('pre').forEach((preElement) => {
+                    const codeBlock = preElement.querySelector('code');
+                    if (codeBlock) {
+                        hljs.highlightBlock(codeBlock);
+                        addCodeBlockButtons(preElement);
+                    }
                 });
             } else {
                 appendWelcomeMessage();
@@ -770,4 +819,5 @@
     </script>
 </body>
 </html>
+
 
