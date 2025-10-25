@@ -1,20 +1,28 @@
 /*
- * My AI App - Main JavaScript
+ * My AI App - Main JavaScript (From Scratch)
  * Handles: Theme, Navbar loading, and Interactions
+ * This script is loaded with 'defer' in index.html,
+ * so it runs after the HTML is parsed.
  */
 
 // --- 1. Theme Logic ---------------------------------------------------------
+// These functions are defined in the global scope so the
+// 'onclick=""' attributes in navbar.html can find them.
 
 /**
  * Toggles the theme between 'light' and 'dark' in localStorage
  * and calls applyTheme() to update the UI.
- * This function is called directly from the onclick="" in navbar.html.
  */
 function toggleTheme() {
+    // 1. Get current theme (default to 'light' if nothing is set)
     const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    // 2. Set the new theme
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', newTheme);
-    applyTheme(); // Update the UI
+    
+    // 3. Apply the changes to the page
+    applyTheme();
 }
 
 /**
@@ -22,15 +30,17 @@ function toggleTheme() {
  * <html> element (adding/removing 'dark' class) and updates toggle icons.
  */
 function applyTheme() {
+    // 1. Get theme from storage OR check system preference
     const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     
-    if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-    } else {
+    // 2. Apply it to the <html> tag
+    if (theme === 'light') {
         document.documentElement.classList.remove('dark');
+    } else {
+        document.documentElement.classList.add('dark');
     }
     
-    // This function will show/hide the correct sun/moon icon
+    // 3. Update the sun/moon icons
     updateThemeIcons(theme);
 }
 
@@ -42,29 +52,22 @@ function applyTheme() {
 function updateThemeIcons(theme) {
     const isDark = (theme === 'dark');
 
-    // Desktop button
-    const desktopBtn = document.getElementById('theme-toggle-btn');
-    if (desktopBtn) {
-        const moonIcon = desktopBtn.querySelector('ion-icon[name="moon-outline"]');
-        const sunIcon = desktopBtn.querySelector('ion-icon[name="sunny-outline"]');
-        
-        if (moonIcon && sunIcon) {
-            moonIcon.style.display = isDark ? 'none' : 'block';
-            sunIcon.style.display = isDark ? 'block' : 'none';
-        }
-    }
+    // Find *all* theme buttons (desktop and mobile)
+    const allToggleBtns = document.querySelectorAll('#theme-toggle-btn, #theme-toggle-btn-mobile');
     
-    // Mobile button
-    const mobileBtn = document.getElementById('theme-toggle-btn-mobile');
-    if (mobileBtn) {
-        const moonIcon = mobileBtn.querySelector('ion-icon[name="moon-outline"]');
-        const sunIcon = mobileBtn.querySelector('ion-icon[name="sunny-outline"]');
-        
-        if (moonIcon && sunIcon) {
-            moonIcon.style.display = isDark ? 'none' : 'block';
-            sunIcon.style.display = isDark ? 'block' : 'none';
+    allToggleBtns.forEach(btn => {
+        if (btn) {
+            const moonIcon = btn.querySelector('ion-icon[name="moon-outline"]');
+            const sunIcon = btn.querySelector('ion-icon[name="sunny-outline"]');
+            
+            if (moonIcon && sunIcon) {
+                // If it's dark mode, show SUN icon, hide MOON icon
+                // If it's light mode, show MOON icon, hide SUN icon
+                moonIcon.style.display = isDark ? 'none' : 'block';
+                sunIcon.style.display = isDark ? 'block' : 'none';
+            }
         }
-    }
+    });
 }
 
 // --- 2. Navbar Loading ------------------------------------------------------
@@ -82,23 +85,26 @@ async function loadNavbar() {
 
     try {
         const response = await fetch('components/navbar.html');
-        if (!response.ok) throw new Error('Navbar component not found.');
+        if (!response.ok) {
+            throw new Error(`Navbar component not found at 'components/navbar.html' (Status: ${response.status})`);
+        }
         
         const navbarHTML = await response.text();
         placeholder.innerHTML = navbarHTML;
         
-        // Now that the navbar HTML is loaded, initialize its event listeners
+        // Now that the navbar HTML is loaded, initialize its scripts
         initNavbar();
 
     } catch (error) {
         console.error('Failed to load navbar:', error);
-        placeholder.innerHTML = '<p class="text-center text-red-500">Error loading navigation.</p>';
+        placeholder.innerHTML = '<p class="text-center text-red-500">Error loading navigation. Check file path.</p>';
     }
 }
 
 /**
  * Initializes all event listeners for the dynamically loaded navbar elements
  * (dropdowns, mobile menu).
+ * NOTE: Theme buttons are handled by 'onclick=""' in the HTML.
  */
 function initNavbar() {
     const dropdownToggle = document.getElementById('dropdown-toggle');
@@ -112,16 +118,12 @@ function initNavbar() {
     // Desktop Dropdown
     if (dropdownToggle) {
         dropdownToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent window click listener from closing it
             dropdownMenu.classList.toggle('hidden');
             
             // Rotate icon
             if (dropdownIcon) {
-                if (dropdownMenu.classList.contains('hidden')) {
-                    dropdownIcon.style.transform = 'rotate(0deg)';
-                } else {
-                    dropdownIcon.style.transform = 'rotate(180deg)';
-                }
+                dropdownIcon.style.transform = dropdownMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
             }
         });
     }
@@ -131,24 +133,13 @@ function initNavbar() {
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
             
-            // Toggle icons
+            // Toggle menu/close icons
             if (menuIcon && closeIcon) {
-                if (mobileMenu.classList.contains('hidden')) {
-                    menuIcon.classList.remove('hidden');
-                    closeIcon.classList.add('hidden');
-                } else {
-                    menuIcon.classList.add('hidden');
-                    closeIcon.classList.remove('hidden');
-                }
+                menuIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
             }
         });
     }
-    
-    // --- FIX ---
-    // The conflicting theme toggle event listeners have been
-    // completely removed from here. The onclick="" in the
-    // HTML now handles it directly.
-    // ---
     
     // Close dropdown if clicked outside
     window.addEventListener('click', (e) => {
@@ -162,8 +153,9 @@ function initNavbar() {
 
     // Set the active nav link style
     setActiveNav();
-    // Apply theme *after* navbar is loaded to style the icons correctly
-    // This is what makes the correct icon (sun/moon) show on page load.
+    
+    // IMPORTANT: Call applyTheme() *after* navbar is loaded
+    // This sets the correct sun/moon icon visibility on page load.
     applyTheme();
 }
 
@@ -187,11 +179,11 @@ function setActiveNav() {
         const linkPage = link.getAttribute('data-page');
         
         if (linkPage === currentPage) {
-            // Active styles (Light: gray bg, black text | Dark: dark gray bg, white text)
+            // Active styles: (Light: gray bg, black text | Dark: dark gray bg, white text)
             link.classList.add('font-semibold', 'text-black', 'dark:text-white', 'bg-gray-100', 'dark:bg-gray-800');
             link.classList.remove('text-gray-700', 'dark:text-gray-300');
         } else {
-            // Default styles (Light: gray text | Dark: light gray text)
+            // Default styles: (Light: gray text | Dark: light gray text)
             link.classList.add('text-gray-700', 'dark:text-gray-300');
             link.classList.remove('font-semibold', 'text-black', 'dark:text-white', 'bg-gray-100', 'dark:bg-gray-800');
         }
@@ -199,8 +191,7 @@ function setActiveNav() {
 }
 
 // --- 4. Initial Execution ---------------------------------------------------
-
-// The inline script in index.html handles the *initial* theme class on <html>.
-// This script waits for the DOM to be ready, then loads the navbar.
-document.addEventListener('DOMContentLoaded', loadNavbar);
+// Since this script has 'defer', it runs after the DOM is ready.
+// We can just call loadNavbar() directly.
+loadNavbar();
 
