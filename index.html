@@ -8,90 +8,213 @@
     <!-- 1. Include Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 2. Include Puter.js (Optional for homepage, but good to keep) -->
+    <!-- 2. Include Puter.js -->
     <script src="https://js.puter.com/v2/"></script>
+    
+    <!-- 3. Icons (Heroicons) -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
     <style>
         /* --- General Styles --- */
         html, body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            scroll-behavior: smooth;
         }
-
-        /* --- Page Navigation --- */
-        .nav-link {
-            @apply px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white;
+        
+        /* Custom scrollbar */
+        body::-webkit-scrollbar { width: 8px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        body:dark::-webkit-scrollbar-thumb { background: #374151; }
+        
+        /* Gradient text */
+        .gradient-text {
+            @apply bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .nav-link.active {
-            @apply bg-gray-900 text-white;
+        .dark .gradient-text {
+             @apply from-blue-300 via-cyan-300 to-blue-400;
         }
     </style>
+    
+    <script>
+        // Set theme on initial load
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        function toggleTheme() {
+            if (localStorage.theme === 'dark') {
+                localStorage.theme = 'light';
+                document.documentElement.classList.remove('dark');
+            } else {
+                localStorage.theme = 'dark';
+                document.documentElement.classList.add('dark');
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-900 text-white flex flex-col min-h-screen">
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
     <!-- ========== Navigation Bar ========== -->
-    <nav class="bg-gray-800 border-b border-gray-700">
+    <nav class="bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo/Brand -->
                 <div class="flex-shrink-0 flex items-center gap-2">
-                    <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    <span class="text-xl font-bold text-white">My AI App</span>
+                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <span class="text-xl font-bold">My AI App</span>
                 </div>
-                <!-- Links -->
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="index.html" id="nav-home" class="nav-link active">Home</a>
-                        <!-- This link now points to the new file -->
-                        <a href="chat.html" id="nav-chat" class="nav-link">Chat</a>
+                
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800">Home</a>
+                    
+                    <!-- Dropdown -->
+                    <div class="relative" id="dropdown-toggle">
+                        <button class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <span>Chat Models</span>
+                            <ion-icon name="chevron-down-outline" class="w-4 h-4 ml-1"></ion-icon>
+                        </button>
+                        <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1">
+                            <a href="claude.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Claude</a>
+                            <a href="openai.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">OpenAI</a>
+                        </div>
                     </div>
+                    
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleTheme()" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <ion-icon name="moon-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
+                        <ion-icon name="sunny-outline" class="w-5 h-5 block dark:hidden"></ion-icon>
+                    </button>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleTheme()" class="p-2 mr-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <ion-icon name="moon-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
+                        <ion-icon name="sunny-outline" class="w-5 h-5 block dark:hidden"></ion-icon>
+                    </button>
+                    <button id="mobile-menu-btn" class="p-2 rounded-md text-gray-600 dark:text-gray-300">
+                        <ion-icon name="menu-outline" class="w-6 h-6"></ion-icon>
+                    </button>
                 </div>
             </div>
         </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800">Home</a>
+            <a href="claude.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Claude</a>
+            <a href="openai.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">OpenAI</a>
+        </div>
     </nav>
 
-    <!-- ========== Page Container ========== -->
-    <div class="flex-1">
-
-        <!-- ========== Homepage ========== -->
-        <section id="page-home" class="p-8">
-            <div class="max-w-4xl mx-auto">
-                <!-- Hero section -->
-                <div class="text-center py-16 md:py-24">
-                    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white">
-                        Welcome to the Future of AI
-                    </h1>
-                    <p class="mt-4 text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
-                        Experience the power of Claude 3.7 Sonnet, right in your browser.
-                        No keys, no servers, just pure AI.
-                    </p>
-                    <!-- This button now links to the chat page -->
-                    <a href="chat.html" class="mt-8 inline-block px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-lg transition duration-200 shadow-lg">
-                        Get Started
+    <!-- ========== Main Content ========== -->
+    <main>
+        <!-- Hero section -->
+        <section class="text-center py-24 sm:py-32 lg:py-40">
+            <div class="max-w-4xl mx-auto px-4">
+                <h1 class="text-5xl md:text-7xl font-extrabold tracking-tighter">
+                    Access <span class="gradient-text">Powerful AI</span> Models
+                </h1>
+                <p class="mt-6 text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    Chat with next-generation AI from Claude and OpenAI directly in your browser. 
+                    No API keys, no servers, no limits.
+                </p>
+                <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="claude.html" class="inline-block px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-lg transition duration-200 shadow-lg">
+                        Chat with Claude
                     </a>
-                </div>
-
-                <!-- Feature blurbs -->
-                <div class="mt-16 grid md:grid-cols-3 gap-8">
-                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700">
-                        <h3 class="text-xl font-semibold">Real-time Chat</h3>
-                        <p class="mt-2 text-gray-400">Stream responses instantly. No waiting, just conversation.</p>
-                    </div>
-                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700">
-                        <h3 class="text-xl font-semibold">Multimodal</h3>
-                        <p class="mt-2 text-gray-400">Upload images and ask questions about what you see.</p>
-                    </div>
-                    <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700">
-                        <h3 class="text-xl font-semibold">Code Generation</h3>
-                        <p class="mt-2 text-gray-400">Get syntax-highlighted code blocks, ready to copy and use.</p>
-                    </div>
+                    <a href="openai.html" class="inline-block px-8 py-3 bg-gray-700 hover:bg-gray-600 text-white dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-600 dark:border-gray-700 font-bold rounded-lg text-lg transition duration-200 shadow-lg">
+                        Try OpenAI
+                    </a>
                 </div>
             </div>
         </section>
 
-    </div>
-    
-    <!-- No JavaScript needed for this simple page -->
+        <!-- Feature section -->
+        <section class="py-24 bg-gray-50 dark:bg-gray-950/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto">
+                    <h2 class="text-3xl font-extrabold tracking-tight">One Platform, All Models</h2>
+                    <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                        Using Puter.js, this app gives you free, unlimited access to the world's most advanced AI.
+                    </p>
+                </div>
+                
+                <div class="mt-16 grid md:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+                        <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                            <ion-icon name="chatbubbles-outline" class="w-6 h-6 text-blue-600 dark:text-blue-300"></ion-icon>
+                        </div>
+                        <h3 class="mt-4 text-xl font-semibold">Real-time Chat</h3>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">Stream responses instantly. No waiting, just a natural conversation.</p>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+                        <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                             <ion-icon name="image-outline" class="w-6 h-6 text-blue-600 dark:text-blue-300"></ion-icon>
+                        </div>
+                        <h3 class="mt-4 text-xl font-semibold">Multimodal Input</h3>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">Upload images and ask questions. Get insights on photos, charts, and more.</p>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="bg-white dark:bg-gray-800/50 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+                        <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                             <ion-icon name="code-slash-outline" class="w-6 h-6 text-blue-600 dark:text-blue-300"></ion-icon>
+                        </div>
+                        <h3 class="mt-4 text-xl font-semibold">Developer Friendly</h3>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">Get syntax-highlighted code blocks with a one-click copy button.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
+    <!-- ========== Footer ========== -->
+    <footer class="bg-gray-800 dark:bg-gray-950">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-base text-gray-400">
+                Powered by <a href="https://puter.com" target="_blank" class="font-medium text-blue-400 hover:underline">Puter.js</a>.
+            </p>
+        </div>
+    </footer>
+    
+    <!-- ========== JavaScript Logic ========== -->
+    <script>
+        // --- Navigation Logic ---
+        const dropdownToggle = document.getElementById('dropdown-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // Desktop Dropdown
+        if (dropdownToggle) {
+            dropdownToggle.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('hidden');
+            });
+        }
+        
+        // Mobile Menu
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // Close dropdown if clicked outside
+        window.addEventListener('click', function(e) {
+            if (dropdownToggle && !dropdownToggle.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
 
