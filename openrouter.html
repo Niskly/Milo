@@ -91,6 +91,15 @@
         .code-btn-container .bubble-btn {
              @apply text-gray-300 bg-gray-800/50 hover:bg-gray-700 hover:text-white;
         }
+        
+        /* Dropdown menu scrollbar */
+        #model-dropdown-menu {
+            scrollbar-width: thin;
+            scrollbar-color: #7c3aed #9333ea;
+        }
+        #model-dropdown-menu::-webkit-scrollbar { width: 6px; }
+        #model-dropdown-menu::-webkit-scrollbar-track { background: #9333ea; }
+        #model-dropdown-menu::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 3px; }
     </style>
     
 </head>
@@ -135,13 +144,18 @@
                         <div class="relative">
                             <select id="model-select" name="model" class="hidden"></select>
                             
-                            <button type="button" id="model-dropdown-btn" class="flex items-center justify-between w-48 bg-purple-600 border border-purple-500 text-white rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none hover:bg-purple-700">
-                                <span id="model-dropdown-label">Select Model</span>
-                                <ion-icon name="chevron-down-outline" class="w-4 h-4 ml-2"></ion-icon>
+                            <button type="button" id="model-dropdown-btn" class="flex items-center justify-between w-64 bg-purple-600 border border-purple-500 text-white rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none hover:bg-purple-700">
+                                <span id="model-dropdown-label" class="truncate">Select Model</span>
+                                <ion-icon name="chevron-down-outline" class="w-4 h-4 ml-2 flex-shrink-0"></ion-icon>
                             </button>
                             
-                            <div id="model-dropdown-menu" class="hidden absolute bottom-full mb-2 w-64 bg-purple-600 border border-purple-500 rounded-lg shadow-lg z-20 overflow-hidden max-h-96 overflow-y-auto">
+                            <div id="model-dropdown-menu" class="hidden absolute bottom-full mb-2 w-80 bg-purple-600 border border-purple-500 rounded-lg shadow-lg z-20 overflow-hidden max-h-96 overflow-y-auto">
+                                <!-- Search bar -->
+                                <div class="sticky top-0 bg-purple-700 p-2 border-b border-purple-500">
+                                    <input type="text" id="model-search" placeholder="Search models..." class="w-full px-3 py-2 bg-purple-800 text-white placeholder-purple-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">
+                                </div>
                                 <!-- Menu items will be populated by JS -->
+                                <div id="model-menu-items"></div>
                             </div>
                         </div>
                         
@@ -160,54 +174,395 @@
             element.style.height = (element.scrollHeight) + 'px';
         }
 
-        // Popular OpenRouter Models - organized by category
-        const openRouterModels = {
-            // Claude Models
-            "openrouter:anthropic/claude-sonnet-4.5": "Claude Sonnet 4.5",
-            "openrouter:anthropic/claude-opus-4.1": "Claude Opus 4.1",
-            "openrouter:anthropic/claude-3.7-sonnet": "Claude 3.7 Sonnet",
-            "openrouter:anthropic/claude-3.5-sonnet": "Claude 3.5 Sonnet",
+        // ALL OpenRouter Models with readable names
+        const allModels = [
+            "openrouter:agentica-org/deepcoder-14b-preview",
+            "openrouter:agentica-org/deepcoder-14b-preview:free",
+            "openrouter:ai21/jamba-large-1.7",
+            "openrouter:ai21/jamba-mini-1.7",
+            "openrouter:aion-labs/aion-1.0",
+            "openrouter:aion-labs/aion-1.0-mini",
+            "openrouter:aion-labs/aion-rp-llama-3.1-8b",
+            "openrouter:alfredpros/codellama-7b-instruct-solidity",
+            "openrouter:alibaba/tongyi-deepresearch-30b-a3b",
+            "openrouter:alpindale/goliath-120b",
+            "openrouter:amazon/nova-lite-v1",
+            "openrouter:amazon/nova-micro-v1",
+            "openrouter:amazon/nova-pro-v1",
+            "openrouter:anthracite-org/magnum-v2-72b",
+            "openrouter:anthracite-org/magnum-v4-72b",
+            "openrouter:anthropic/claude-3-haiku",
+            "openrouter:anthropic/claude-3-opus",
+            "openrouter:anthropic/claude-3.5-haiku",
+            "openrouter:anthropic/claude-3.5-haiku-20241022",
+            "openrouter:anthropic/claude-3.5-sonnet",
+            "openrouter:anthropic/claude-3.5-sonnet-20240620",
+            "openrouter:anthropic/claude-3.7-sonnet",
+            "openrouter:anthropic/claude-3.7-sonnet:thinking",
+            "openrouter:anthropic/claude-opus-4",
+            "openrouter:anthropic/claude-opus-4.1",
+            "openrouter:anthropic/claude-sonnet-4",
+            "openrouter:anthropic/claude-sonnet-4.5",
+            "openrouter:arcee-ai/coder-large",
+            "openrouter:arcee-ai/maestro-reasoning",
+            "openrouter:arcee-ai/spotlight",
+            "openrouter:arcee-ai/virtuoso-large",
+            "openrouter:arliai/qwq-32b-arliai-rpr-v1",
+            "openrouter:arliai/qwq-32b-arliai-rpr-v1:free",
+            "openrouter:baidu/ernie-4.5-21b-a3b",
+            "openrouter:baidu/ernie-4.5-300b-a47b",
+            "openrouter:baidu/ernie-4.5-vl-28b-a3b",
+            "openrouter:baidu/ernie-4.5-vl-424b-a47b",
+            "openrouter:bytedance/ui-tars-1.5-7b",
+            "openrouter:bytedance/seed-oss-36b-instruct",
+            "openrouter:cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+            "openrouter:cognitivecomputations/dolphin-mixtral-8x22b",
+            "openrouter:cognitivecomputations/dolphin3.0-mistral-24b",
+            "openrouter:cognitivecomputations/dolphin3.0-mistral-24b:free",
+            "openrouter:cognitivecomputations/dolphin3.0-r1-mistral-24b",
+            "openrouter:cognitivecomputations/dolphin3.0-r1-mistral-24b:free",
+            "openrouter:cohere/command",
+            "openrouter:cohere/command-a",
+            "openrouter:cohere/command-r",
+            "openrouter:cohere/command-r-03-2024",
+            "openrouter:cohere/command-r-08-2024",
+            "openrouter:cohere/command-r-plus",
+            "openrouter:cohere/command-r-plus-04-2024",
+            "openrouter:cohere/command-r-plus-08-2024",
+            "openrouter:cohere/command-r7b-12-2024",
+            "openrouter:deepcogito/cogito-v2-preview-llama-109b-moe",
+            "openrouter:deepcogito/cogito-v2-preview-deepseek-671b",
+            "openrouter:deepseek/deepseek-chat",
+            "openrouter:deepseek/deepseek-chat-v3-0324",
+            "openrouter:deepseek/deepseek-chat-v3-0324:free",
+            "openrouter:deepseek/deepseek-chat-v3.1",
+            "openrouter:deepseek/deepseek-chat-v3.1:free",
+            "openrouter:deepseek/deepseek-prover-v2",
+            "openrouter:deepseek/deepseek-r1",
+            "openrouter:deepseek/deepseek-r1-0528",
+            "openrouter:deepseek/deepseek-r1-0528-qwen3-8b",
+            "openrouter:deepseek/deepseek-r1-0528-qwen3-8b:free",
+            "openrouter:deepseek/deepseek-r1-0528:free",
+            "openrouter:deepseek/deepseek-r1-distill-llama-70b",
+            "openrouter:deepseek/deepseek-r1-distill-llama-70b:free",
+            "openrouter:deepseek/deepseek-r1-distill-llama-8b",
+            "openrouter:deepseek/deepseek-r1-distill-qwen-14b",
+            "openrouter:deepseek/deepseek-r1-distill-qwen-14b:free",
+            "openrouter:deepseek/deepseek-r1-distill-qwen-32b",
+            "openrouter:deepseek/deepseek-r1:free",
+            "openrouter:deepseek/deepseek-v3.1-base",
+            "openrouter:deepseek/deepseek-v3.1-terminus",
+            "openrouter:deepseek/deepseek-v3.2-exp",
+            "openrouter:eleutherai/llemma_7b",
+            "openrouter:google/gemini-2.0-flash-001",
+            "openrouter:google/gemini-2.0-flash-exp:free",
+            "openrouter:google/gemini-2.0-flash-lite-001",
+            "openrouter:google/gemini-2.5-flash",
+            "openrouter:google/gemini-2.5-flash-image-preview",
+            "openrouter:google/gemini-2.5-flash-image-preview:free",
+            "openrouter:google/gemini-2.5-flash-lite",
+            "openrouter:google/gemini-2.5-flash-lite-preview-06-17",
+            "openrouter:google/gemini-2.5-flash-lite-preview-09-2025",
+            "openrouter:google/gemini-2.5-flash-preview-09-2025",
+            "openrouter:google/gemini-2.5-pro",
+            "openrouter:google/gemini-2.5-pro-exp-03-25",
+            "openrouter:google/gemini-2.5-pro-preview",
+            "openrouter:google/gemini-2.5-pro-preview-05-06",
+            "openrouter:google/gemini-flash-1.5",
+            "openrouter:google/gemini-flash-1.5-8b",
+            "openrouter:google/gemini-pro-1.5",
+            "openrouter:google/gemma-2-27b-it",
+            "openrouter:google/gemma-2-9b-it",
+            "openrouter:google/gemma-2-9b-it:free",
+            "openrouter:google/gemma-3-12b-it",
+            "openrouter:google/gemma-3-12b-it:free",
+            "openrouter:google/gemma-3-27b-it",
+            "openrouter:google/gemma-3-27b-it:free",
+            "openrouter:google/gemma-3-4b-it",
+            "openrouter:google/gemma-3-4b-it:free",
+            "openrouter:google/gemma-3n-e2b-it:free",
+            "openrouter:google/gemma-3n-e4b-it",
+            "openrouter:google/gemma-3n-e4b-it:free",
+            "openrouter:gryphe/mythomax-l2-13b",
+            "openrouter:inception/mercury",
+            "openrouter:inception/mercury-coder",
+            "openrouter:infermatic/mn-inferor-12b",
+            "openrouter:inflection/inflection-3-pi",
+            "openrouter:inflection/inflection-3-productivity",
+            "openrouter:liquid/lfm-3b",
+            "openrouter:liquid/lfm-7b",
+            "openrouter:mancer/weaver",
+            "openrouter:meituan/longcat-flash-chat",
+            "openrouter:meta-llama/llama-3-70b-instruct",
+            "openrouter:meta-llama/llama-3-8b-instruct",
+            "openrouter:meta-llama/llama-3.1-405b",
+            "openrouter:meta-llama/llama-3.1-405b-instruct",
+            "openrouter:meta-llama/llama-3.1-405b-instruct:free",
+            "openrouter:meta-llama/llama-3.1-70b-instruct",
+            "openrouter:meta-llama/llama-3.1-8b-instruct",
+            "openrouter:meta-llama/llama-3.2-11b-vision-instruct",
+            "openrouter:meta-llama/llama-3.2-1b-instruct",
+            "openrouter:meta-llama/llama-3.2-3b-instruct",
+            "openrouter:meta-llama/llama-3.2-3b-instruct:free",
+            "openrouter:meta-llama/llama-3.2-90b-vision-instruct",
+            "openrouter:meta-llama/llama-3.3-70b-instruct",
+            "openrouter:meta-llama/llama-3.3-70b-instruct:free",
+            "openrouter:meta-llama/llama-3.3-8b-instruct:free",
+            "openrouter:meta-llama/llama-4-maverick",
+            "openrouter:meta-llama/llama-4-maverick:free",
+            "openrouter:meta-llama/llama-4-scout",
+            "openrouter:meta-llama/llama-4-scout:free",
+            "openrouter:meta-llama/llama-guard-2-8b",
+            "openrouter:meta-llama/llama-guard-3-8b",
+            "openrouter:meta-llama/llama-guard-4-12b",
+            "openrouter:microsoft/mai-ds-r1",
+            "openrouter:microsoft/mai-ds-r1:free",
+            "openrouter:microsoft/phi-3-medium-128k-instruct",
+            "openrouter:microsoft/phi-3-mini-128k-instruct",
+            "openrouter:microsoft/phi-3.5-mini-128k-instruct",
+            "openrouter:microsoft/phi-4",
+            "openrouter:microsoft/phi-4-multimodal-instruct",
+            "openrouter:microsoft/phi-4-reasoning-plus",
+            "openrouter:microsoft/wizardlm-2-8x22b",
+            "openrouter:minimax/minimax-01",
+            "openrouter:minimax/minimax-m1",
+            "openrouter:mistralai/codestral-2501",
+            "openrouter:mistralai/codestral-2508",
+            "openrouter:mistralai/devstral-medium",
+            "openrouter:mistralai/devstral-small",
+            "openrouter:mistralai/devstral-small-2505",
+            "openrouter:mistralai/devstral-small-2505:free",
+            "openrouter:mistralai/magistral-medium-2506",
+            "openrouter:mistralai/magistral-medium-2506:thinking",
+            "openrouter:mistralai/magistral-small-2506",
+            "openrouter:mistralai/ministral-3b",
+            "openrouter:mistralai/ministral-8b",
+            "openrouter:mistralai/mistral-7b-instruct",
+            "openrouter:mistralai/mistral-7b-instruct-v0.1",
+            "openrouter:mistralai/mistral-7b-instruct-v0.3",
+            "openrouter:mistralai/mistral-7b-instruct:free",
+            "openrouter:mistralai/mistral-large",
+            "openrouter:mistralai/mistral-large-2407",
+            "openrouter:mistralai/mistral-large-2411",
+            "openrouter:mistralai/mistral-medium-3",
+            "openrouter:mistralai/mistral-medium-3.1",
+            "openrouter:mistralai/mistral-nemo",
+            "openrouter:mistralai/mistral-nemo:free",
+            "openrouter:mistralai/mistral-saba",
+            "openrouter:mistralai/mistral-small",
+            "openrouter:mistralai/mistral-small-24b-instruct-2501",
+            "openrouter:mistralai/mistral-small-24b-instruct-2501:free",
+            "openrouter:mistralai/mistral-small-3.1-24b-instruct",
+            "openrouter:mistralai/mistral-small-3.1-24b-instruct:free",
+            "openrouter:mistralai/mistral-small-3.2-24b-instruct",
+            "openrouter:mistralai/mistral-small-3.2-24b-instruct:free",
+            "openrouter:mistralai/mistral-tiny",
+            "openrouter:mistralai/mixtral-8x22b-instruct",
+            "openrouter:mistralai/mixtral-8x7b-instruct",
+            "openrouter:mistralai/pixtral-12b",
+            "openrouter:mistralai/pixtral-large-2411",
+            "openrouter:moonshotai/kimi-dev-72b:free",
+            "openrouter:moonshotai/kimi-k2",
+            "openrouter:moonshotai/kimi-k2-0905",
+            "openrouter:moonshotai/kimi-k2:free",
+            "openrouter:moonshotai/kimi-vl-a3b-thinking",
+            "openrouter:moonshotai/kimi-vl-a3b-thinking:free",
+            "openrouter:morph/morph-v3-fast",
+            "openrouter:morph/morph-v3-large",
+            "openrouter:neversleep/llama-3-lumimaid-70b",
+            "openrouter:neversleep/llama-3.1-lumimaid-8b",
+            "openrouter:neversleep/noromaid-20b",
+            "openrouter:nousresearch/deephermes-3-llama-3-8b-preview:free",
+            "openrouter:nousresearch/deephermes-3-mistral-24b-preview",
+            "openrouter:nousresearch/hermes-2-pro-llama-3-8b",
+            "openrouter:nousresearch/hermes-3-llama-3.1-405b",
+            "openrouter:nousresearch/hermes-3-llama-3.1-70b",
+            "openrouter:nousresearch/hermes-4-405b",
+            "openrouter:nousresearch/hermes-4-70b",
+            "openrouter:nousresearch/nous-hermes-2-mixtral-8x7b-dpo",
+            "openrouter:nvidia/llama-3.1-nemotron-70b-instruct",
+            "openrouter:nvidia/llama-3.1-nemotron-ultra-253b-v1",
+            "openrouter:nvidia/llama-3.1-nemotron-ultra-253b-v1:free",
+            "openrouter:nvidia/llama-3.3-nemotron-super-49b-v1",
+            "openrouter:nvidia/nemotron-nano-9b-v2",
+            "openrouter:nvidia/nemotron-nano-9b-v2:free",
+            "openrouter:openai/chatgpt-4o-latest",
+            "openrouter:openai/codex-mini",
+            "openrouter:openai/gpt-3.5-turbo",
+            "openrouter:openai/gpt-3.5-turbo-0613",
+            "openrouter:openai/gpt-3.5-turbo-16k",
+            "openrouter:openai/gpt-3.5-turbo-instruct",
+            "openrouter:openai/gpt-4",
+            "openrouter:openai/gpt-4-0314",
+            "openrouter:openai/gpt-4-1106-preview",
+            "openrouter:openai/gpt-4-turbo",
+            "openrouter:openai/gpt-4-turbo-preview",
+            "openrouter:openai/gpt-4.1",
+            "openrouter:openai/gpt-4.1-mini",
+            "openrouter:openai/gpt-4.1-nano",
+            "openrouter:openai/gpt-4o",
+            "openrouter:openai/gpt-4o-2024-05-13",
+            "openrouter:openai/gpt-4o-2024-08-06",
+            "openrouter:openai/gpt-4o-2024-11-20",
+            "openrouter:openai/gpt-4o-audio-preview",
+            "openrouter:openai/gpt-4o-mini",
+            "openrouter:openai/gpt-4o-mini-2024-07-18",
+            "openrouter:openai/gpt-4o-mini-search-preview",
+            "openrouter:openai/gpt-4o-search-preview",
+            "openrouter:openai/gpt-4o:extended",
+            "openrouter:openai/gpt-5",
+            "openrouter:openai/gpt-5-chat",
+            "openrouter:openai/gpt-5-codex",
+            "openrouter:openai/gpt-5-mini",
+            "openrouter:openai/gpt-5-nano",
+            "openrouter:openai/gpt-oss-120b",
+            "openrouter:openai/gpt-oss-120b:free",
+            "openrouter:openai/gpt-oss-20b",
+            "openrouter:openai/gpt-oss-20b:free",
+            "openrouter:openai/o1",
+            "openrouter:openai/o1-mini",
+            "openrouter:openai/o1-mini-2024-09-12",
+            "openrouter:openai/o1-pro",
+            "openrouter:openai/o3",
+            "openrouter:openai/o3-mini",
+            "openrouter:openai/o3-mini-high",
+            "openrouter:openai/o3-pro",
+            "openrouter:openai/o4-mini",
+            "openrouter:openai/o4-mini-high",
+            "openrouter:opengvlab/internvl3-14b",
+            "openrouter:openrouter/auto",
+            "openrouter:openrouter/sonoma-dusk-alpha",
+            "openrouter:openrouter/sonoma-sky-alpha",
+            "openrouter:perplexity/r1-1776",
+            "openrouter:perplexity/sonar",
+            "openrouter:perplexity/sonar-deep-research",
+            "openrouter:perplexity/sonar-pro",
+            "openrouter:perplexity/sonar-reasoning",
+            "openrouter:perplexity/sonar-reasoning-pro",
+            "openrouter:pygmalionai/mythalion-13b",
+            "openrouter:qwen/qwen-2.5-72b-instruct",
+            "openrouter:qwen/qwen-2.5-72b-instruct:free",
+            "openrouter:qwen/qwen-2.5-7b-instruct",
+            "openrouter:qwen/qwen-2.5-coder-32b-instruct",
+            "openrouter:qwen/qwen-2.5-coder-32b-instruct:free",
+            "openrouter:qwen/qwen-2.5-vl-7b-instruct",
+            "openrouter:qwen/qwen-max",
+            "openrouter:qwen/qwen-plus",
+            "openrouter:qwen/qwen-plus-2025-07-28",
+            "openrouter:qwen/qwen-plus-2025-07-28:thinking",
+            "openrouter:qwen/qwen-turbo",
+            "openrouter:qwen/qwen-vl-max",
+            "openrouter:qwen/qwen-vl-plus",
+            "openrouter:qwen/qwen2.5-vl-32b-instruct",
+            "openrouter:qwen/qwen2.5-vl-32b-instruct:free",
+            "openrouter:qwen/qwen2.5-vl-72b-instruct",
+            "openrouter:qwen/qwen2.5-vl-72b-instruct:free",
+            "openrouter:qwen/qwen3-14b",
+            "openrouter:qwen/qwen3-14b:free",
+            "openrouter:qwen/qwen3-235b-a22b",
+            "openrouter:qwen/qwen3-235b-a22b-2507",
+            "openrouter:qwen/qwen3-235b-a22b-thinking-2507",
+            "openrouter:qwen/qwen3-235b-a22b:free",
+            "openrouter:qwen/qwen3-30b-a3b",
+            "openrouter:qwen/qwen3-30b-a3b-instruct-2507",
+            "openrouter:qwen/qwen3-30b-a3b-thinking-2507",
+            "openrouter:qwen/qwen3-30b-a3b:free",
+            "openrouter:qwen/qwen3-32b",
+            "openrouter:qwen/qwen3-4b:free",
+            "openrouter:qwen/qwen3-8b",
+            "openrouter:qwen/qwen3-8b:free",
+            "openrouter:qwen/qwen3-coder",
+            "openrouter:qwen/qwen3-coder-flash",
+            "openrouter:qwen/qwen3-coder-plus",
+            "openrouter:qwen/qwen3-coder-30b-a3b-instruct",
+            "openrouter:qwen/qwen3-coder:free",
+            "openrouter:qwen/qwen3-max",
+            "openrouter:qwen/qwen3-next-80b-a3b-instruct",
+            "openrouter:qwen/qwen3-next-80b-a3b-thinking",
+            "openrouter:qwen/qwq-32b",
+            "openrouter:qwen/qwq-32b-preview",
+            "openrouter:qwen/qwq-32b:free",
+            "openrouter:raifle/sorcererlm-8x22b",
+            "openrouter:rekaai/reka-flash-3:free",
+            "openrouter:relace/relace-apply-3",
+            "openrouter:sao10k/l3-euryale-70b",
+            "openrouter:sao10k/l3-lunaris-8b",
+            "openrouter:sao10k/l3.1-euryale-70b",
+            "openrouter:sao10k/l3.3-euryale-70b",
+            "openrouter:sarvamai/sarvam-m:free",
+            "openrouter:scb10x/llama3.1-typhoon2-70b-instruct",
+            "openrouter:shisa-ai/shisa-v2-llama3.3-70b",
+            "openrouter:shisa-ai/shisa-v2-llama3.3-70b:free",
+            "openrouter:sophosympatheia/midnight-rose-70b",
+            "openrouter:switchpoint/router",
+            "openrouter:tencent/hunyuan-a13b-instruct",
+            "openrouter:tencent/hunyuan-a13b-instruct:free",
+            "openrouter:thedrummer/anubis-70b-v1.1",
+            "openrouter:thedrummer/anubis-pro-105b-v1",
+            "openrouter:thedrummer/cydonia-24b-v4.1",
+            "openrouter:thedrummer/rocinante-12b",
+            "openrouter:thedrummer/skyfall-36b-v2",
+            "openrouter:thedrummer/unslopnemo-12b",
+            "openrouter:thudm/glm-4-32b",
+            "openrouter:thudm/glm-4.1v-9b-thinking",
+            "openrouter:thudm/glm-z1-32b",
+            "openrouter:tngtech/deepseek-r1t-chimera",
+            "openrouter:tngtech/deepseek-r1t-chimera:free",
+            "openrouter:tngtech/deepseek-r1t2-chimera:free",
+            "openrouter:undi95/remm-slerp-l2-13b",
+            "openrouter:x-ai/grok-2-1212",
+            "openrouter:x-ai/grok-2-vision-1212",
+            "openrouter:x-ai/grok-3",
+            "openrouter:x-ai/grok-3-beta",
+            "openrouter:x-ai/grok-3-mini",
+            "openrouter:x-ai/grok-3-mini-beta",
+            "openrouter:x-ai/grok-4",
+            "openrouter:x-ai/grok-4-fast:free",
+            "openrouter:x-ai/grok-code-fast-1",
+            "openrouter:x-ai/grok-vision-beta",
+            "openrouter:z-ai/glm-4-32b",
+            "openrouter:z-ai/glm-4.5",
+            "openrouter:z-ai/glm-4.5-air",
+            "openrouter:z-ai/glm-4.5-air:free",
+            "openrouter:z-ai/glm-4.5v"
+        ];
+
+        // Function to convert model ID to readable name
+        function modelToName(modelId) {
+            // Remove "openrouter:" prefix
+            let name = modelId.replace('openrouter:', '');
             
-            // OpenAI Models
-            "openrouter:openai/gpt-4o": "GPT-4o",
-            "openrouter:openai/gpt-4o-mini": "GPT-4o Mini",
-            "openrouter:openai/o1": "OpenAI o1",
-            "openrouter:openai/o1-mini": "OpenAI o1 Mini",
+            // Split by / to get provider and model
+            const parts = name.split('/');
+            if (parts.length === 2) {
+                const provider = parts[0];
+                const model = parts[1];
+                
+                // Capitalize provider name
+                const providerName = provider.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+                
+                // Format model name
+                let modelName = model
+                    .replace(/-/g, ' ')
+                    .replace(/\b\w/g, l => l.toUpperCase());
+                
+                // Add (Free) tag if it ends with :free
+                if (modelName.toLowerCase().endsWith(':free')) {
+                    modelName = modelName.replace(/:free/i, '') + ' (Free)';
+                }
+                
+                // Add (Thinking) tag if it ends with :thinking
+                if (modelName.toLowerCase().endsWith(':thinking')) {
+                    modelName = modelName.replace(/:thinking/i, '') + ' (Thinking)';
+                }
+                
+                return `${providerName}: ${modelName}`;
+            }
             
-            // Google Models
-            "openrouter:google/gemini-2.5-pro": "Gemini 2.5 Pro",
-            "openrouter:google/gemini-2.5-flash": "Gemini 2.5 Flash",
-            "openrouter:google/gemini-flash-1.5": "Gemini Flash 1.5",
-            
-            // DeepSeek Models
-            "openrouter:deepseek/deepseek-r1": "DeepSeek R1",
-            "openrouter:deepseek/deepseek-chat-v3.1": "DeepSeek Chat v3.1",
-            "openrouter:deepseek/deepseek-r1-distill-llama-70b": "DeepSeek R1 Distill Llama 70B",
-            
-            // Meta Llama Models
-            "openrouter:meta-llama/llama-3.3-70b-instruct": "Llama 3.3 70B",
-            "openrouter:meta-llama/llama-3.1-405b-instruct": "Llama 3.1 405B",
-            "openrouter:meta-llama/llama-3.1-70b-instruct": "Llama 3.1 70B",
-            
-            // Mistral Models
-            "openrouter:mistralai/mistral-large": "Mistral Large",
-            "openrouter:mistralai/mistral-medium-3.1": "Mistral Medium 3.1",
-            "openrouter:mistralai/mistral-small-3.2-24b-instruct": "Mistral Small 3.2",
-            
-            // Qwen Models
-            "openrouter:qwen/qwen3-235b-a22b": "Qwen3 235B",
-            "openrouter:qwen/qwq-32b": "QwQ 32B",
-            "openrouter:qwen/qwen-2.5-72b-instruct": "Qwen 2.5 72B",
-            
-            // X.AI Grok
-            "openrouter:x-ai/grok-3": "Grok 3",
-            "openrouter:x-ai/grok-3-beta": "Grok 3 Beta",
-            
-            // Free Models
-            "openrouter:meta-llama/llama-3.3-70b-instruct:free": "Llama 3.3 70B (Free)",
-            "openrouter:google/gemini-flash-1.5": "Gemini Flash 1.5 (Free)",
-            "openrouter:deepseek/deepseek-chat-v3.1:free": "DeepSeek Chat v3.1 (Free)",
-        };
+            return name;
+        }
 
         const chatLog = document.getElementById('chat-log');
         const chatForm = document.getElementById('chat-form');
@@ -223,6 +578,8 @@
         const modelDropdownBtn = document.getElementById('model-dropdown-btn');
         const modelDropdownLabel = document.getElementById('model-dropdown-label');
         const modelDropdownMenu = document.getElementById('model-dropdown-menu');
+        const modelMenuItems = document.getElementById('model-menu-items');
+        const modelSearch = document.getElementById('model-search');
         const signInBtn = document.getElementById('sign-in-btn');
 
         let attachedImageBase64 = null;
@@ -628,7 +985,7 @@
         }
         
         function appendWelcomeMessage() {
-            appendMessage('ai', [{ type: 'text', text: 'Hello! I have access to hundreds of AI models through OpenRouter. Select a model and ask me anything!' }], 'Hello! I have access to hundreds of AI models through OpenRouter. Select a model and ask me anything!');
+            appendMessage('ai', [{ type: 'text', text: 'Hello! I have access to hundreds of AI models through OpenRouter. Select a model from the dropdown and ask me anything!' }], 'Hello! I have access to hundreds of AI models through OpenRouter. Select a model from the dropdown and ask me anything!');
         }
 
         function scrollToBottom() {
@@ -636,36 +993,70 @@
         }
 
         function initModelDropdown() {
-            let isFirst = true;
-            for (const [value, name] of Object.entries(openRouterModels)) {
+            // Populate the hidden select
+            allModels.forEach((modelId, index) => {
                 const option = document.createElement('option');
-                option.value = value;
-                option.textContent = name;
-                if (isFirst) {
+                option.value = modelId;
+                option.textContent = modelToName(modelId);
+                if (index === 0) {
                     option.selected = true;
-                    modelDropdownLabel.textContent = name;
+                    modelDropdownLabel.textContent = modelToName(modelId);
                 }
                 modelSelect.appendChild(option);
-                
-                const menuItem = document.createElement('button');
-                menuItem.type = 'button';
-                menuItem.className = 'block w-full text-left px-4 py-2 text-sm text-white hover:bg-purple-700';
-                menuItem.textContent = name;
-                menuItem.dataset.value = value;
-                
-                menuItem.addEventListener('click', () => {
-                    modelDropdownLabel.textContent = name;
-                    modelSelect.value = value;
-                    modelDropdownMenu.classList.add('hidden');
-                });
-                
-                modelDropdownMenu.appendChild(menuItem);
-                isFirst = false;
-            }
+            });
             
+            // Render all menu items initially
+            renderMenuItems(allModels);
+            
+            // Search functionality
+            modelSearch.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filtered = allModels.filter(modelId => {
+                    const name = modelToName(modelId).toLowerCase();
+                    return name.includes(searchTerm) || modelId.toLowerCase().includes(searchTerm);
+                });
+                renderMenuItems(filtered);
+            });
+            
+            // Toggle menu visibility
             modelDropdownBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 modelDropdownMenu.classList.toggle('hidden');
+                if (!modelDropdownMenu.classList.contains('hidden')) {
+                    modelSearch.focus();
+                }
+            });
+        }
+        
+        function renderMenuItems(models) {
+            modelMenuItems.innerHTML = '';
+            
+            if (models.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'px-4 py-3 text-sm text-purple-200 text-center';
+                noResults.textContent = 'No models found';
+                modelMenuItems.appendChild(noResults);
+                return;
+            }
+            
+            models.forEach(modelId => {
+                const name = modelToName(modelId);
+                const menuItem = document.createElement('button');
+                menuItem.type = 'button';
+                menuItem.className = 'block w-full text-left px-4 py-2 text-sm text-white hover:bg-purple-700 truncate';
+                menuItem.textContent = name;
+                menuItem.title = name; // Show full name on hover
+                menuItem.dataset.value = modelId;
+                
+                menuItem.addEventListener('click', () => {
+                    modelDropdownLabel.textContent = name;
+                    modelSelect.value = modelId;
+                    modelDropdownMenu.classList.add('hidden');
+                    modelSearch.value = ''; // Clear search
+                    renderMenuItems(allModels); // Reset to show all models
+                });
+                
+                modelMenuItems.appendChild(menuItem);
             });
         }
         
@@ -675,9 +1066,12 @@
             promptInput.focus();
         });
         
+        // Close dropdown when clicking outside
         window.addEventListener('click', () => {
             if (!modelDropdownMenu.classList.contains('hidden')) {
                 modelDropdownMenu.classList.add('hidden');
+                modelSearch.value = ''; // Clear search when closing
+                renderMenuItems(allModels); // Reset to show all models
             }
         });
         
