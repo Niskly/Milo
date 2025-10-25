@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My AI App - Claude Chat</title>
+    
+    <!-- 1. Include Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Include Puter.js -->
+    <script src="https://js.puter.com/v2/"></script>
+    
+    <!-- 3. Icons (Heroicons) -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    
+    <!-- 4. Libraries for Code Highlighting & Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+    <style>
+        /* --- General Styles --- */
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        /* --- Chat Styles --- */
+        #chat-log {
+            scrollbar-width: thin;
+            scrollbar-color: #6b7280 #f3f4f6;
+        }
+        #chat-log::-webkit-scrollbar { width: 8px; }
+        #chat-log::-webkit-scrollbar-track { background: #f3f4f6; }
+        #chat-log::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
+        #chat-log::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        .dark #chat-log {
+            scrollbar-color: #4b5563 #1f2937;
+        }
+        .dark #chat-log::-webkit-scrollbar-track { background: #1f2937; }
+        .dark #chat-log::-webkit-scrollbar-thumb { background: #4b5563; }
+        .dark #chat-log::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        .chat-bubble-ai .ai-content p { @apply mb-3 last:mb-0; }
+        .chat-bubble-ai .ai-content ul { @apply list-disc list-inside mb-3 pl-4; }
+        .chat-bubble-ai .ai-content ol { @apply list-decimal list-inside mb-3 pl-4; }
+        .chat-bubble-ai .ai-content pre { @apply bg-gray-100 dark:bg-gray-950 rounded-md p-4 mb-3 relative text-sm; }
+        
+        .copy-btn {
+            @apply absolute top-2 right-2 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-2 py-1 rounded transition-all duration-200;
+        }
+
+        /* --- AI Typing Spinner --- */
+        .dot-flashing {
+            position: relative; width: 8px; height: 8px;
+            border-radius: 50%; @apply bg-gray-500;
+            animation: dotFlashing 1s infinite linear alternate;
+            animation-delay: .5s;
+        }
+        .dot-flashing::before, .dot-flashing::after {
+            content: ''; display: inline-block;
+            position: absolute; top: 0;
+        }
+        .dot-flashing::before {
+            left: -12px; width: 8px; height: 8px;
+            border-radius: 50%; @apply bg-gray-500;
+            animation: dotFlashing 1s infinite alternate;
+            animation-delay: 0s;
+        }
+        .dot-flashing::after {
+            left: 12px; width: 8px; height: 8px;
+            border-radius: 50%; @apply bg-gray-500;
+            animation: dotFlashing 1s infinite alternate;
+            animation-delay: 1s;
+        }
+        @keyframes dotFlashing {
+            0% { @apply bg-gray-500; }
+            50%, 100% { @apply bg-gray-300; }
+        }
+        .dark .dot-flashing, .dark .dot-flashing::before, .dark .dot-flashing::after { @apply bg-gray-400; }
+        .dark @keyframes dotFlashing {
+            0% { @apply bg-gray-400; }
+            50%, 100% { @apply bg-gray-600; }
+        }
+    </style>
+    
+    <script>
+        // Set theme on initial load
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        function toggleTheme() {
+            if (localStorage.theme === 'dark') {
+                localStorage.theme = 'light';
+                document.documentElement.classList.remove('dark');
+            } else {
+                localStorage.theme = 'dark';
+                document.documentElement.classList.add('dark');
+            }
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 flex flex-col h-screen overflow-hidden">
+
+    <!-- ========== Navigation Bar ========== -->
+    <nav class="bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo/Brand -->
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <span class="text-xl font-bold">My AI App</span>
+                </div>
+                
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Home</a>
+                    
+                    <!-- Dropdown -->
+                    <div class="relative" id="dropdown-toggle">
+                        <button class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <span>Chat Models</span>
+                            <ion-icon name="chevron-down-outline" class="w-4 h-4 ml-1"></ion-icon>
+                        </button>
+                        <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1">
+                            <!-- Active state for this page -->
+                            <a href="claude.html" class="block px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-gray-100 dark:bg-gray-900">Claude</a>
+                            <a href="openai.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">OpenAI</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleTheme()" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <ion-icon name="moon-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
+                        <ion-icon name="sunny-outline" class="w-5 h-5 block dark:hidden"></ion-icon>
+                    </button>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                     <button onclick="toggleTheme()" class="p-2 mr-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <ion-icon name="moon-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
+                        <ion-icon name="sunny-outline" class="w-5 h-5 block dark:hidden"></ion-icon>
+                    </button>
+                    <button id="mobile-menu-btn" class="p-2 rounded-md text-gray-600 dark:text-gray-300">
+                        <ion-icon name="menu-outline" class="w-6 h-6"></ion-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Home</a>
+            <a href="claude.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800">Claude</a>
+            <a href="openai.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">OpenAI</a>
+        </div>
+    </nav>
+
+    <!-- ========== Chat Section ========== -->
+    <section class="flex-1 flex flex-col h-full min-h-0">
+        <!-- Chat Header -->
+        <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-bold">Claude Chat</h1>
+                <select id="model-select" name="model" class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-1.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
+                    <option value="claude-3-7-opus">Claude 3.7 Opus</option>
+                    <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+                    <option value="claude-sonnet-4">Claude Sonnet 4</option>
+                </select>
+            </div>
+            <button id="clear-chat" class="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition">Clear Chat</button>
+        </div>
+
+        <!-- Chat Log -->
+        <main id="chat-log" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800/50">
+            <!-- Initial Message -->
+        </main>
+
+        <!-- Chat Input Footer -->
+        <footer class="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+            <form id="chat-form" class="flex items-start gap-3">
+                <!-- File Upload Button -->
+                <label for="file-upload" class="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
+                </label>
+                <input type="file" id="file-upload" accept="image/*" class="hidden">
+                
+                <!-- Input Area -->
+                <div class="flex-1 flex flex-col">
+                    <!-- Image Preview -->
+                    <div id="image-preview-container" class="relative w-20 h-20 mb-2 hidden">
+                        <img id="image-preview" class="w-full h-full rounded-lg object-cover border border-gray-300 dark:border-gray-600">
+                        <button id="remove-image" type="button" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">&times;</button>
+                    </div>
+                    <!-- Text Input -->
+                    <textarea id="prompt-input" class="flex-1 p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" placeholder="Type your message or attach an image..." rows="1" oninput="autoGrow(this)"></textarea>
+                </div>
+                
+                <!-- Send Button -->
+                <button type="submit" id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition duration-200 self-end">
+                    <ion-icon name="arrow-up-outline" class="w-5 h-5"></ion-icon>
+                </button>
+            </form>
+        </footer>
+    </section>
+
+    <!-- ========== JavaScript Logic ========== -->
+    <script>
+        // --- Navigation Logic ---
+        const dropdownToggle = document.getElementById('dropdown-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // Desktop Dropdown
+        if (dropdownToggle) {
+            dropdownToggle.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('hidden');
+            });
+        }
+        
+        // Mobile Menu
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // Close dropdown if clicked outside
+        window.addEventListener('click', function(e) {
+            if (dropdownToggle && !dropdownToggle.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // --- Textarea Auto-grow ---
+        function autoGrow(element) {
+            element.style.height = 'auto';
+            element.style.height = (element.scrollHeight) + 'px';
+        }
+
+        // --- Chat App Logic ---
+        const chatLog = document.getElementById('chat-log');
+        const chatForm = document.getElementById('chat-form');
+        const promptInput = document.getElementById('prompt-input');
+        const modelSelect = document.getElementById('model-select');
+        const sendBtn = document.getElementById('send-btn');
+        const fileUpload = document.getElementById('file-upload');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image');
+        const clearChatBtn = document.getElementById('clear-chat');
+
+        let chatHistory = [];
+        let attachedImageBase64 = null;
+
+        chatForm.addEventListener('submit', handleSendMessage);
+        fileUpload.addEventListener('change', handleFileSelect);
+        removeImageBtn.addEventListener('click', clearAttachment);
+        
+        clearChatBtn.addEventListener('click', () => {
+            chatLog.innerHTML = '';
+            chatHistory = [];
+            clearAttachment();
+            appendMessage('ai', [{ type: 'text', text: 'Hello! How can I help you today?' }]);
+        });
+        
+        // Handle paste event for images
+        promptInput.addEventListener('paste', (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.indexOf('image') === 0) {
+                    const file = item.getAsFile();
+                    handleFileSelect({ target: { files: [file] } });
+                    e.preventDefault();
+                    break;
+                }
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Only image files are allowed.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                attachedImageBase64 = e.target.result;
+                imagePreview.src = attachedImageBase64;
+                imagePreviewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearAttachment() {
+            attachedImageBase64 = null;
+            imagePreview.src = '';
+            imagePreviewContainer.classList.add('hidden');
+            fileUpload.value = null;
+        }
+
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            const promptText = promptInput.value.trim();
+            const model = modelSelect.value;
+            if (!promptText && !attachedImageBase64) return;
+
+            const userMessageParts = [];
+            if (attachedImageBase64) {
+                const base64Data = attachedImageBase64.split(',')[1];
+                userMessageParts.push({ type: 'image_data', data: base64Data });
+            }
+            if (promptText) {
+                userMessageParts.push({ type: 'text', text: promptText });
+            }
+
+            chatHistory.push({ role: 'user', content: userMessageParts });
+            appendMessage('user', userMessageParts);
+            promptInput.value = '';
+            autoGrow(promptInput);
+            clearAttachment();
+
+            await callClaudeAI(model);
+        }
+        
+        // Allow sending with Enter key (Shift+Enter for new line)
+        promptInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        async function callClaudeAI(model) {
+            const typingIndicator = appendMessage('ai_typing');
+            chatLog.scrollTop = chatLog.scrollHeight;
+            sendBtn.disabled = true;
+
+            try {
+                const response = await puter.ai.chat(chatHistory, { model: model, stream: true });
+                
+                typingIndicator.remove();
+                const aiBubble = appendMessage('ai', []); // Add empty bubble
+                const aiContentElement = aiBubble.querySelector('.ai-content');
+                
+                let fullResponse = "";
+                let streamingElement = document.createElement('p');
+                aiContentElement.appendChild(streamingElement);
+
+                for await (const part of response) {
+                    if (part?.text) {
+                        fullResponse += part.text;
+                        // This is a temporary stream of plain text.
+                        // We will re-render with Markdown once it's complete.
+                        streamingElement.textContent = fullResponse;
+                        chatLog.scrollTop = chatLog.scrollHeight;
+                    }
+                }
+
+                // Process full response with Markdown & Code Highlighting
+                const htmlContent = marked.parse(fullResponse);
+                aiContentElement.innerHTML = htmlContent;
+
+                // Find all <pre><code> blocks and apply highlighting + copy button
+                aiContentElement.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightBlock(block);
+                    addCopyButton(block.parentElement); // Add to the <pre> tag
+                });
+                
+                chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
+
+            } catch (error)
+            {
+                console.error('Error calling AI:', error);
+                if(typingIndicator) typingIndicator.remove();
+                appendMessage('ai', [{ type: 'text', text: `Sorry, an error occurred: ${error.message}` }]);
+            } 
+            finally {
+                sendBtn.disabled = false;
+                promptInput.focus();
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+        }
+
+        function addCopyButton(preElement) {
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.textContent = 'Copy';
+            
+            button.addEventListener('click', () => {
+                const code = preElement.querySelector('code').innerText;
+                try {
+                    // Fallback for clipboard API in iFrames
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    textarea.style.position = 'absolute';
+                    textarea.style.left = '-9999px';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    
+                    button.textContent = 'Copied!';
+                    setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    button.textContent = 'Error';
+                }
+            });
+            
+            preElement.style.position = 'relative'; // Anchor for the button
+            preElement.appendChild(button);
+        }
+
+        function appendMessage(type, contentParts = []) {
+            const bubbleWrapper = document.createElement('div');
+            
+            if (type === 'user') {
+                bubbleWrapper.className = 'chat-bubble-user flex justify-end';
+                const bubble = document.createElement('div');
+                bubble.className = 'bg-blue-600 text-white rounded-lg p-3 max-w-xl lg:max-w-3xl shadow';
+                contentParts.forEach(part => {
+                    if (part.type === 'text') {
+                        const p = document.createElement('p');
+                        p.className = 'whitespace-pre-wrap'; // Preserve newlines
+                        p.textContent = part.text;
+                        bubble.appendChild(p);
+                    } else if (part.type === 'image_data') {
+                        const img = document.createElement('img');
+                        img.src = `data:image/png;base64,${part.data}`;
+                        img.className = 'rounded-lg max-w-xs mb-2';
+                        bubble.prepend(img); // Show image above text
+                    }
+                });
+                bubbleWrapper.appendChild(bubble);
+
+            } else if (type === 'ai') {
+                bubbleWrapper.className = 'chat-bubble-ai';
+                bubbleWrapper.innerHTML = `
+                    <div class="bg-white dark:bg-gray-700 rounded-lg p-4 max-w-xl lg:max-w-3xl shadow text-gray-900 dark:text-gray-100">
+                        <div class="ai-content prose prose-sm dark:prose-invert max-w-none"></div>
+                    </div>
+                `;
+                if (contentParts.length > 0) {
+                    const aiContentElement = bubbleWrapper.querySelector('.ai-content');
+                    aiContentElement.innerHTML = marked.parse(contentParts[0].text);
+                }
+                
+            } else if (type === 'ai_typing') {
+                bubbleWrapper.className = 'chat-bubble-ai';
+                bubbleWrapper.innerHTML = `
+                    <div class="bg-white dark:bg-gray-700 rounded-lg p-4 max-w-min shadow">
+                        <div class="dot-flashing"></div>
+                    </div>
+                `;
+            }
+
+            chatLog.appendChild(bubbleWrapper);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            return bubbleWrapper;
+        }
+
+        // --- Init ---
+        appendMessage('ai', [{ type: 'text', text: 'Hello! This is Claude. How can I help you today?' }]);
+        promptInput.focus();
+        
+    </script>
+</body>
+</html>
