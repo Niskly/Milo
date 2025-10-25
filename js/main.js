@@ -6,8 +6,8 @@
 // --- 1. Theme Logic ---------------------------------------------------------
 
 function toggleTheme() {
-    const theme = localStorage.getItem('theme') || 'light';
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', newTheme);
     applyTheme();
 }
@@ -20,29 +20,6 @@ function applyTheme() {
     } else {
         document.documentElement.classList.remove('dark');
     }
-
-    // Update all theme toggle buttons
-    const themeToggleBtns = [
-        document.getElementById('theme-toggle-btn'),
-        document.getElementById('theme-toggle-btn-mobile')
-    ];
-
-    themeToggleBtns.forEach(btn => {
-        if (!btn) return;
-
-        const moonIcon = btn.querySelector('ion-icon[name="moon-outline"]');
-        const sunIcon = btn.querySelector('ion-icon[name="sunny-outline"]');
-
-        if (!moonIcon || !sunIcon) return;
-
-        if (theme === 'dark') {
-            moonIcon.style.display = 'none';
-            sunIcon.style.display = 'block';
-        } else {
-            moonIcon.style.display = 'block';
-            sunIcon.style.display = 'none';
-        }
-    });
 }
 
 // --- 2. Navbar Loading ------------------------------------------------------
@@ -121,7 +98,10 @@ function initNavbar() {
     
     themeToggleBtns.forEach(btn => {
         if (btn) {
-            btn.addEventListener('click', toggleTheme);
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleTheme();
+            });
         }
     });
 
