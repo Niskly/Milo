@@ -155,7 +155,7 @@ function initNavbar() {
     });
 
     setActiveNav();
-    applyTheme();
+    applyTheme(); // Apply theme *after* navbar is loaded to style icons
 }
 
 // --- 3. Active Nav Link Highlighting ----------------------------------------
@@ -174,13 +174,15 @@ function setActiveNav() {
         const linkPage = link.getAttribute('data-page');
         
         if (linkPage === currentPage) {
-            // Active styles
-            link.classList.add('font-semibold', 'text-white', 'dark:text-black', 'bg-gray-800', 'dark:bg-gray-100');
-            link.classList.remove('text-gray-300', 'dark:text-gray-700');
+            // FIX: Swapped active styles
+            // Active styles (Light: gray bg, black text | Dark: dark gray bg, white text)
+            link.classList.add('font-semibold', 'text-black', 'dark:text-white', 'bg-gray-100', 'dark:bg-gray-800');
+            link.classList.remove('text-gray-700', 'dark:text-gray-300');
         } else {
-            // Default styles
-            link.classList.add('text-gray-300', 'dark:text-gray-700');
-            link.classList.remove('font-semibold', 'text-white', 'dark:text-black', 'bg-gray-800', 'dark:bg-gray-100');
+            // FIX: Swapped default styles
+            // Default styles (Light: gray text | Dark: light gray text)
+            link.classList.add('text-gray-700', 'dark:text-gray-300');
+            link.classList.remove('font-semibold', 'text-black', 'dark:text-white', 'bg-gray-100', 'dark:bg-gray-800');
         }
     });
 }
@@ -196,6 +198,8 @@ function applyInitialTheme() {
     }
 }
 
-applyInitialTheme();
+// This runs when the script is first parsed (same as inline script in index.html)
+applyInitialTheme(); 
 
+// This waits for the HTML document to be fully loaded
 document.addEventListener('DOMContentLoaded', loadNavbar);
