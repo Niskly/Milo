@@ -38,16 +38,13 @@
         .dark #chat-log::-webkit-scrollbar-thumb { background: #4b5563; }
 
         /* --- Chat Bubble Content Styling (prose-*) --- */
-        .ai-content p { @apply mb-4 last:mb0; }
+        .ai-content p { @apply mb-4 last:mb-0; }
         .ai-content ul, .ai-content ol { @apply list-inside mb-4 pl-2 space-y-1; }
         .ai-content ul { @apply list-disc; }
         .ai-content ol { @apply list-decimal; }
         .ai-content li { @apply leading-relaxed; }
         .ai-content code:not(pre code) { @apply text-sm bg-slate-200 dark:bg-slate-700 rounded px-1.5 py-0.5 font-mono; }
-        
-        /* --- FIX IS HERE --- */
         .ai-content pre { @apply bg-slate-900 rounded-lg p-4 mb-4 relative text-sm overflow-x-auto; }
-        
         .ai-content a { @apply text-blue-500 hover:underline; }
         .ai-content img { @apply rounded-lg border border-slate-200 dark:border-slate-700; }
 
@@ -345,6 +342,7 @@
                 userMessageParts.push({ type: 'text', text: promptText });
             }
             
+            // *** 'content' property is the fix ***
             const userMessage = { role: 'user', content: userMessageParts };
             appendMessage('user', userMessage.content);
             
@@ -421,11 +419,7 @@
                 // Final processing
                 aiContentElement.innerHTML = marked.parse(fullResponse);
                 aiContentElement.querySelectorAll('pre').forEach((preElement) => {
-                    const codeBlock = preElement.querySelector('code');
-                    if (codeBlock) {
-                        hljs.highlightBlock(codeBlock);
-                        addCodeBlockButtons(preElement);
-                    }
+                    hljs.highlightBlock(preElement.querySelector('code'));
                 });
                 
             } catch (error) {
@@ -442,7 +436,7 @@
                     if(typingIndicator) typingIndicator.remove();
                     if(aiBubble) aiBubble.remove();
                     
-                    // Convert the error object to a readable string
+                    // *** FIX: JSON.stringify error ***
                     const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
                     appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
                 }
@@ -454,15 +448,24 @@
         }
 
         // --- DOM Manipulation ---
-        function addCodeBlockButtons(preElement) {
+        function addCodeBlockButtons(preElement, aiBubbleWrapper) {
             const codeBlock = preElement.querySelector('code');
-            if (!codeBlock) return;
+            if (!codeBlock) return; // Only add to the first code block
 
-            // Container for buttons
-            const btnContainer = document.createElement('div');
-            btnContainer.className = 'absolute top-2.5 right-2.5 flex gap-2';
+            // Find the AI bubble's main div to add buttons to
+            const aiBubble = aiBubbleWrapper.querySelector('.ai-bubble');
+            if (!aiBubble) return;
+
+            // --- Button Container ---
+            let btnContainer = aiBubble.querySelector('.ai-btn-container');
+            if (!btnContainer) { // Create if it doesn't exist
+                btnContainer = document.createElement('div');
+                btnContainer.className = 'ai-btn-container absolute top-2 right-2 flex gap-2';
+                aiBubble.classList.add('relative'); // Ensure bubble is relative
+                aiBubble.appendChild(btnContainer);
+            }
             
-            // Copy Button
+            // --- Copy Button ---
             const copyBtn = document.createElement('button');
             copyBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
             copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
@@ -490,7 +493,7 @@
                 }
             });
             
-            // Edit/Save Button
+            // --- Edit/Save Button ---
             const editBtn = document.createElement('button');
             editBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
             editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
@@ -505,7 +508,6 @@
                     preElement.removeChild(textarea);
                     codeBlock.style.display = '';
                     editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
-                    // Re-add the code block itself to the pre element's content for highlighting
                     preElement.prepend(codeBlock);
                 } else { // --- We are EDITING ---
                     textarea = document.createElement('textarea');
@@ -513,7 +515,6 @@
                     textarea.className = 'code-editor w-full h-48 bg-slate-900 text-slate-200 font-mono text-sm p-0 rounded-b-lg border-t border-slate-700 resize-y focus:outline-none';
                     textarea.style.fontFamily = 'monospace';
                     
-                    // Clear pre element and add textarea
                     preElement.prepend(textarea);
                     codeBlock.style.display = 'none'; // Hide the highlighted code
                     editBtn.innerHTML = '<ion-icon name="save-outline" class="w-4 h-4"></ion-icon> <span>Save</span>';
@@ -523,7 +524,6 @@
 
             btnContainer.appendChild(copyBtn);
             btnContainer.appendChild(editBtn);
-            preElement.appendChild(btnContainer);
         }
 
         function appendMessage(type, contentParts = []) {
@@ -571,7 +571,8 @@
                     <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
                         <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    <div class="ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
+                    <!-- This div is now the .ai-bubble -->
+                    <div class="ai-bubble relative ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
                         <div class="ai-content prose prose-sm dark:prose-invert max-w-none">
                             ${contentHTML}
                         </div>
@@ -595,13 +596,12 @@
             
             // Re-apply highlighting and buttons if it's a final AI message
             if (type === 'ai' || type === 'ai_error') {
-                bubbleWrapper.querySelectorAll('pre').forEach((preElement) => {
-                    const codeBlock = preElement.querySelector('code');
-                    if (codeBlock) {
-                        hljs.highlightBlock(codeBlock);
-                        addCodeBlockButtons(preElement);
-                    }
-                });
+                // *** Pass the whole bubble wrapper to find the *first* code block ***
+                const firstPre = bubbleWrapper.querySelector('pre');
+                if (firstPre) {
+                    hljs.highlightBlock(firstPre.querySelector('code'));
+                    addCodeBlockButtons(firstPre, bubbleWrapper);
+                }
             }
             
             return bubbleWrapper;
