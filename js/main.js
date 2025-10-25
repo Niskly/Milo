@@ -30,6 +30,12 @@ function applyTheme() {
         document.getElementById('theme-toggle-btn-mobile')
     ];
 
+    if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+
     themeToggleBtns.forEach(btn => {
         if (!btn) return; // Skip if the button isn't on the page
 
@@ -40,11 +46,9 @@ function applyTheme() {
         if (!moonIcon || !sunIcon) return; // Skip if icons aren't found
 
         if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
             moonIcon.style.display = 'none';
             sunIcon.style.display = 'block';
         } else {
-            document.documentElement.classList.remove('dark');
             moonIcon.style.display = 'block';
             sunIcon.style.display = 'none';
         }
@@ -133,7 +137,12 @@ function initNavbar() {
  */
 function setActiveNav() {
     // Get the current page (e.g., "index.html" -> "index")
-    const currentPage = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+    let currentPage = window.location.pathname.split('/').pop();
+    if (currentPage === '' || currentPage === 'index.html') {
+        currentPage = 'index';
+    } else {
+        currentPage = currentPage.replace('.html', '');
+    }
 
     const navLinks = document.querySelectorAll('.nav-link');
     
@@ -143,10 +152,10 @@ function setActiveNav() {
         if (linkPage === currentPage) {
             // Apply active styles (for new inverted navbar)
             link.classList.add('font-bold', 'text-white', 'dark:text-black');
-            link.classList.remove('text-gray-300', 'dark:text-gray-700'); // Remove default
+            link.classList.remove('text-gray-300', 'dark:text-gray-600'); // Remove default
         } else {
             // Apply default styles (for new inverted navbar)
-            link.classList.add('text-gray-300', 'dark:text-gray-700');
+            link.classList.add('text-gray-300', 'dark:text-gray-600');
             link.classList.remove('font-bold', 'text-white', 'dark:text-black');
         }
     });
@@ -155,18 +164,20 @@ function setActiveNav() {
 
 // --- 3. Initial Execution ---------------------------------------------------
 
-// When the DOM is loaded, apply the theme immediately to avoid flash
-document.addEventListener('DOMContentLoaded', () => {
-    // Apply theme first to prevent flash of wrong theme
-    // Note: Icons won't appear until navbar loads, but background is set
+/**
+ * Applies the theme *before* DOM content is fully loaded to prevent flicker.
+ */
+function applyInitialTheme() {
     const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     if (theme === 'dark') {
         document.documentElement.classList.add('dark');
     } else {
         document.documentElement.classList.remove('dark');
     }
+}
 
-    // Now, load the navbar
-    loadNavbar();
-});
+applyInitialTheme();
+
+// When the DOM is loaded, load the navbar
+document.addEventListener('DOMContentLoaded', loadNavbar);
 
