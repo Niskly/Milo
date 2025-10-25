@@ -348,10 +348,21 @@
             let fullResponse = "";
             let aiBubble;
             
-            const claudeHistory = [userMessage];
+            // const claudeHistory = [userMessage]; // OLD WAY
+
+            // NEW WAY: Match the tutorial, send only the text string.
+            // This will temporarily break image uploads, but let's test the API call.
+            const promptText = userMessage.content.find(p => p.type === 'text')?.text || '';
+            if (!promptText) {
+                 appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\nPrompt text is empty. Cannot send a message with only an image yet.\n\`\`\`` }]);
+                 setAIGenerating(false);
+                 typingIndicator.remove();
+                 return; 
+            }
 
             try {
-                const response = await puter.ai.chat(claudeHistory, { 
+                // Pass ONLY the prompt string, as shown in the tutorial
+                const response = await puter.ai.chat(promptText, { 
                     model: model, 
                     stream: true,
                     signal: abortController.signal 
@@ -472,7 +483,7 @@
                     buttonElement.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon>';
                 }, 2000);
             } catch (err) {
-                buttonElement.innerHTML = '<ion-icon name="alert-circle-outline" class="w-4 h-4"></ion-staticVFS.VFSFile@36f0e9f1on>';
+                buttonElement.innerHTML = '<ion-icon name="alert-circle-outline" class="w-4 h-4"></ion-icon>';
             }
         }
 
@@ -564,7 +575,7 @@
                 
                     <!-- NEW: Dark style (bg-gray-800 bubble) -->
                     <div class="bg-gray-800 text-white rounded-2xl rounded-tr-lg p-4 max-w-xl lg:max-w-3xl shadow-md">
-                        <!-- NEW: Container for message and edit area -->
+                        <!-- NEW: Container for message and area -->
                         <div class="message-content">
                             ${imgContent}
                             ${textContent}
@@ -699,7 +710,7 @@
         
         // --- Init ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // FIX 1: Removed the puter.auth.anonymous() block
+            // FIX 1: Removed puter.auth.login() as requested.
             
             initModelDropdown(); // Set up the custom dropdown
             appendWelcomeMessage();
@@ -716,4 +727,6 @@
     </script>
 </body>
 </html>
+
+
 
