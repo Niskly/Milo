@@ -1,76 +1,10 @@
 /*
- * My AI App - Main JavaScript (From Scratch)
- * Handles: Theme, Navbar loading, and Interactions
- * This script is loaded with 'defer' in index.html,
- * so it runs after the HTML is parsed.
+ * My AI App - Main JavaScript (No Theme)
+ * Handles: Navbar loading and Interactions
+ * All theme-switching code has been removed.
  */
 
-// --- 1. Theme Logic ---------------------------------------------------------
-// These functions are defined in the global scope so the
-// 'onclick=""' attributes in navbar.html can find them.
-
-/**
- * Toggles the theme between 'light' and 'dark' in localStorage
- * and calls applyTheme() to update the UI.
- */
-function toggleTheme() {
-    // 1. Get current theme (default to 'light' if nothing is set)
-    const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    // 2. Set the new theme
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('theme', newTheme);
-    
-    // 3. Apply the changes to the page
-    applyTheme();
-}
-
-/**
- * Reads the theme from localStorage and applies it to the
- * <html> element (adding/removing 'dark' class) and updates toggle icons.
- */
-function applyTheme() {
-    // 1. Get theme from storage OR check system preference
-    const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    // 2. Apply it to the <html> tag
-    if (theme === 'light') {
-        document.documentElement.classList.remove('dark');
-    } else {
-        document.documentElement.classList.add('dark');
-    }
-    
-    // 3. Update the sun/moon icons
-    updateThemeIcons(theme);
-}
-
-/**
- * Updates the visibility of moon and sun icons on both
- * desktop and mobile toggle buttons based on the current theme.
- * @param {string} theme - The current theme ('dark' or 'light').
- */
-function updateThemeIcons(theme) {
-    const isDark = (theme === 'dark');
-
-    // Find *all* theme buttons (desktop and mobile)
-    const allToggleBtns = document.querySelectorAll('#theme-toggle-btn, #theme-toggle-btn-mobile');
-    
-    allToggleBtns.forEach(btn => {
-        if (btn) {
-            const moonIcon = btn.querySelector('ion-icon[name="moon-outline"]');
-            const sunIcon = btn.querySelector('ion-icon[name="sunny-outline"]');
-            
-            if (moonIcon && sunIcon) {
-                // If it's dark mode, show SUN icon, hide MOON icon
-                // If it's light mode, show MOON icon, hide SUN icon
-                moonIcon.style.display = isDark ? 'none' : 'block';
-                sunIcon.style.display = isDark ? 'block' : 'none';
-            }
-        }
-    });
-}
-
-// --- 2. Navbar Loading ------------------------------------------------------
+// --- 1. Navbar Loading ------------------------------------------------------
 
 /**
  * Fetches 'components/navbar.html' and injects it into
@@ -104,7 +38,6 @@ async function loadNavbar() {
 /**
  * Initializes all event listeners for the dynamically loaded navbar elements
  * (dropdowns, mobile menu).
- * NOTE: Theme buttons are handled by 'onclick=""' in the HTML.
  */
 function initNavbar() {
     const dropdownToggle = document.getElementById('dropdown-toggle');
@@ -153,13 +86,9 @@ function initNavbar() {
 
     // Set the active nav link style
     setActiveNav();
-    
-    // IMPORTANT: Call applyTheme() *after* navbar is loaded
-    // This sets the correct sun/moon icon visibility on page load.
-    applyTheme();
 }
 
-// --- 3. Active Nav Link Highlighting ----------------------------------------
+// --- 2. Active Nav Link Highlighting ----------------------------------------
 
 /**
  * Checks the current page URL and applies active styles
@@ -179,18 +108,18 @@ function setActiveNav() {
         const linkPage = link.getAttribute('data-page');
         
         if (linkPage === currentPage) {
-            // Active styles: (Light: gray bg, black text | Dark: dark gray bg, white text)
-            link.classList.add('font-semibold', 'text-black', 'dark:text-white', 'bg-gray-100', 'dark:bg-gray-800');
-            link.classList.remove('text-gray-700', 'dark:text-gray-300');
+            // Active styles: (Dark mode: dark gray bg, white text)
+            link.classList.add('font-semibold', 'text-white', 'bg-gray-800');
+            link.classList.remove('text-gray-300');
         } else {
-            // Default styles: (Light: gray text | Dark: light gray text)
-            link.classList.add('text-gray-700', 'dark:text-gray-300');
-            link.classList.remove('font-semibold', 'text-black', 'dark:text-white', 'bg-gray-100', 'dark:bg-gray-800');
+            // Default styles: (Dark mode: light gray text)
+            link.classList.add('text-gray-300');
+            link.classList.remove('font-semibold', 'text-white', 'bg-gray-800');
         }
     });
 }
 
-// --- 4. Initial Execution ---------------------------------------------------
+// --- 3. Initial Execution ---------------------------------------------------
 // Since this script has 'defer', it runs after the DOM is ready.
-// We can just call loadNavbar() directly.
 loadNavbar();
+
