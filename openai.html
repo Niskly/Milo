@@ -19,7 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
-
+    
     <style>
         /* --- General Styles --- */
         html {
@@ -46,16 +46,8 @@
         .ai-content code:not(pre code) { @apply text-sm bg-slate-200 dark:bg-slate-700 rounded px-1.5 py-0.5 font-mono; }
         .ai-content pre { @apply bg-slate-900 rounded-lg p-4 mb-4 relative text-sm; }
         .ai-content a { @apply text-blue-500 hover:underline; }
-        /* Style for generated images in bubbles */
         .ai-content img { @apply rounded-lg border border-slate-200 dark:border-slate-700; }
-
-
-        /* --- Copy Button for Code --- */
-        /* This style is now applied dynamically in addCodeBlockButtons
-        .copy-btn {
-            @apply absolute top-2.5 right-2.5 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-50 hover:opacity-100;
-        }
-        */
+        .ai-content .generated-image { @apply border-4 border-blue-500/50 rounded-lg; }
 
         /* --- AI Typing Spinner --- */
         .dot-flashing {
@@ -101,16 +93,17 @@
         .dark #prompt-input { scrollbar-color: #4b5563 #1e293b; }
         .dark #prompt-input::-webkit-scrollbar-thumb { background: #4b5563; }
         
-        /* --- Toggle Switch --- */
+        /* --- Mode Toggle Switch --- */
         .toggle-bg:after {
             content: '';
-            @apply absolute top-0.5 left-0.5 bg-white border border-slate-300 rounded-full h-5 w-5 transition shadow-sm;
+            @apply absolute top-0.5 left-0.5 bg-white rounded-full h-7 w-7 transition shadow-md;
         }
         input:checked + .toggle-bg:after {
-            @apply transform translate-x-full;
+            transform: translateX(100%);
+            @apply translate-x-full;
         }
         input:checked + .toggle-bg {
-            @apply bg-blue-600 border-blue-600;
+            @apply bg-purple-600;
         }
     </style>
     
@@ -118,21 +111,17 @@
         // Set theme on initial load
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
         } else {
             document.documentElement.classList.remove('dark');
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f1f5f9');
         }
 
         function toggleTheme() {
             if (localStorage.theme === 'dark') {
                 localStorage.theme = 'light';
                 document.documentElement.classList.remove('dark');
-                document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f1f5f9');
             } else {
                 localStorage.theme = 'dark';
                 document.documentElement.classList.add('dark');
-                document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
             }
         }
     </script>
@@ -216,44 +205,23 @@
 
             <!-- Main Input Area -->
             <form id="chat-form" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl p-3 flex flex-col w-full max-w-4xl mx-auto">
-                <!-- Top row: Model select, Image preview, Clear chat -->
-                <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap">
+                <!-- Top row: Mode, Model select, Image preview -->
+                <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap gap-2">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <!-- MODE TOGGLE -->
-                        <div class="flex items-center space-x-2 text-sm p-1 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                            <span id="mode-label-chat" class="font-medium text-blue-600 dark:text-blue-400 px-2 py-1 rounded-md">Chat</span>
-                            <label for="mode-toggle" class="flex items-center cursor-pointer">
-                                <input type="checkbox" id="mode-toggle" class="sr-only">
-                                <div class="toggle-bg relative bg-slate-200 dark:bg-slate-600 border-2 border-transparent rounded-full h-6 w-11 transition-colors"></div>
-                            </label>
-                            <span id="mode-label-image" class="text-slate-500 dark:text-slate-400 px-2 py-1 rounded-md">Image</span>
-                        </div>
-
-                        <!-- MODEL SELECT (CHAT) -->
-                        <select id="model-select-chat" name="model" class="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none cursor-pointer">
-                            <option value="gpt-5-nano">GPT-5 Nano</option>
-                            <option value="gpt-5-mini">GPT-5 Mini</option>
-                            <option value="gpt-5">GPT-5</option>
-                            <option value="gpt-4o">GPT-4o</option>
-                            <option value="gpt-4o-mini">GPT-4o Mini</option>
-                            <option value="o1">o1</option>
-                            <option value="o1-mini">o1 Mini</option>
-                            <option value="o1-pro">o1 Pro</option>
-                            <option value="o3">o3</option>
-                            <option value="o3-mini">o3 Mini</option>
-                            <option value="o4-mini">o4 Mini</option>
-                            <option value="gpt-5-chat-latest">GPT-5 Chat (Latest)</option>
-                            <option value="gpt-4.1">GPT-4.1</option>
-                            <option value="gpt-4.1-mini">GPT-4.1 Mini</option>
-                            <option value="gpt-4.1-nano">GPT-4.1 Nano</option>
-                            <option value="gpt-4.5-preview">GPT-4.5 Preview</option>
-                        </select>
                         
-                        <!-- MODEL SELECT (IMAGE) -->
-                        <select id="model-select-image" name="model" class="hidden bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none cursor-pointer">
-                            <option value="gpt-image-1">GPT Image 1</option>
-                            <option value="dall-e-3">DALL-E 3</option>
-                            <option value="dall-e-2">DALL-E 2</option>
+                        <!-- MODE TOGGLE -->
+                        <div class="flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                            <span class="text-sm font-medium ml-2 text-slate-700 dark:text-slate-200">Chat</span>
+                            <label for="mode-toggle" class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="mode-toggle" class="hidden">
+                                <div class="relative toggle-bg bg-slate-300 dark:bg-slate-600 w-14 h-8 rounded-full transition-colors"></div>
+                            </label>
+                            <span class="text-sm font-medium mr-2 text-slate-700 dark:text-slate-200">Image</span>
+                        </div>
+                        
+                        <!-- MODEL SELECT -->
+                        <select id="model-select" name="model" class="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none cursor-pointer">
+                            <!-- Options will be added by JS -->
                         </select>
                         
                         <!-- IMAGE PREVIEW -->
@@ -262,12 +230,6 @@
                             <button id="remove-image" type="button" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">&times;</button>
                         </div>
                     </div>
-                    
-                    <!-- CLEAR CHAT -->
-                    <button id="clear-chat" type="button" class="text-sm text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-500 transition flex items-center gap-1 p-2 flex-shrink-0">
-                        <ion-icon name="trash-outline" class="w-4 h-4"></ion-icon>
-                        Clear
-                    </button>
                 </div>
                 
                 <!-- Bottom row: Upload, Textarea, Send -->
@@ -321,50 +283,47 @@
         const chatForm = document.getElementById('chat-form');
         const promptInput = document.getElementById('prompt-input');
         const sendBtn = document.getElementById('send-btn');
+        const modelSelect = document.getElementById('model-select');
         const fileUpload = document.getElementById('file-upload');
         const fileUploadLabel = document.getElementById('file-upload-label');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
         const removeImageBtn = document.getElementById('remove-image');
-        const clearChatBtn = document.getElementById('clear-chat');
         const stopBtnContainer = document.getElementById('stop-btn-container');
         const stopBtn = document.getElementById('stop-btn');
-        
-        // Mode Toggling
         const modeToggle = document.getElementById('mode-toggle');
-        const modelSelectChat = document.getElementById('model-select-chat');
-        const modelSelectImage = document.getElementById('model-select-image');
-        const modeLabelChat = document.getElementById('mode-label-chat');
-        const modeLabelImage = document.getElementById('mode-label-image');
         
-        const CHAT_HISTORY_KEY = 'openAIChatHistory';
-        let isImageGenerationMode = false;
-        let chatHistory = [];
+        // --- HISTORY REMOVED ---
         let attachedImageBase64 = null;
         let isAIGenerating = false;
         let abortController = null; // To stop the stream
+        
+        const textModels = {
+            "gpt-5-nano": "GPT-5 Nano",
+            "gpt-5-mini": "GPT-5 Mini",
+            "gpt-5": "GPT-5",
+            "gpt-4o": "GPT-4o",
+            "gpt-4o-mini": "GPT-4o Mini",
+            "gpt-4.5-preview": "GPT-4.5 Preview",
+            "o1-mini": "o1 Mini",
+            "o1": "o1",
+        };
+        
+        const imageModels = {
+            "gpt-image-1": "GPT Image 1",
+            "dall-e-3": "DALL-E 3",
+            "dall-e-2": "DALL-E 2",
+        };
 
         // --- Event Listeners ---
         chatForm.addEventListener('submit', handleSendMessage);
         fileUpload.addEventListener('change', handleFileSelect);
         removeImageBtn.addEventListener('click', clearAttachment);
         stopBtn.addEventListener('click', stopGeneration);
-        
-        modeToggle.addEventListener('change', (e) => {
-            isImageGenerationMode = e.target.checked;
-            updateUIForMode();
-        });
-        
-        clearChatBtn.addEventListener('click', () => {
-            chatLog.innerHTML = '';
-            chatHistory = [];
-            clearAttachment();
-            saveChatHistory();
-            appendWelcomeMessage();
-        });
+        modeToggle.addEventListener('change', updateMode);
         
         promptInput.addEventListener('paste', (e) => {
-            if (isImageGenerationMode) return; // Don't paste images in image gen mode
+            if (modeToggle.checked) return; // No pasting images in image mode
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (const item of items) {
                 if (item.type.indexOf('image') === 0) {
@@ -383,36 +342,27 @@
             }
         });
 
-        // --- Mode & UI Updates ---
-        function updateUIForMode() {
-            clearAttachment();
-            if (isImageGenerationMode) {
-                // Image Generation Mode
-                modelSelectChat.classList.add('hidden');
-                modelSelectImage.classList.remove('hidden');
-                fileUploadLabel.classList.add('hidden');
-                promptInput.placeholder = 'Generate an image of...';
-                modeLabelChat.classList.remove('font-medium', 'text-blue-600', 'dark:text-blue-400', 'bg-white', 'dark:bg-slate-800');
-                modeLabelChat.classList.add('text-slate-500', 'dark:text-slate-400');
-                modeLabelImage.classList.add('font-medium', 'text-blue-600', 'dark:text-blue-400', 'bg-white', 'dark:bg-slate-800');
-                modeLabelImage.classList.remove('text-slate-500', 'dark:text-slate-400');
+        // --- Mode & Model Selection ---
+        function updateMode() {
+            const isImageMode = modeToggle.checked;
+            modelSelect.innerHTML = ''; // Clear options
+            
+            const models = isImageMode ? imageModels : textModels;
+            for (const [value, name] of Object.entries(models)) {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = name;
+                modelSelect.appendChild(option);
+            }
+            
+            if (isImageMode) {
+                promptInput.placeholder = "Describe an image to generate...";
+                fileUploadLabel.style.display = 'none'; // Hide upload button
+                clearAttachment();
             } else {
-                // Chat Mode
-                modelSelectChat.classList.remove('hidden');
-                modelSelectImage.classList.add('hidden');
-                fileUploadLabel.classList.remove('hidden');
-                promptInput.placeholder = 'Chat with OpenAI...';
-                modeLabelChat.classList.add('font-medium', 'text-blue-600', 'dark:text-blue-400', 'bg-white', 'dark:bg-slate-800');
-                modeLabelChat.classList.remove('text-slate-500', 'dark:text-slate-400');
-                modeLabelImage.classList.remove('font-medium', 'text-blue-600', 'dark:text-blue-400', 'bg-white', 'dark:bg-slate-800');
-                modeLabelImage.classList.add('text-slate-500', 'dark:text-slate-400');
+                promptInput.placeholder = "Chat with OpenAI...";
+                fileUploadLabel.style.display = 'block'; // Show upload button
             }
-            // Update welcome message based on mode
-            /* REMOVED BUGGY CALL
-            if (chatHistory.length === 0) {
-                 appendWelcomeMessage();
-            }
-            */
         }
 
         // --- File & Image Handling ---
@@ -439,52 +389,39 @@
         // --- Main Send Logic ---
         async function handleSendMessage(e) {
             e.preventDefault();
-            if (isAIGenerating) return; // Don't send if AI is already working
+            if (isAIGenerating) return;
             
             const promptText = promptInput.value.trim();
+            if (!promptText) return; // Always need text
             
-            if (isImageGenerationMode) {
-                // --- Image Generation ---
-                if (!promptText) return;
-                const model = modelSelectImage.value;
-                
-                const userMessage = { role: 'user', content: [{ type: 'text', text: promptText }] };
-                chatHistory.push(userMessage);
-                appendMessage('user', userMessage.content);
-                saveChatHistory();
-                
-                promptInput.value = '';
-                autoGrow(promptInput);
-                
-                await callImageAI(promptText, model);
+            const model = modelSelect.value;
+            const isImageMode = modeToggle.checked;
 
+            // Construct user message
+            const userMessageParts = [];
+            if (attachedImageBase64 && !isImageMode) { // Only attach images in chat mode
+                const base64Data = attachedImageBase64.split(',')[1];
+                // OpenAI API format for inline images
+                userMessageParts.push({ type: 'image_url', image_url: { url: `data:image/png;base64,${base64Data}` } });
+            }
+            
+            // Always add text
+            userMessageParts.push({ type: 'text', text: promptText });
+            
+            // *** 'content' property is the fix ***
+            const userMessage = { role: 'user', content: userMessageParts };
+            appendMessage('user', userMessage.content);
+            
+            // Clear input
+            promptInput.value = '';
+            autoGrow(promptInput);
+            clearAttachment();
+
+            // Start AI call
+            if (isImageMode) {
+                await callImageAI(model, promptText);
             } else {
-                // --- Chat ---
-                if (!promptText && !attachedImageBase64) return;
-                const model = modelSelectChat.value;
-
-                // Construct user message
-                const userMessageParts = [];
-                if (attachedImageBase64) {
-                    const base64Data = attachedImageBase64.split(',')[1];
-                    userMessageParts.push({ type: 'image_data', data: base64Data });
-                }
-                if (promptText) {
-                    userMessageParts.push({ type: 'text', text: promptText });
-                }
-                
-                const userMessage = { role: 'user', content: userMessageParts };
-                chatHistory.push(userMessage);
-                appendMessage('user', userMessage.content);
-                saveChatHistory();
-                
-                // Clear input
-                promptInput.value = '';
-                autoGrow(promptInput);
-                clearAttachment();
-
-                // Start AI call
-                await callChatAI(model);
+                await callChatAI(model, userMessage);
             }
         }
         
@@ -513,73 +450,26 @@
             }
         }
 
-        // --- AI API Call: Image Generation ---
-        async function callImageAI(prompt, model) {
-            setAIGenerating(true);
-            const typingIndicator = appendMessage('ai_typing');
-            scrollToBottom();
-            
-            let aiBubble;
-
-            try {
-                // Use puter.ai.txt2img()
-                const imageElement = await puter.ai.txt2img(prompt, { 
-                    model: model,
-                    signal: abortController.signal
-                });
-                
-                typingIndicator.remove();
-                
-                // Create a content part for history
-                const imageUrl = imageElement.src; // Get the src from the returned <img>
-                const aiMessage = { role: 'model', content: [{ type: 'image_url', url: imageUrl }] };
-                chatHistory.push(aiMessage);
-                appendMessage('ai', aiMessage.content); // Pass content to appendMessage
-                saveChatHistory();
-
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    typingIndicator.remove();
-                    const aiMessage = { role: 'model', content: [{ type: 'text', text: "[Image generation stopped by user]" }] };
-                    chatHistory.push(aiMessage);
-                    appendMessage('ai_error', aiMessage.content);
-                    saveChatHistory();
-                } else {
-                    console.error('Error calling Image AI:', error);
-                    if(typingIndicator) typingIndicator.remove();
-                    if(aiBubble) aiBubble.remove();
-                    const aiMessage = { role: 'model', content: [{ type: 'text', text: `Sorry, an error occurred: ${error.message}` }] };
-                    chatHistory.push(aiMessage);
-                    appendMessage('ai_error', aiMessage.content);
-                    saveChatHistory();
-                }
-            } finally {
-                setAIGenerating(false);
-                scrollToBottom();
-            }
-        }
-
         // --- AI API Call: Chat ---
-        async function callChatAI(model) {
+        async function callChatAI(model, userMessage) {
             setAIGenerating(true);
             const typingIndicator = appendMessage('ai_typing');
             scrollToBottom();
 
             let fullResponse = "";
-            let aiBubble; // To store the AI bubble for streaming
+            let aiBubble;
             
             try {
-                // Use puter.ai.chat()
-                const response = await puter.ai.chat(chatHistory, { 
+                // *** FIX: Send just the single [userMessage] ***
+                const response = await puter.ai.chat([userMessage], { 
                     model: model, 
                     stream: true,
                     signal: abortController.signal 
                 });
                 
                 typingIndicator.remove();
-                aiBubble = appendMessage('ai', []); // Add empty bubble
+                aiBubble = appendMessage('ai', []);
                 const aiContentElement = aiBubble.querySelector('.ai-content');
-                
                 let streamedText = "";
                 
                 for await (const part of response) {
@@ -602,8 +492,7 @@
                     }
                 });
                 
-                chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
-                saveChatHistory();
+                // --- HISTORY REMOVED ---
 
             } catch (error) {
                 if (error.name === 'AbortError') {
@@ -614,15 +503,60 @@
                     } else {
                         typingIndicator.remove();
                     }
-                    chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse || "[Stopped by user]" }] });
-                    saveChatHistory();
+                     // --- HISTORY REMOVED ---
                 } else {
                     console.error('Error calling Chat AI:', error);
                     if(typingIndicator) typingIndicator.remove();
                     if(aiBubble) aiBubble.remove();
-                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred: ${error.message}` }]);
+                    
+                    // *** FIX: JSON.stringify error ***
+                    const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
+                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
                 }
             } 
+            finally {
+                setAIGenerating(false);
+                scrollToBottom();
+            }
+        }
+        
+        // --- AI API Call: Image Generation ---
+        async function callImageAI(model, prompt) {
+            setAIGenerating(true);
+            const typingIndicator = appendMessage('ai_typing');
+            scrollToBottom();
+            
+            try {
+                // Use puter.ai.txt2img()
+                const imageElement = await puter.ai.txt2img(prompt, { 
+                    model: model, 
+                    signal: abortController.signal 
+                });
+                
+                typingIndicator.remove();
+                
+                // Add class for styling
+                imageElement.className = 'generated-image w-full max-w-lg rounded-lg';
+                
+                // Create a content part and append it
+                const contentPart = { type: 'image_element', element: imageElement };
+                appendMessage('ai', [contentPart]);
+                
+                // --- HISTORY REMOVED ---
+
+            } catch (error) {
+                 if (error.name === 'AbortError') {
+                    typingIndicator.remove();
+                    appendMessage('ai', [{ type: 'text', text: "Image generation stopped." }]);
+                 } else {
+                    console.error('Error calling Image AI:', error);
+                    if(typingIndicator) typingIndicator.remove();
+                    
+                    // *** FIX: JSON.stringify error ***
+                    const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
+                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
+                }
+            }
             finally {
                 setAIGenerating(false);
                 scrollToBottom();
@@ -634,11 +568,9 @@
             const codeBlock = preElement.querySelector('code');
             if (!codeBlock) return;
 
-            // Container for buttons
             const btnContainer = document.createElement('div');
             btnContainer.className = 'absolute top-2.5 right-2.5 flex gap-2';
             
-            // Copy Button
             const copyBtn = document.createElement('button');
             copyBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
             copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
@@ -666,7 +598,6 @@
                 }
             });
             
-            // Edit/Save Button
             const editBtn = document.createElement('button');
             editBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
             editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
@@ -681,14 +612,16 @@
                     preElement.removeChild(textarea);
                     codeBlock.style.display = '';
                     editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
+                    preElement.prepend(codeBlock);
                 } else { // --- We are EDITING ---
                     textarea = document.createElement('textarea');
                     textarea.value = codeBlock.innerText;
-                    textarea.className = 'code-editor w-full h-48 bg-slate-900 text-slate-200 font-mono text-sm p-4 rounded-b-lg border-t border-slate-700 resize-y focus:outline-none';
+                    textarea.className = 'code-editor w-full h-48 bg-slate-900 text-slate-200 font-mono text-sm p-0 rounded-b-lg border-t border-slate-700 resize-y focus:outline-none';
                     textarea.style.fontFamily = 'monospace';
                     
-                    preElement.appendChild(textarea);
-                    codeBlock.style.display = 'none'; // Hide the highlighted code
+                    preElement.prepend(textarea);
+Two_c.png
+                    codeBlock.style.display = 'none';
                     editBtn.innerHTML = '<ion-icon name="save-outline" class="w-4 h-4"></ion-icon> <span>Save</span>';
                     textarea.focus();
                 }
@@ -712,9 +645,9 @@
                 
                 contentParts.forEach(part => {
                     if (part.type === 'text') {
-                        textContent = `<p class="whitespace-pre-wrap">${part.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
-                    } else if (part.type === 'image_data') {
-                        imgContent = `<img src="data:image/png;base64,${part.data}" class="rounded-lg max-w-xs mb-2 border border-blue-200">`;
+                        textContent = `<p class"whitespace-pre-wrap">${part.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
+                    } else if (part.type === 'image_url') {
+                        imgContent = `<img src="${part.image_url.url}" class="rounded-lg max-w-xs mb-2 border border-blue-200">`;
                     }
                 });
                 
@@ -724,7 +657,7 @@
                         ${textContent}
                     </div>
                     <div class="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold ml-3">
-                        <ion-icon name="person-outline" class="w-6 h-6"></ion-Gicon>
+                        <ion-icon name="person-outline" class="w-6 h-6"></ion-icon>
                     </div>
                 `;
 
@@ -733,24 +666,30 @@
                 let contentHTML = '';
                 let errorClass = type === 'ai_error' ? 'bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700' : 'bg-white dark:bg-slate-800 shadow-md';
 
+                const aiBubbleDiv = document.createElement('div');
+                aiBubbleDiv.className = `ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100`;
+                
+                const aiContentDiv = document.createElement('div');
+                aiContentDiv.className = 'ai-content prose prose-sm dark:prose-invert max-w-none';
+                
                 contentParts.forEach(part => {
                     if (part.type === 'text') {
                         contentHTML += marked.parse(part.text);
-                    } else if (part.type === 'image_url') {
-                        contentHTML += `<img src="${part.url}" class="rounded-lg max-w-full mb-2">`;
+                    } else if (part.type === 'image_element') {
+                        // Directly append the generated image element
+                        aiContentDiv.appendChild(part.element);
                     }
                 });
                 
-                bubbleContent = `
+                aiContentDiv.innerHTML += contentHTML; // Add any text content
+                aiBubbleDiv.appendChild(aiContentDiv);
+
+                bubbleWrapper.innerHTML = `
                     <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
                         <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    <div class="ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
-                        <div class="ai-content prose prose-sm dark:prose-invert max-w-none">
-                            ${contentHTML}
-                        </div>
-                    </div>
                 `;
+                bubbleWrapper.appendChild(aiBubbleDiv);
                 
             } else if (type === 'ai_typing') {
                 bubbleWrapper.classList.add('justify-start');
@@ -762,62 +701,46 @@
                         <div class="dot-flashing"></div>
                     </div>
                 `;
+                bubbleWrapper.innerHTML = bubbleContent;
             }
 
-            bubbleWrapper.innerHTML = bubbleContent;
+            if (bubbleContent) { // Only if it's not the AI bubble
+                bubbleWrapper.innerHTML = bubbleContent;
+            }
             chatLog.appendChild(bubbleWrapper);
-            return bubbleWrapper;
-        }
-        
-        function appendWelcomeMessage() {
-            if (chatHistory.length > 0) return; // Don't append if history is loaded
             
-            let text = isImageGenerationMode 
-                ? 'Hello! I\'m ready to generate images. What would you like to create?' 
-                : 'Hello! This is OpenAI. How can I help today?';
-            appendMessage('ai', [{ type: 'text', text: text }]);
-        }
-
-        function scrollToBottom() {
-            chatLog.scrollTop = chatLog.scrollHeight;
-        }
-        
-        // --- Chat History (Cache) ---
-        function saveChatHistory() {
-            localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
-        }
-        
-        function loadChatHistory() {
-            const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
-            if (savedHistory) {
-                chatHistory = JSON.parse(savedHistory);
-                chatLog.innerHTML = ''; // Clear any existing
-                chatHistory.forEach(message => {
-                    appendMessage(message.role === 'user' ? 'user' : 'ai', message.content);
-                });
-                // Re-apply code highlighting and buttons
-                chatLog.querySelectorAll('pre').forEach((preElement) => {
+            // Re-apply highlighting and buttons if it's a final AI message
+            if (type === 'ai' || type === 'ai_error') {
+                bubbleWrapper.querySelectorAll('pre').forEach((preElement) => {
                     const codeBlock = preElement.querySelector('code');
                     if (codeBlock) {
                         hljs.highlightBlock(codeBlock);
                         addCodeBlockButtons(preElement);
                     }
                 });
-            } else {
-                appendWelcomeMessage();
             }
-            scrollToBottom();
+            
+            return bubbleWrapper;
+        }
+        
+        function appendWelcomeMessage() {
+            appendMessage('ai', [{ type: 'text', text: "Hello! This is OpenAI. How can I help today? (Switch to Image mode to generate images)" }]);
         }
 
+        function scrollToBottom() {
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+        
+        // --- CHAT HISTORY (CACHE) REMOVED ---
+        
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadChatHistory();
-            updateUIForMode(); // Set initial UI based on toggle
+            updateMode(); // Populate models
+            appendWelcomeMessage(); // Add welcome
             promptInput.focus();
         });
         
     </script>
 </body>
 </html>
-
 
