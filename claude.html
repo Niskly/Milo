@@ -694,7 +694,15 @@
         }
         
         // --- Init ---
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // NEW: Authenticate anonymously to prevent login popup
+            try {
+                await puter.auth.anonymous();
+            } catch (err) {
+                console.error("Anonymous auth failed", err);
+                appendMessage('ai_error', [{ type: 'text', text: `Failed to authenticate with Puter: \n\`\`\`\n${err.message}\n\`\`\`` }]);
+            }
+            
             initModelDropdown(); // Set up the custom dropdown
             appendWelcomeMessage();
             promptInput.focus();
@@ -710,4 +718,5 @@
     </script>
 </body>
 </html>
+
 
