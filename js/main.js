@@ -1,16 +1,10 @@
 /*
  * My AI App - Main JavaScript
- * Handles:
- * 1. Theme (Dark/Light) logic
- * 2. Loading the navbar component
- * 3. Making the navbar interactive (menus, active links)
+ * Handles: Theme, Navbar loading, and Interactions
  */
 
 // --- 1. Theme Logic ---------------------------------------------------------
 
-/**
- * Toggles the theme between 'light' and 'dark' and saves it.
- */
 function toggleTheme() {
     const theme = localStorage.getItem('theme') || 'light';
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -18,32 +12,28 @@ function toggleTheme() {
     applyTheme();
 }
 
-/**
- * Applies the saved theme to the <html> tag and updates button icons.
- */
 function applyTheme() {
     const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     
-    // Select *all* theme toggle buttons (desktop and mobile)
-    const themeToggleBtns = [
-        document.getElementById('theme-toggle-btn'),
-        document.getElementById('theme-toggle-btn-mobile')
-    ];
-
     if (theme === 'dark') {
         document.documentElement.classList.add('dark');
     } else {
         document.documentElement.classList.remove('dark');
     }
 
-    themeToggleBtns.forEach(btn => {
-        if (!btn) return; // Skip if the button isn't on the page
+    // Update all theme toggle buttons
+    const themeToggleBtns = [
+        document.getElementById('theme-toggle-btn'),
+        document.getElementById('theme-toggle-btn-mobile')
+    ];
 
-        // Find icons within this specific button
+    themeToggleBtns.forEach(btn => {
+        if (!btn) return;
+
         const moonIcon = btn.querySelector('ion-icon[name="moon-outline"]');
         const sunIcon = btn.querySelector('ion-icon[name="sunny-outline"]');
 
-        if (!moonIcon || !sunIcon) return; // Skip if icons aren't found
+        if (!moonIcon || !sunIcon) return;
 
         if (theme === 'dark') {
             moonIcon.style.display = 'none';
@@ -57,9 +47,6 @@ function applyTheme() {
 
 // --- 2. Navbar Loading ------------------------------------------------------
 
-/**
- * Fetches the navbar HTML and injects it into the placeholder.
- */
 async function loadNavbar() {
     const placeholder = document.getElementById('navbar-placeholder');
     if (!placeholder) {
@@ -68,14 +55,12 @@ async function loadNavbar() {
     }
 
     try {
-        // We assume navbar.html is in a 'components' folder relative to the root
         const response = await fetch('components/navbar.html');
         if (!response.ok) throw new Error('Navbar component not found.');
         
         const navbarHTML = await response.text();
         placeholder.innerHTML = navbarHTML;
         
-        // After loading, make it interactive
         initNavbar();
 
     } catch (error) {
@@ -84,20 +69,29 @@ async function loadNavbar() {
     }
 }
 
-/**
- * Attaches event listeners to the newly loaded navbar.
- */
 function initNavbar() {
     const dropdownToggle = document.getElementById('dropdown-toggle');
     const dropdownMenu = document.getElementById('dropdown-menu');
+    const dropdownIcon = document.getElementById('dropdown-icon');
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
 
     // Desktop Dropdown
     if (dropdownToggle) {
         dropdownToggle.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent window click from firing immediately
+            e.stopPropagation();
             dropdownMenu.classList.toggle('hidden');
+            
+            // Rotate icon
+            if (dropdownIcon) {
+                if (dropdownMenu.classList.contains('hidden')) {
+                    dropdownIcon.style.transform = 'rotate(0deg)';
+                } else {
+                    dropdownIcon.style.transform = 'rotate(180deg)';
+                }
+            }
         });
     }
     
@@ -105,10 +99,21 @@ function initNavbar() {
     if (mobileMenuBtn) {
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
+            
+            // Toggle icons
+            if (menuIcon && closeIcon) {
+                if (mobileMenu.classList.contains('hidden')) {
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                } else {
+                    menuIcon.classList.add('hidden');
+                    closeIcon.classList.remove('hidden');
+                }
+            }
         });
     }
     
-    // Theme Toggle Buttons (FIXED: Attach to both)
+    // Theme Toggle Buttons
     const themeToggleBtns = [
         document.getElementById('theme-toggle-btn'),
         document.getElementById('theme-toggle-btn-mobile')
@@ -124,19 +129,19 @@ function initNavbar() {
     window.addEventListener('click', (e) => {
         if (dropdownMenu && !dropdownMenu.classList.contains('hidden') && !dropdownToggle.contains(e.target)) {
             dropdownMenu.classList.add('hidden');
+            if (dropdownIcon) {
+                dropdownIcon.style.transform = 'rotate(0deg)';
+            }
         }
     });
 
-    // Set the active link and apply the theme
     setActiveNav();
-    applyTheme(); // Apply theme icons *after* navbar is loaded
+    applyTheme();
 }
 
-/**
- * Finds the current page and highlights the correct nav link.
- */
+// --- 3. Active Nav Link Highlighting ----------------------------------------
+
 function setActiveNav() {
-    // Get the current page (e.g., "index.html" -> "index")
     let currentPage = window.location.pathname.split('/').pop();
     if (currentPage === '' || currentPage === 'index.html') {
         currentPage = 'index';
@@ -150,23 +155,19 @@ function setActiveNav() {
         const linkPage = link.getAttribute('data-page');
         
         if (linkPage === currentPage) {
-            // Apply active styles (for new inverted navbar)
-            link.classList.add('font-bold', 'text-white', 'dark:text-black');
-            link.classList.remove('text-gray-300', 'dark:text-gray-600'); // Remove default
+            // Active styles
+            link.classList.add('font-semibold', 'text-white', 'dark:text-black', 'bg-gray-800', 'dark:bg-gray-100');
+            link.classList.remove('text-gray-300', 'dark:text-gray-700');
         } else {
-            // Apply default styles (for new inverted navbar)
-            link.classList.add('text-gray-300', 'dark:text-gray-600');
-            link.classList.remove('font-bold', 'text-white', 'dark:text-black');
+            // Default styles
+            link.classList.add('text-gray-300', 'dark:text-gray-700');
+            link.classList.remove('font-semibold', 'text-white', 'dark:text-black', 'bg-gray-800', 'dark:bg-gray-100');
         }
     });
 }
 
+// --- 4. Initial Execution ---------------------------------------------------
 
-// --- 3. Initial Execution ---------------------------------------------------
-
-/**
- * Applies the theme *before* DOM content is fully loaded to prevent flicker.
- */
 function applyInitialTheme() {
     const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     if (theme === 'dark') {
@@ -178,6 +179,4 @@ function applyInitialTheme() {
 
 applyInitialTheme();
 
-// When the DOM is loaded, load the navbar
 document.addEventListener('DOMContentLoaded', loadNavbar);
-
