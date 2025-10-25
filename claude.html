@@ -97,21 +97,17 @@
         // Set theme on initial load
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
         } else {
             document.documentElement.classList.remove('dark');
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f1f5f9');
         }
 
         function toggleTheme() {
             if (localStorage.theme === 'dark') {
                 localStorage.theme = 'light';
                 document.documentElement.classList.remove('dark');
-                document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f1f5f9');
             } else {
                 localStorage.theme = 'dark';
                 document.documentElement.classList.add('dark');
-                document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
             }
         }
     </script>
@@ -474,7 +470,9 @@
                     if(typingIndicator) typingIndicator.remove();
                     if(aiBubble) aiBubble.remove();
                     // *** FIX IS HERE ***
-                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred: ${error}` }]);
+                    // Convert the error object to a readable string
+                    const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
+                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
                 }
             } 
             finally {
@@ -535,13 +533,16 @@
                     preElement.removeChild(textarea);
                     codeBlock.style.display = '';
                     editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
+                    // Re-add the code block itself to the pre element's content for highlighting
+                    preElement.prepend(codeBlock);
                 } else { // --- We are EDITING ---
                     textarea = document.createElement('textarea');
                     textarea.value = codeBlock.innerText;
-                    textarea.className = 'code-editor w-full h-48 bg-slate-900 text-slate-200 font-mono text-sm p-4 rounded-b-lg border-t border-slate-700 resize-y focus:outline-none';
+                    textarea.className = 'code-editor w-full h-48 bg-slate-900 text-slate-200 font-mono text-sm p-0 rounded-b-lg border-t border-slate-700 resize-y focus:outline-none';
                     textarea.style.fontFamily = 'monospace';
                     
-                    preElement.appendChild(textarea);
+                    // Clear pre element and add textarea
+                    preElement.prepend(textarea);
                     codeBlock.style.display = 'none'; // Hide the highlighted code
                     editBtn.innerHTML = '<ion-icon name="save-outline" class="w-4 h-4"></ion-icon> <span>Save</span>';
                     textarea.focus();
@@ -566,7 +567,7 @@
                 
                 contentParts.forEach(part => {
                     if (part.type === 'text') {
-                        textContent = `<p class="whitespace-pre-wrap">${part.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
+                        textContent = `<p class"whitespace-pre-wrap">${part.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
                     } else if (part.type === 'image_data') {
                         imgContent = `<img src="data:image/png;base64,${part.data}" class="rounded-lg max-w-xs mb-2 border border-blue-200">`;
                     }
@@ -589,6 +590,7 @@
 
                 contentParts.forEach(part => {
                     if (part.type === 'text') {
+                        // We use marked.parse which handles escaping, so raw text is fine
                         contentHTML += marked.parse(part.text);
                     }
                 });
@@ -597,7 +599,7 @@
                     <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
                         <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    <div class="ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
+                    <div classa="ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
                         <div class="ai-content prose prose-sm dark:prose-invert max-w-none">
                             ${contentHTML}
                         </div>
@@ -618,6 +620,18 @@
 
             bubbleWrapper.innerHTML = bubbleContent;
             chatLog.appendChild(bubbleWrapper);
+            
+            // Re-apply highlighting and buttons if it's a final AI message
+            if (type === 'ai' || type === 'ai_error') {
+                bubbleWrapper.querySelectorAll('pre').forEach((preElement) => {
+                    const codeBlock = preElement.querySelector('code');
+                    if (codeBlock) {
+                        hljs.highlightBlock(codeBlock);
+                        addCodeBlockButtons(preElement);
+                    }
+                });
+            }
+            
             return bubbleWrapper;
         }
         
@@ -642,15 +656,6 @@
                 chatLog.innerHTML = ''; // Clear any existing
                 chatHistory.forEach(message => {
                     appendMessage(message.role === 'user' ? 'user' : 'ai', message.content);
-                });
-                
-                // Re-apply code highlighting and buttons
-                chatLog.querySelectorAll('pre').forEach((preElement) => {
-                    const codeBlock = preElement.querySelector('code');
-                    if (codeBlock) {
-                        hljs.highlightBlock(codeBlock);
-                        addCodeBlockButtons(preElement);
-                    }
                 });
             } else {
                 appendWelcomeMessage();
