@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My AI App - Home</title>
+    <title>My AI App - Powerful AI Chat</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.puter.com/v2/"></script>
@@ -38,20 +38,12 @@
         }
     </style>
     
-    <script>
-        // Apply theme immediately to prevent flash
-        function applyInitialTheme() {
-            const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-        applyInitialTheme();
-    </script>
+    <script src="js/main.js"></script>
 </head>
 <body class="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
+
+    <!-- Navigation Bar Placeholder -->
+    <div id="navbar-placeholder"></div>
 
     <main>
         <!-- Hero Section -->
@@ -150,62 +142,5 @@
             </p>
         </div>
     </footer>
-
-    <script>
-        function toggleTheme() {
-            const theme = localStorage.getItem('theme') || 'light';
-            const newTheme = theme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
-            applyTheme();
-        }
-
-        function applyTheme() {
-            const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const dropdownToggle = document.getElementById('dropdown-toggle');
-            const dropdownMenu = document.getElementById('dropdown-menu');
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const themeToggleBtn = document.getElementById('theme-toggle-btn');
-            const themeToggleBtnMobile = document.getElementById('theme-toggle-btn-mobile');
-
-            if (dropdownToggle) {
-                dropdownToggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('hidden');
-                });
-            }
-
-            if (mobileMenuBtn) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                });
-            }
-
-            if (themeToggleBtn) {
-                themeToggleBtn.addEventListener('click', toggleTheme);
-            }
-
-            if (themeToggleBtnMobile) {
-                themeToggleBtnMobile.addEventListener('click', toggleTheme);
-            }
-
-            window.addEventListener('click', (e) => {
-                if (dropdownMenu && !dropdownMenu.classList.contains('hidden') && !dropdownToggle.contains(e.target)) {
-                    dropdownMenu.classList.add('hidden');
-                }
-            });
-
-            applyTheme();
-        });
-    </script>
 </body>
 </html>
