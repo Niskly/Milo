@@ -1,7 +1,8 @@
-
-
 <!DOCTYPE html>
-<html lang="en">
+<!-- 
+  FIX: Set permanently to dark mode.
+-->
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,6 +23,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
     
+    <!-- 5. Main JS (for navbar) -->
+    <script src="js/main.js" defer></script>
+
     <style>
         /* --- General Styles --- */
         html {
@@ -29,32 +33,34 @@
             scroll-behavior: smooth;
         }
         
-        /* --- Scrollbar --- */
-        #chat-log { scrollbar-width: thin; scrollbar-color: #9ca3af #f1f5f9; }
+        /* FIX: Swapped to light scrollbar to match white chat log
+        */
+        #chat-log { 
+            scrollbar-width: thin; 
+            scrollbar-color: #9ca3af #ffffff; /* gray-400, white */
+        }
         #chat-log::-webkit-scrollbar { width: 6px; }
-        #chat-log::-webkit-scrollbar-track { background: #f1f5f9; }
-        #chat-log::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 3px; }
-        
-        .dark #chat-log { scrollbar-color: #4b5563 #1e293b; }
-        .dark #chat-log::-webkit-scrollbar-track { background: #1e293b; }
-        .dark #chat-log::-webkit-scrollbar-thumb { background: #4b5563; }
+        #chat-log::-webkit-scrollbar-track { background: #ffffff; } /* white */
+        #chat-log::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 3px; } /* gray-400 */
 
-        /* --- Chat Bubble Content Styling (prose-*) --- */
+        /* FIX: Swapped to light chat bubble content
+        */
         .ai-content p { @apply mb-4 last:mb-0; }
         .ai-content ul, .ai-content ol { @apply list-inside mb-4 pl-2 space-y-1; }
         .ai-content ul { @apply list-disc; }
         .ai-content ol { @apply list-decimal; }
         .ai-content li { @apply leading-relaxed; }
-        .ai-content code:not(pre code) { @apply text-sm bg-slate-200 dark:bg-slate-700 rounded px-1.5 py-0.5 font-mono; }
-        .ai-content pre { @apply bg-slate-900 rounded-lg p-4 mb-4 relative text-sm overflow-x-auto; }
+        .ai-content code:not(pre code) { @apply text-sm bg-gray-200 text-black rounded px-1.5 py-0.5 font-mono; }
+        .ai-content pre { @apply bg-gray-900 rounded-lg p-4 mb-4 relative text-sm overflow-x-auto; }
         .ai-content a { @apply text-blue-500 hover:underline; }
-        .ai-content img { @apply rounded-lg border border-slate-200 dark:border-slate-700; }
+        .ai-content img { @apply rounded-lg border border-gray-200; }
         .ai-content .generated-image { @apply border-4 border-blue-500/50 rounded-lg; }
 
-        /* --- AI Typing Spinner --- */
+        /* FIX: Swapped to light typing spinner
+        */
         .dot-flashing {
             position: relative; width: 6px; height: 6px;
-            border-radius: 50%; @apply bg-slate-500;
+            border-radius: 50%; @apply bg-gray-500;
             animation: dotFlashing 1s infinite linear alternate;
             animation-delay: .5s;
         }
@@ -64,165 +70,139 @@
         }
         .dot-flashing::before {
             left: -10px; width: 6px; height: 6px;
-            border-radius: 50%; @apply bg-slate-500;
+            border-radius: 50%; @apply bg-gray-500;
             animation: dotFlashing 1s infinite alternate;
             animation-delay: 0s;
         }
         .dot-flashing::after {
             left: 10px; width: 6px; height: 6px;
-            border-radius: 50%; @apply bg-slate-500;
+            border-radius: 50%; @apply bg-gray-500;
             animation: dotFlashing 1s infinite alternate;
             animation-delay: 1s;
         }
         @keyframes dotFlashing {
-            0% { @apply bg-slate-500; }
-            50%, 100% { @apply bg-slate-300; }
-        }
-        .dark .dot-flashing, .dark .dot-flashing::before, .dark .dot-flashing::after { @apply bg-slate-400; }
-        .dark @keyframes dotFlashing {
-            0% { @apply bg-slate-400; }
-            50%, 100% { @apply bg-slate-600; }
+            0% { @apply bg-gray-500; }
+            50%, 100% { @apply bg-gray-300; }
         }
         
-        /* --- Input Textarea --- */
+        /* FIX: Swapped to dark input textarea scrollbar
+        */
         #prompt-input {
             scrollbar-width: thin;
-            scrollbar-color: #9ca3af #f1f5f9;
+            scrollbar-color: #374151 #1f2937; /* gray-700, gray-800 */
         }
         #prompt-input::-webkit-scrollbar { width: 4px; }
         #prompt-input::-webkit-scrollbar-track { background: transparent; }
-        #prompt-input::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 2px; }
-        .dark #prompt-input { scrollbar-color: #4b5563 #1e293b; }
-        .dark #prompt-input::-webkit-scrollbar-thumb { background: #4b5563; }
+        #prompt-input::-webkit-scrollbar-thumb { background: #374151; border-radius: 2px; }
         
-        /* --- Mode Toggle Switch --- */
-        .toggle-bg:after {
-            content: '';
-            @apply absolute top-0.5 left-0.5 bg-white rounded-full h-7 w-7 transition shadow-md;
+        /* FIX: Added bubble button styles from claude.html
+        */
+        .ai-bubble .bubble-btn {
+            @apply absolute top-1.5 right-1.5 p-1.5 text-gray-500 bg-white/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-200 hover:text-black;
         }
-        input:checked + .toggle-bg:after {
-            transform: translateX(100%);
-            @apply translate-x-full;
+        .user-bubble .bubble-btn {
+            @apply p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg;
         }
-        input:checked + .toggle-bg {
-            @apply bg-purple-600;
+        .code-btn-container .bubble-btn {
+             @apply text-gray-300 bg-gray-800/50 hover:bg-gray-700 hover:text-white;
         }
     </style>
     
-    <script>
-        // Set theme on initial load
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-
-        function toggleTheme() {
-            if (localStorage.theme === 'dark') {
-                localStorage.theme = 'light';
-                document.documentElement.classList.remove('dark');
-            } else {
-                localStorage.theme = 'dark';
-                document.documentElement.classList.add('dark');
-            }
-        }
-    </script>
+    <!-- 
+      FIX: Old theme script removed
+    -->
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 flex flex-col h-screen overflow-hidden">
+<!-- 
+  FIX: Body is black, provides the frame.
+-->
+<body class="bg-black text-white transition-colors duration-300 flex flex-col h-screen overflow-hidden">
 
-    <!-- ========== Navigation Bar ========== -->
-    <nav class="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo/Brand -->
-                <div class="flex-shrink-0 flex items-center gap-2">
-                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                    <span class="text-xl font-bold">My AI App</span>
-                </div>
-                
-                <!-- Desktop Links -->
-                <div class="hidden md:flex items-center space-x-4">
-                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Home</a>
-                    
-                    <!-- Dropdown -->
-                    <div class="relative" id="dropdown-toggle">
-                        <button class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
-                            <span>Chat Models</span>
-                            <ion-icon name="chevron-down-outline" class="w-4 h-4 ml-1"></ion-icon>
-                        </button>
-                        <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1">
-                            <a href="claude.html" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">Claude</a>
-                            <a href="openai.html" class="block px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-slate-100 dark:bg-slate-900">OpenAI</a>
-                        </div>
-                    </div>
-                    
-                    <!-- Theme Toggle -->
-                    <button onclick="toggleTheme()" class="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <ion-icon name="moon-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
-                        <ion-icon name="sunny-outline" class="w-5 h-5 block dark:hidden"></ion-icon>
-                    </button>
-                </div>
-                
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden flex items-center">
-                     <button onclick="toggleTheme()" class="p-2 mr-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <ion-icon name="moon-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
-                        <ion-icon name="sunny-outline" class="w-5 h-5 block dark:hidden"></ion-icon>
-                    </button>
-                    <button id="mobile-menu-btn" class="p-2 rounded-md text-slate-600 dark:text-slate-300">
-                        <ion-icon name="menu-outline" class="w-6 h-6"></ion-icon>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Home</a>
-            <a href="claude.html" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Claude</a>
-            <a href="openai.html" class="block px-3 py-2 rounded-md text-base font-medium text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800">OpenAI</a>
-        </div>
-    </nav>
+    <!-- 
+      FIX: Navbar placeholder
+    -->
+    <div id="navbar-placeholder"></div>
 
-    <!-- ========== Chat Section ========== -->
-    <div class="flex-1 flex flex-col h-full min-h-0 relative">
-        <!-- Chat Log -->
-        <main id="chat-log" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+    <!-- 
+      ========== Chat Section ========== 
+      FIX: Added "bg-white" to this parent container. 
+    -->
+    <div class="flex-1 flex flex-col h-full min-h-0 relative bg-white">
+        <!-- 
+          Chat Log
+          FIX: Set to bg-white and text-black
+          FIX: Added pb-48 for padding
+        -->
+        <main id="chat-log" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-white text-black pb-48">
             <!-- Messages will be injected here by JavaScript -->
         </main>
 
-        <!-- Gradient fade at the bottom -->
-        <div class="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-slate-100 dark:from-slate-900 to-transparent pointer-events-none"></div>
+        <!-- 
+          FIX: Old gradient fade removed
+        -->
 
-        <!-- Chat Input Footer -->
-        <footer class="sticky bottom-0 p-4 md:p-6 bg-transparent z-10">
+        <!-- 
+          Chat Input Footer
+          FIX: Set to sticky, transparent bg
+        -->
+        <footer class="sticky bottom-0 p-4 md:p-6 z-10">
             
-            <!-- STOP GENERATING BUTTON -->
+            <!-- STOP GENERATING BUTTON (Dark style) -->
             <div id="stop-btn-container" class="flex justify-center mb-2 hidden">
-                <button id="stop-btn" class="flex items-center gap-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:bg-slate-50 dark:hover:bg-slate-600 transition">
+                <button id="stop-btn" class="flex items-center gap-2 bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:bg-gray-700 transition">
                     <ion-icon name="stop-circle-outline" class="w-5 h-5"></ion-icon>
                     Stop Generating
                 </button>
             </div>
 
-            <!-- Main Input Area -->
-            <form id="chat-form" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl p-3 flex flex-col w-full max-w-4xl mx-auto">
-                <!-- Top row: Mode, Model select, Image preview -->
-                <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap gap-2">
+            <!-- 
+              Main Input Area
+              FIX: Re-styled to "black black" floating box
+              FIX: Re-structured layout (textarea top, controls bottom)
+            -->
+            <form id="chat-form" class="bg-black border border-gray-700 rounded-2xl shadow-2xl p-2.5 flex flex-col w-full max-w-4xl mx-auto">
+                
+                <!-- TEXT INPUT (Dark style) - NOW ON TOP -->
+                <textarea id="prompt-input" class="flex-1 p-2.5 bg-transparent focus:outline-none resize-none max-h-48 text-white placeholder:text-gray-400" placeholder="Chat with OpenAI..." rows="1" oninput="autoGrow(this)"></textarea>
+
+                <!-- Bottom row: Controls -->
+                <div class="flex items-center justify-between w-full mt-2 min-h-[40px] flex-wrap gap-2">
+                    
+                    <!-- Left-side controls -->
                     <div class="flex items-center gap-2 flex-wrap">
                         
-                        <!-- MODE TOGGLE -->
-                        <div class="flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                            <span class="text-sm font-medium ml-2 text-slate-700 dark:text-slate-200">Chat</span>
+                        <!-- FILE UPLOAD (Dark style) -->
+                        <label id="file-upload-label" for="file-upload" class="cursor-pointer text-gray-400 hover:text-blue-400 p-2.5 rounded-lg hover:bg-gray-800 transition">
+                            <ion-icon name="attach-outline" class="w-6 h-6"></ion-icon>
+                        </label>
+                        <input type="file" id="file-upload" accept="image/*" class="hidden">
+                        
+                        <!-- NEW: Sign In Button -->
+                        <button type="button" id="sign-in-btn" class="flex items-center gap-2 bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition">
+                            <ion-icon name="log-in-outline" class="w-5 h-5"></ion-icon>
+                            <span>Sign In</span>
+                        </button>
+                        
+                        <!-- MODE TOGGLE (Dark style) -->
+                        <div class="flex items-center gap-2 p-1 bg-gray-800 border border-gray-700 rounded-lg">
+                            <span class="text-sm font-medium ml-2 text-gray-200">Chat</span>
                             <label for="mode-toggle" class="flex items-center cursor-pointer">
                                 <input type="checkbox" id="mode-toggle" class="hidden">
-                                <div class="relative toggle-bg bg-slate-300 dark:bg-slate-600 w-14 h-8 rounded-full transition-colors"></div>
+                                <!-- 
+                                  FIX: Replaced old toggle style with new one
+                                -->
+                                <div class="relative toggle-bg bg-gray-600 w-11 h-6 rounded-full transition-colors">
+                                  <div class="absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform transform"></div>
+                                </div>
+                                <style>
+                                    input:checked + .toggle-bg { @apply bg-purple-600; }
+                                    input:checked + .toggle-bg div { @apply translate-x-5; }
+                                </style>
                             </label>
-                            <span class="text-sm font-medium mr-2 text-slate-700 dark:text-slate-200">Image</span>
+                            <span class="text-sm font-medium mr-2 text-gray-200">Image</span>
                         </div>
                         
-                        <!-- MODEL SELECT -->
-                        <select id="model-select" name="model" class="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none cursor-pointer">
+                        <!-- MODEL SELECT (Dark style) -->
+                        <select id="model-select" name="model" class="bg-gray-800 border border-gray-700 text-white rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none cursor-pointer">
                             <!-- Options will be added by JS -->
                         </select>
                         
@@ -232,23 +212,16 @@
                             <button id="remove-image" type="button" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">&times;</button>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Bottom row: Upload, Textarea, Send -->
-                <div class="flex items-start gap-3">
-                    <!-- FILE UPLOAD -->
-                    <label id="file-upload-label" for="file-upload" class="cursor-pointer text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-                        <ion-icon name="attach-outline" class="w-6 h-6"></ion-icon>
-                    </label>
-                    <input type="file" id="file-upload" accept="image/*" class="hidden">
-                    
-                    <!-- TEXT INPUT -->
-                    <textarea id="prompt-input" class="flex-1 p-3 bg-transparent focus:outline-none resize-none max-h-48" placeholder="Chat with OpenAI..." rows="1" oninput="autoGrow(this)"></textarea>
-                    
-                    <!-- SEND BUTTON -->
-                    <button type="submit" id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg transition duration-200 self-end disabled:bg-slate-400 disabled:dark:bg-slate-600 disabled:cursor-not-allowed">
-                        <ion-icon name="arrow-up-outline" class="w-6 h-6"></ion-icon>
-                    </button>
+
+                    <!-- Right-side controls -->
+                    <div class="flex items-center">
+                        <!-- 
+                          SEND BUTTON (Dark style)
+                        -->
+                        <button type="submit" id="send-btn" class="bg-white hover:bg-gray-200 text-black font-bold p-2.5 rounded-full transition duration-200 self-end disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed w-10 h-10 flex items-center justify-center">
+                            <ion-icon name="arrow-up-outline" class="w-5 h-5"></ion-icon>
+                        </button>
+                    </div>
                 </div>
             </form>
         </footer>
@@ -257,22 +230,7 @@
     <!-- ========== JavaScript Logic ========== -->
     <script>
         // --- Navigation Logic ---
-        const dropdownToggle = document.getElementById('dropdown-toggle');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        if (dropdownToggle) {
-            dropdownToggle.addEventListener('click', () => dropdownMenu.classList.toggle('hidden'));
-        }
-        if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-        }
-        window.addEventListener('click', (e) => {
-            if (dropdownToggle && !dropdownToggle.contains(e.target)) {
-                dropdownMenu.classList.add('hidden');
-            }
-        });
+        // FIX: Removed all old nav logic, will be handled by main.js
 
         // --- Textarea Auto-grow ---
         function autoGrow(element) {
@@ -295,6 +253,10 @@
         const stopBtn = document.getElementById('stop-btn');
         const modeToggle = document.getElementById('mode-toggle');
         
+        // NEW: Sign-in globals
+        const signInBtn = document.getElementById('sign-in-btn');
+        let isSignedIn = false; // Track sign-in state
+
         // --- HISTORY REMOVED ---
         let attachedImageBase64 = null;
         let isAIGenerating = false;
@@ -323,6 +285,9 @@
         removeImageBtn.addEventListener('click', clearAttachment);
         stopBtn.addEventListener('click', stopGeneration);
         modeToggle.addEventListener('change', updateMode);
+        
+        // NEW: Sign-in listener
+        signInBtn.addEventListener('click', handleSignIn);
         
         promptInput.addEventListener('paste', (e) => {
             if (modeToggle.checked) return; // No pasting images in image mode
@@ -388,13 +353,53 @@
             fileUpload.value = null;
         }
 
+        // --- NEW: Sign-In Logic ---
+        async function handleSignIn() {
+            if (isSignedIn) return;
+            
+            console.log("Attempting to sign in...");
+            try {
+                // signIn() will open a popup and resolve when complete
+                const result = await puter.auth.signIn();
+                
+                // Check result
+                if (result === true) {
+                    console.log("Sign-in successful.");
+                    isSignedIn = true;
+                    signInBtn.classList.add('hidden');
+                } else {
+                    // This case handles if the popup is closed or doesn't return true
+                    console.warn("Sign-in completed, but with an unexpected result. Please try again.", result);
+                    // Don't hide the button, let them try again
+                }
+            } catch (err) {
+                // This catch block handles popup failures or other exceptions
+                console.error("Sign-in failed:", err);
+                let errorMsg = "Sign-in failed. Please try again.";
+                if (err && err.message) {
+                    errorMsg = `Sign-in failed: ${err.message}`;
+                } else if (typeof err === 'string') {
+                    errorMsg = err;
+                }
+                appendMessage('ai_error', [{ type: 'text', text: errorMsg }]);
+            }
+        }
+
         // --- Main Send Logic ---
         async function handleSendMessage(e) {
             e.preventDefault();
             if (isAIGenerating) return;
             
+            // NEW: Trigger sign-in if not already signed in
+            if (!isSignedIn) {
+                await handleSignIn();
+                if (!isSignedIn) { // If sign-in failed or was cancelled
+                    return; 
+                }
+            }
+            
             const promptText = promptInput.value.trim();
-            if (!promptText) return; // Always need text
+            if (!promptText && !attachedImageBase64) return;
             
             const model = modelSelect.value;
             const isImageMode = modeToggle.checked;
@@ -402,17 +407,17 @@
             // Construct user message
             const userMessageParts = [];
             if (attachedImageBase64 && !isImageMode) { // Only attach images in chat mode
-                const base64Data = attachedImageBase64.split(',')[1];
                 // OpenAI API format for inline images
-                userMessageParts.push({ type: 'image_url', image_url: { url: `data:image/png;base64,${base64Data}` } });
+                userMessageParts.push({ type: 'image_url', image_url: { url: attachedImageBase64 } });
             }
             
-            // Always add text
-            userMessageParts.push({ type: 'text', text: promptText });
+            if(promptText) {
+                userMessageParts.push({ type: 'text', text: promptText });
+            }
             
-            // *** 'content' property is the fix ***
             const userMessage = { role: 'user', content: userMessageParts };
-            appendMessage('user', userMessage.content);
+            // Pass the raw text to appendMessage
+            appendMessage('user', userMessage.content, promptText);
             
             // Clear input
             promptInput.value = '';
@@ -454,6 +459,13 @@
 
         // --- AI API Call: Chat ---
         async function callChatAI(model, userMessage) {
+            // NEW: Hide button on first AI call
+            if (!isSignedIn) {
+                await handleSignIn();
+                if (!isSignedIn) return;
+            }
+            signInBtn.classList.add('hidden'); // Hide button
+            
             setAIGenerating(true);
             const typingIndicator = appendMessage('ai_typing');
             scrollToBottom();
@@ -470,7 +482,7 @@
                 });
                 
                 typingIndicator.remove();
-                aiBubble = appendMessage('ai', []);
+                aiBubble = appendMessage('ai', []); // Empty array
                 const aiContentElement = aiBubble.querySelector('.ai-content');
                 let streamedText = "";
                 
@@ -486,34 +498,34 @@
 
                 // Final processing
                 aiContentElement.innerHTML = marked.parse(fullResponse);
-                aiContentElement.querySelectorAll('pre').forEach((preElement) => {
+                addAiBubbleButtons(aiBubble, fullResponse); // Add copy button for whole message
+                
+                aiBubble.querySelectorAll('pre').forEach((preElement) => {
                     const codeBlock = preElement.querySelector('code');
                     if (codeBlock) {
-                        hljs.highlightBlock(codeBlock);
-                        addCodeBlockButtons(preElement);
+                        // FIX: Use highlightElement
+                        hljs.highlightElement(codeBlock); 
+                        addCodeBlockButtons(preElement); // Add copy button for code block
                     }
                 });
                 
-                // --- HISTORY REMOVED ---
-
             } catch (error) {
                 if (error.name === 'AbortError') {
                     if (aiBubble) {
                         const aiContentElement = aiBubble.querySelector('.ai-content');
                         fullResponse = aiContentElement.innerText + " ... [Stopped by user]";
                         aiContentElement.innerHTML = marked.parse(fullResponse);
+                        addAiBubbleButtons(aiBubble, fullResponse);
                     } else {
                         typingIndicator.remove();
                     }
-                     // --- HISTORY REMOVED ---
                 } else {
                     console.error('Error calling Chat AI:', error);
                     if(typingIndicator) typingIndicator.remove();
                     if(aiBubble) aiBubble.remove();
                     
-                    // *** FIX: JSON.stringify error ***
-                    const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
-                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
+                    const errorString = (typeof error === 'string') ? error : (error.message ? error.message : JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an API error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }], errorString);
                 }
             } 
             finally {
@@ -524,6 +536,13 @@
         
         // --- AI API Call: Image Generation ---
         async function callImageAI(model, prompt) {
+            // NEW: Hide button on first AI call
+            if (!isSignedIn) {
+                await handleSignIn();
+                if (!isSignedIn) return;
+            }
+            signInBtn.classList.add('hidden'); // Hide button
+            
             setAIGenerating(true);
             const typingIndicator = appendMessage('ai_typing');
             scrollToBottom();
@@ -537,26 +556,21 @@
                 
                 typingIndicator.remove();
                 
-                // Add class for styling
                 imageElement.className = 'generated-image w-full max-w-lg rounded-lg';
                 
-                // Create a content part and append it
                 const contentPart = { type: 'image_element', element: imageElement };
                 appendMessage('ai', [contentPart]);
                 
-                // --- HISTORY REMOVED ---
-
             } catch (error) {
                  if (error.name === 'AbortError') {
                     typingIndicator.remove();
-                    appendMessage('ai', [{ type: 'text', text: "Image generation stopped." }]);
+                    appendMessage('ai', [{ type: 'text', text: "Image generation stopped." }], "Image generation stopped.");
                  } else {
                     console.error('Error calling Image AI:', error);
                     if(typingIndicator) typingIndicator.remove();
                     
-                    // *** FIX: JSON.stringify error ***
-                    const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
-                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
+                    const errorString = (typeof error === 'string') ? error : (error.message ? error.message : JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }], errorString);
                 }
             }
             finally {
@@ -566,99 +580,159 @@
         }
 
         // --- DOM Manipulation ---
+        
+        // NEW: Generic copy function
+        function copyToClipboard(text, buttonElement) {
+            try {
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.value = text;
+                tempTextarea.style.position = 'absolute';
+                tempTextarea.style.left = '-9999px';
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextarea);
+                
+                buttonElement.innerHTML = '<ion-icon name="checkmark-outline" class="w-4 h-4"></ion-icon>';
+                setTimeout(() => { 
+                    buttonElement.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon>';
+                }, 2000);
+            } catch (err) {
+                buttonElement.innerHTML = '<ion-icon name="alert-circle-outline" class="w-4 h-4"></ion-icon>';
+            }
+        }
+
+        // NEW: Adds copy button to the main AI bubble
+        function addAiBubbleButtons(aiBubbleWrapper, rawText) {
+             const aiBubble = aiBubbleWrapper.querySelector('.ai-bubble');
+             if (!aiBubble) return;
+             
+             const escapedText = rawText.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
+
+             const copyBtn = document.createElement('button');
+             copyBtn.className = 'bubble-btn';
+             copyBtn.title = 'Copy text';
+             copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon>';
+             copyBtn.onclick = () => copyToClipboard(escapedText, copyBtn);
+             
+             aiBubble.classList.add('group'); // Add group for hover effect
+             aiBubble.appendChild(copyBtn);
+        }
+
+        // UPDATED: Adds buttons to code blocks
         function addCodeBlockButtons(preElement) {
             const codeBlock = preElement.querySelector('code');
             if (!codeBlock) return;
 
             const btnContainer = document.createElement('div');
-            btnContainer.className = 'absolute top-2.5 right-2.5 flex gap-2';
+            btnContainer.className = 'code-btn-container absolute top-2 right-2 flex gap-2';
             
+            // --- Copy Button ---
             const copyBtn = document.createElement('button');
-            copyBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
-            copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
+            copyBtn.className = 'bubble-btn';
+            copyBtn.title = 'Copy code';
+            copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon>';
+            copyBtn.onclick = () => copyToClipboard(codeBlock.innerText, copyBtn);
             
-            copyBtn.addEventListener('click', () => {
-                const textarea = preElement.querySelector('textarea.code-editor');
-                const code = textarea ? textarea.value : codeBlock.innerText;
-                
-                try {
-                    const tempTextarea = document.createElement('textarea');
-                    tempTextarea.value = code;
-                    tempTextarea.style.position = 'absolute';
-                    tempTextarea.style.left = '-9999px';
-                    document.body.appendChild(tempTextarea);
-                    tempTextarea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempTextarea);
-                    
-                    copyBtn.innerHTML = '<ion-icon name="checkmark-outline" class="w-4 h-4"></ion-icon> <span>Copied!</span>';
-                    setTimeout(() => { 
-                        copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
-                    }, 2000);
-                } catch (err) {
-                    copyBtn.innerHTML = '<span>Error</span>';
-                }
-            });
-            
-            const editBtn = document.createElement('button');
-            editBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
-            editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
-            
-            editBtn.addEventListener('click', () => {
-                let textarea = preElement.querySelector('textarea.code-editor');
-                
-                if (textarea) { // --- We are SAVING ---
-                    const newCode = textarea.value;
-                    codeBlock.innerText = newCode;
-                    hljs.highlightBlock(codeBlock);
-                    preElement.removeChild(textarea);
-                    codeBlock.style.display = '';
-                    editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
-                    preElement.prepend(codeBlock);
-                } else { // --- We are EDITING ---
-                    textarea = document.createElement('textarea');
-                    textarea.value = codeBlock.innerText;
-                    textarea.className = 'code-editor w-full h-48 bg-slate-900 text-slate-200 font-mono text-sm p-0 rounded-b-lg border-t border-slate-700 resize-y focus:outline-none';
-                    textarea.style.fontFamily = 'monospace';
-                    
-                    preElement.prepend(textarea);
-Two_c.png
-                    codeBlock.style.display = 'none';
-                    editBtn.innerHTML = '<ion-icon name="save-outline" class="w-4 h-4"></ion-icon> <span>Save</span>';
-                    textarea.focus();
-                }
-            });
-
             btnContainer.appendChild(copyBtn);
-            btnContainer.appendChild(editBtn);
+            preElement.classList.add('group'); // Add group for hover effect
             preElement.appendChild(btnContainer);
         }
+        
+        // NEW: Show edit UI for user messages
+        function showEdit(messageId) {
+            const bubbleWrapper = document.getElementById(messageId);
+            const messageContent = bubbleWrapper.querySelector('.message-content');
+            const editArea = bubbleWrapper.querySelector('.edit-area');
+            
+            messageContent.classList.add('hidden');
+            editArea.classList.remove('hidden');
+            
+            const textarea = editArea.querySelector('textarea');
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+            textarea.focus();
+        }
+        
+        // NEW: Save edited message
+        function saveEdit(messageId) {
+            const bubbleWrapper = document.getElementById(messageId);
+            const messageContent = bubbleWrapper.querySelector('.message-content');
+            const editArea = bubbleWrapper.querySelector('.edit-area');
+            const textarea = editArea.querySelector('textarea');
+            
+            const newText = textarea.value;
+            
+            messageContent.innerHTML = `<p class="whitespace-pre-wrap">${newText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
+            bubbleWrapper.dataset.rawText = newText;
+            
+            messageContent.classList.remove('hidden');
+            editArea.classList.add('hidden');
+        }
+        
+        // NEW: Cancel edit
+        function cancelEdit(messageId) {
+            const bubbleWrapper = document.getElementById(messageId);
+            const messageContent = bubbleWrapper.querySelector('.message-content');
+            const editArea = bubbleWrapper.querySelector('.edit-area');
+            const textarea = editArea.querySelector('textarea');
+            
+            textarea.value = bubbleWrapper.dataset.rawText;
+            
+            messageContent.classList.remove('hidden');
+            editArea.classList.add('hidden');
+        }
 
-        function appendMessage(type, contentParts = []) {
+
+        // UPDATED: appendMessage with new styles
+        function appendMessage(type, contentParts = [], rawText = "") {
             const bubbleWrapper = document.createElement('div');
             bubbleWrapper.className = 'chat-message-wrapper w-full flex';
             
             let bubbleContent = '';
             
             if (type === 'user') {
-                bubbleWrapper.classList.add('justify-end');
+                const messageId = 'user-' + crypto.randomUUID();
+                bubbleWrapper.id = messageId;
+                bubbleWrapper.dataset.rawText = rawText;
+                
+                bubbleWrapper.classList.add('justify-end', 'group');
                 let textContent = '';
                 let imgContent = '';
                 
                 contentParts.forEach(part => {
                     if (part.type === 'text') {
                         textContent = `<p class"whitespace-pre-wrap">${part.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
-                    } else if (part.type === 'image_url') {
-                        imgContent = `<img src="${part.image_url.url}" class="rounded-lg max-w-xs mb-2 border border-blue-200">`;
+                    } else if (part.type === 'image_url') { // OpenAI uses image_url
+                        imgContent = `<img src="${part.image_url.url}" class="rounded-lg max-w-xs mb-2 border border-gray-700">`;
                     }
                 });
                 
+                const escapedText = rawText.replace(/"/g, "&quot;");
+                
                 bubbleContent = `
-                    <div class="bg-blue-600 text-white rounded-2xl rounded-tr-lg p-4 max-w-xl lg:max-w-3xl shadow-md">
-                        ${imgContent}
-                        ${textContent}
+                    <div class="user-bubble flex items-center self-start mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button onclick="showEdit('${messageId}')" class="bubble-btn">
+                            <ion-icon name="pencil-outline" class="w-4 h-4"></ion-icon>
+                         </button>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold ml-3">
+                
+                    <!-- FIX: Dark style (bg-gray-800 bubble) -->
+                    <div class="bg-gray-800 text-white rounded-2xl rounded-tr-lg p-4 max-w-xl lg:max-w-3xl shadow-md">
+                        <div class="message-content">
+                            ${imgContent}
+                            ${textContent}
+                        </div>
+                        <div class="edit-area hidden mt-2">
+                            <textarea class="w-full p-2 rounded-md bg-gray-700 text-white font-mono text-sm resize-none focus:outline-none" rows="3" oninput="autoGrow(this)">${escapedText}</textarea>
+                            <div class="flex justify-end gap-2 mt-2">
+                                <button onclick="cancelEdit('${messageId}')" class="text-xs text-gray-300 hover:underline">Cancel</button>
+                                <button onclick="saveEdit('${messageId}')" class="text-xs font-semibold bg-white text-black px-3 py-1 rounded-md hover:bg-gray-200">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- FIX: Dark style (gray icon) -->
+                    <div class="w-10 h-10 rounded-full bg-gray-600 flex-shrink-0 flex items-center justify-center text-white font-bold ml-3">
                         <ion-icon name="person-outline" class="w-6 h-6"></ion-icon>
                     </div>
                 `;
@@ -666,13 +740,14 @@ Two_c.png
             } else if (type === 'ai' || type === 'ai_error') {
                 bubbleWrapper.classList.add('justify-start');
                 let contentHTML = '';
-                let errorClass = type === 'ai_error' ? 'bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700' : 'bg-white dark:bg-slate-800 shadow-md';
+                // FIX: Light style
+                let errorClass = type === 'ai_error' ? 'bg-red-100 border-red-300 text-black' : 'bg-gray-100 text-black shadow-md';
 
                 const aiBubbleDiv = document.createElement('div');
-                aiBubbleDiv.className = `ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100`;
+                aiBubbleDiv.className = `ai-bubble relative ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl`;
                 
                 const aiContentDiv = document.createElement('div');
-                aiContentDiv.className = 'ai-content prose prose-sm dark:prose-invert max-w-none';
+aiContentDiv.className = 'ai-content prose prose-sm max-w-none';
                 
                 contentParts.forEach(part => {
                     if (part.type === 'text') {
@@ -687,8 +762,10 @@ Two_c.png
                 aiBubbleDiv.appendChild(aiContentDiv);
 
                 bubbleWrapper.innerHTML = `
-                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <!-- FIX: Light style -->
+                    <div class="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center mr-3">
+                        <!-- OPENAI ICON -->
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                 `;
                 bubbleWrapper.appendChild(aiBubbleDiv);
@@ -696,10 +773,13 @@ Two_c.png
             } else if (type === 'ai_typing') {
                 bubbleWrapper.classList.add('justify-start');
                 bubbleContent = `
-                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <!-- FIX: Light style -->
+                    <div class="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center mr-3">
+                        <!-- OPENAI ICON -->
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    <div class="bg-white dark:bg-slate-800 rounded-2xl rounded-tl-lg p-5 shadow-md">
+                    <!-- FIX: Light style -->
+                    <div class="bg-gray-100 rounded-2xl rounded-tl-lg p-5 shadow-md">
                         <div class="dot-flashing"></div>
                     </div>
                 `;
@@ -713,10 +793,16 @@ Two_c.png
             
             // Re-apply highlighting and buttons if it's a final AI message
             if (type === 'ai' || type === 'ai_error') {
+                // Add copy button for whole message
+                if(rawText) {
+                    addAiBubbleButtons(bubbleWrapper, rawText);
+                }
+
                 bubbleWrapper.querySelectorAll('pre').forEach((preElement) => {
                     const codeBlock = preElement.querySelector('code');
                     if (codeBlock) {
-                        hljs.highlightBlock(codeBlock);
+                        // FIX: use highlightElement
+                        hljs.highlightElement(codeBlock);
                         addCodeBlockButtons(preElement);
                     }
                 });
@@ -726,7 +812,8 @@ Two_c.png
         }
         
         function appendWelcomeMessage() {
-            appendMessage('ai', [{ type: 'text', text: "Hello! This is OpenAI. How can I help today? (Switch to Image mode to generate images)" }]);
+            const welcomeText = "Hello! This is OpenAI. How can I help today? (Switch to Image mode to generate images)";
+            appendMessage('ai', [{ type: 'text', text: welcomeText }], welcomeText);
         }
 
         function scrollToBottom() {
@@ -745,5 +832,3 @@ Two_c.png
     </script>
 </body>
 </html>
-
-
