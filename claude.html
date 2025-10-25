@@ -115,29 +115,34 @@
     -->
     <div id="navbar-placeholder"></div>
 
-    <!-- ========== Chat Section ========== -->
-    <div class="flex-1 flex flex-col h-full min-h-0 relative">
+    <!-- 
+      ========== Chat Section ========== 
+      FIX: Added "bg-white" to this parent container. 
+      This is the fix. The white background now extends all the way
+      to the bottom, behind the floating footer.
+    -->
+    <div class="flex-1 flex flex-col h-full min-h-0 relative bg-white">
         <!-- 
           Chat Log
           Set to bg-white and text-black
+          FIX: Added pb-48 (padding-bottom) to ensure messages don't hide under the sticky footer
         -->
-        <main id="chat-log" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-white text-black">
+        <main id="chat-log" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-white text-black pb-48">
             <!-- Messages will be injected here by JavaScript -->
         </main>
 
         <!-- 
           Gradient fade to hide messages scrolling under input 
-          FIX: Gradient is now from black to transparent, to match the chat box
+          FIX: REMOVED this entire div.
         -->
-        <div class="sticky bottom-0 h-48 bg-gradient-to-t from-black to-transparent pointer-events-none z-0"></div>
 
         <!-- 
           Chat Input Footer
           FIX: Removed bg-black and border-t from footer.
           The form itself provides the floating "black" background.
-          FIX: -mt-48 to pull it up over the gradient
+          FIX: REMOVED -mt-48. The padding on #chat-log now handles the spacing.
         -->
-        <footer class="sticky bottom-0 p-4 md:p-6 z-10 -mt-48">
+        <footer class="sticky bottom-0 p-4 md:p-6 z-10">
             
             <!-- STOP GENERATING BUTTON (Dark style) -->
             <div id="stop-btn-container" class="flex justify-center mb-2 hidden">
@@ -151,8 +156,9 @@
               Main Input Area
               FIX: Re-styled to match image (floating, rounded, black)
               FIX: Re-structured layout (textarea top, controls bottom)
+              FIX: Changed bg-gray-900 to bg-black for "black black" look
             -->
-            <form id="chat-form" class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-2.5 flex flex-col w-full max-w-4xl mx-auto">
+            <form id="chat-form" class="bg-black border border-gray-700 rounded-2xl shadow-2xl p-2.5 flex flex-col w-full max-w-4xl mx-auto">
                 
                 <!-- TEXT INPUT (Dark style) - NOW ON TOP -->
                 <textarea id="prompt-input" class="w-full p-2.5 bg-transparent focus:outline-none resize-none max-h-48 text-white placeholder:text-gray-400" placeholder="Chat with Claude..." rows="1" oninput="autoGrow(this)"></textarea>
@@ -196,7 +202,7 @@
                             </button>
                             
                             <!-- This is the dropdown menu -->
-                            <div id="model-dropdown-menu" class="hidden absolute bottom-full mb-2 w-48 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-20 overflow-hidden">
+                            <div id="model-dropdown-menu" class="hidden absolute bottom-full mb-2 w-48 bg-black border border-gray-700 rounded-lg shadow-lg z-20 overflow-hidden">
                                 <!-- Menu items will be populated by JS -->
                             </div>
                         </div>
@@ -772,4 +778,7 @@
     </script>
 </body>
 </html>
+
+
+
 
