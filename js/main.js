@@ -8,12 +8,13 @@
 /**
  * Toggles the theme between 'light' and 'dark' in localStorage
  * and calls applyTheme() to update the UI.
+ * This function is called directly from the onclick="" in navbar.html.
  */
 function toggleTheme() {
     const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', newTheme);
-    applyTheme();
+    applyTheme(); // Update the UI
 }
 
 /**
@@ -29,7 +30,7 @@ function applyTheme() {
         document.documentElement.classList.remove('dark');
     }
     
-    // Update theme toggle icons
+    // This function will show/hide the correct sun/moon icon
     updateThemeIcons(theme);
 }
 
@@ -39,6 +40,8 @@ function applyTheme() {
  * @param {string} theme - The current theme ('dark' or 'light').
  */
 function updateThemeIcons(theme) {
+    const isDark = (theme === 'dark');
+
     // Desktop button
     const desktopBtn = document.getElementById('theme-toggle-btn');
     if (desktopBtn) {
@@ -46,13 +49,8 @@ function updateThemeIcons(theme) {
         const sunIcon = desktopBtn.querySelector('ion-icon[name="sunny-outline"]');
         
         if (moonIcon && sunIcon) {
-            if (theme === 'dark') {
-                moonIcon.style.display = 'none';
-                sunIcon.style.display = 'block';
-            } else {
-                moonIcon.style.display = 'block';
-                sunIcon.style.display = 'none';
-            }
+            moonIcon.style.display = isDark ? 'none' : 'block';
+            sunIcon.style.display = isDark ? 'block' : 'none';
         }
     }
     
@@ -63,13 +61,8 @@ function updateThemeIcons(theme) {
         const sunIcon = mobileBtn.querySelector('ion-icon[name="sunny-outline"]');
         
         if (moonIcon && sunIcon) {
-            if (theme === 'dark') {
-                moonIcon.style.display = 'none';
-                sunIcon.style.display = 'block';
-            } else {
-                moonIcon.style.display = 'block';
-                sunIcon.style.display = 'none';
-            }
+            moonIcon.style.display = isDark ? 'none' : 'block';
+            sunIcon.style.display = isDark ? 'block' : 'none';
         }
     }
 }
@@ -105,7 +98,7 @@ async function loadNavbar() {
 
 /**
  * Initializes all event listeners for the dynamically loaded navbar elements
- * (dropdowns, mobile menu, theme toggles).
+ * (dropdowns, mobile menu).
  */
 function initNavbar() {
     const dropdownToggle = document.getElementById('dropdown-toggle');
@@ -151,21 +144,12 @@ function initNavbar() {
         });
     }
     
-    // Theme Toggle Buttons (both desktop and mobile)
-    const themeToggleBtns = [
-        document.getElementById('theme-toggle-btn'),
-        document.getElementById('theme-toggle-btn-mobile')
-    ];
+    // --- FIX ---
+    // The conflicting theme toggle event listeners have been
+    // completely removed from here. The onclick="" in the
+    // HTML now handles it directly.
+    // ---
     
-    themeToggleBtns.forEach(btn => {
-        if (btn) {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toggleTheme();
-            });
-        }
-    });
-
     // Close dropdown if clicked outside
     window.addEventListener('click', (e) => {
         if (dropdownMenu && !dropdownMenu.classList.contains('hidden') && dropdownToggle && !dropdownToggle.contains(e.target)) {
@@ -179,6 +163,7 @@ function initNavbar() {
     // Set the active nav link style
     setActiveNav();
     // Apply theme *after* navbar is loaded to style the icons correctly
+    // This is what makes the correct icon (sun/moon) show on page load.
     applyTheme();
 }
 
@@ -215,7 +200,7 @@ function setActiveNav() {
 
 // --- 4. Initial Execution ---------------------------------------------------
 
-// The inline script in index.html handles the *initial* theme load.
+// The inline script in index.html handles the *initial* theme class on <html>.
 // This script waits for the DOM to be ready, then loads the navbar.
 document.addEventListener('DOMContentLoaded', loadNavbar);
 
