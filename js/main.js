@@ -141,14 +141,13 @@ function setActiveNav() {
         const linkPage = link.getAttribute('data-page');
         
         if (linkPage === currentPage) {
-            // Apply active styles
-            link.classList.add('font-bold', 'text-black', 'dark:text-white');
-            link.classList.remove('text-gray-700', 'dark:text-gray-300'); // Remove default
+            // Apply active styles (for new inverted navbar)
+            link.classList.add('font-bold', 'text-white', 'dark:text-black');
+            link.classList.remove('text-gray-300', 'dark:text-gray-700'); // Remove default
         } else {
-            // Apply default styles
-            link.classList.add('text-gray-700', 'dark:text-gray-300');
-            link.classList.remove('font-bold', 'text-black', 'dark:text-white');
-Such as 'text-black' or 'dark:text-white'
+            // Apply default styles (for new inverted navbar)
+            link.classList.add('text-gray-300', 'dark:text-gray-700');
+            link.classList.remove('font-bold', 'text-white', 'dark:text-black');
         }
     });
 }
