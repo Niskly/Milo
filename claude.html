@@ -141,9 +141,9 @@
 
             <!-- 
               Main Input Area
-              FIX 2: Set to bg-black, no border/shadow
+              FIX 1: Removed floating style, set to bg-black
             -->
-            <form id="chat-form" class="bg-black p-2.5 flex flex-col w-full max-w-4xl mx-auto">
+            <form id="chat-form" class="p-2.5 flex flex-col w-full max-w-4xl mx-auto">
                 <!-- Top row: Model select, Image preview -->
                 <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -379,6 +379,7 @@
 
         // --- AI API Call: Chat ---
         async function callChatAI(model, userMessage) {
+            signInBtn.style.display = 'none'; // FIX 2: Hide sign in button on send
             setAIGenerating(true);
             const typingIndicator = appendMessage('ai_typing');
             scrollToBottom();
@@ -445,7 +446,9 @@
                     if(aiBubble) aiBubble.remove();
                     
                     const errorString = (typeof error === 'string') ? error : (error.message ? error.message : JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
-                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an API error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
+                    // FIX 2: Pass raw text to appendMessage so it can add copy buttons
+                    const errorText = `Sorry, an API error occurred:\n\`\`\`\n${errorString}\n\`\`\``;
+                    appendMessage('ai_error', [{ type: 'text', text: errorText }], errorText);
                 }
             } 
             finally {
@@ -667,10 +670,10 @@
             chatLog.appendChild(bubbleWrapper);
             
             // Re-apply highlighting and buttons if it's a final AI message
-            if (type === 'ai' || type === 'ai_error') {
+            // FIX 2: Only run if rawText is provided (prevents duplicate buttons on stream)
+            if ((type === 'ai' || type === 'ai_error') && rawText) { 
                 // Find all text parts and join them
-                const rawResponseText = contentParts.map(p => p.text).join('\n');
-                addAiBubbleButtons(bubbleWrapper, rawResponseText);
+                addAiBubbleButtons(bubbleWrapper, rawText); // FIX 2: Use rawText
 
                 bubbleWrapper.querySelectorAll('pre').forEach((preElement) => {
                     const codeBlock = preElement.querySelector('code');
@@ -755,6 +758,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
