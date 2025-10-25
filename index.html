@@ -30,16 +30,11 @@
     </style>
     
     <!-- 
-      NEW INLINE SCRIPT:
-      This is the 100% correct, simplified script.
-      It runs instantly to prevent the "flash" of the wrong theme.
+      THIS SCRIPT RUNS INSTANTLY TO PREVENT THE "FLASH"
     -->
     <script>
         (function() {
-            // 1. Get theme from storage OR check system preference
             const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            
-            // 2. Apply it. This is the fix: we *remove* it if light, *add* it if dark.
             if (theme === 'light') {
                 document.documentElement.classList.remove('dark');
             } else {
@@ -49,17 +44,12 @@
     </script>
     
     <!-- 
-      NEW SCRIPT TAG:
-      'defer' makes it load with the page and run *after* the HTML is parsed.
-      This is the cleanest way to do it.
+      'defer' MAKES THIS SCRIPT RUN AFTER THE HTML IS PARSED
     -->
     <script src="js/main.js" defer></script>
 </head>
 <!-- 
-  BODY CLASSES:
-  These are the correct classes for your theme.
-  Default (light) = white bg, black text
-  Dark = black bg, white text
+  CORRECT BODY CLASSES
 -->
 <body class="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
 
@@ -133,7 +123,7 @@
                         <h3 class="text-2xl font-bold mb-3">Code Ready</h3>
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
                             Get syntax-highlighted code with copy and edit buttons. Built for developers.
-                        </Jhp>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -165,4 +155,3 @@
     </footer>
 </body>
 </html>
-
