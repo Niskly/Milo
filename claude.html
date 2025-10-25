@@ -148,6 +148,9 @@
                 <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap">
                     <div class="flex items-center gap-2 flex-wrap">
                         
+                        <!-- NEW: Sign In Button -->
+                        <button type="button" id="sign-in-btn" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">Sign In</button>
+                        
                         <!-- NEW: Custom Model Dropdown (Dark style) -->
                         <div class="relative">
                             <!-- This is the hidden select that stores the value -->
@@ -233,6 +236,7 @@
         const modelDropdownBtn = document.getElementById('model-dropdown-btn');
         const modelDropdownLabel = document.getElementById('model-dropdown-label');
         const modelDropdownMenu = document.getElementById('model-dropdown-menu');
+        const signInBtn = document.getElementById('sign-in-btn');
 
         let attachedImageBase64 = null;
         let isAIGenerating = false;
@@ -243,6 +247,7 @@
         fileUpload.addEventListener('change', handleFileSelect);
         removeImageBtn.addEventListener('click', clearAttachment);
         stopBtn.addEventListener('click', stopGeneration);
+        signInBtn.addEventListener('click', handleSignIn);
         
         promptInput.addEventListener('paste', (e) => {
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
@@ -314,6 +319,39 @@
             await callChatAI(model, userMessage);
         }
         
+        // NEW: Sign-In Handler from Puter docs
+        async function handleSignIn() {
+            try {
+                // The docs say this promise resolves to `true` on success
+                // and "will never reject".
+                const signInResult = await puter.auth.signIn();
+                
+                if (signInResult === true) {
+                    appendMessage('ai', [{ type: 'text', text: 'You are now signed in!' }], 'You are now signed in!');
+                } else {
+                    // This case is for if it resolves with something other than `true`
+                    // Since chat works, it's still a success.
+                    console.warn("Sign-in completed but did not return `true`:", signInResult);
+                    appendMessage('ai', [{ type: 'text', text: 'Sign-in complete! You can chat now.' }], 'Sign-in complete! You can chat now.');
+                }
+                
+                // FIX: Hide button on any successful sign-in, not just if result is `true`
+                signInBtn.style.display = 'none'; // Hide button after success
+
+            } catch (err) {
+                 // Even though docs say it never rejects, we'll handle it.
+                 console.error("Sign-in failed with an exception:", err);
+                 
+                 // FIX: Handle undefined or non-object errors
+                 let errorMessage = "An unknown error occurred during sign-in. The popup might be blocked.";
+                 if (err) {
+                    errorMessage = err.message || JSON.stringify(err, Object.getOwnPropertyNames(err), 2);
+                 }
+                 
+                 appendMessage('ai_error', [{ type: 'text', text: `Sign-in failed:\n\`\`\`\n${errorMessage}\n\`\`\`` }]);
+            }
+        }
+        
         // --- AI Stream Control ---
         function setAIGenerating(isGenerating) {
             isAIGenerating = isGenerating;
@@ -348,21 +386,11 @@
             let fullResponse = "";
             let aiBubble;
             
-            // const claudeHistory = [userMessage]; // OLD WAY
-
-            // NEW WAY: Match the tutorial, send only the text string.
-            // This will temporarily break image uploads, but let's test the API call.
-            const promptText = userMessage.content.find(p => p.type === 'text')?.text || '';
-            if (!promptText) {
-                 appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\nPrompt text is empty. Cannot send a message with only an image yet.\n\`\`\`` }]);
-                 setAIGenerating(false);
-                 typingIndicator.remove();
-                 return; 
-            }
+            const claudeHistory = [userMessage]; // <-- REVERTED to sending the full message object
 
             try {
-                // Pass ONLY the prompt string, as shown in the tutorial
-                const response = await puter.ai.chat(promptText, { 
+                // REVERTED to sending claudeHistory object
+                const response = await puter.ai.chat(claudeHistory, { 
                     model: model, 
                     stream: true,
                     signal: abortController.signal 
@@ -727,6 +755,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
