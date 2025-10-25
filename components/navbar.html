@@ -1,64 +1,158 @@
 <!-- 
-  Navigation Bar Component (No Theme)
-  - All theme toggle buttons have been removed.
-  - All styles are locked to dark mode.
+  Floating Navigation Bar Component (Dark Mode)
+  - Enhanced floating design with glassmorphism
+  - Improved spacing and visual hierarchy
+  - Smooth animations and modern aesthetics
 -->
-<nav class="bg-black border-b border-gray-800 sticky top-0 z-50 backdrop-blur-lg bg-opacity-95">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            
-            <!-- Logo/Brand -->
-            <a href="index.html" class="flex-shrink-0 flex items-center gap-3 group">
-                <!-- Logo bg -->
-                <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center transition-transform group-hover:scale-110">
-                    <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                </div>
-                <!-- Text color -->
-                <span class="text-xl font-bold text-white">My AI App</span>
-            </a>
-            
-            <!-- Desktop Links -->
-            <div class="hidden md:flex items-center space-x-1">
-                <a href="index.html" data-page="index" class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all">Home</a>
-                
-                <!-- Dropdown -->
-                <div class="relative" id="dropdown-toggle">
-                    <!-- Text/hover colors -->
-                    <button class="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-800 transition-all">
-                        <span>Chat Models</span>
-                        <ion-icon name="chevron-down-outline" class="w-4 h-4 transition-transform" id="dropdown-icon"></ion-icon>
-                    </button>
-                    <!-- Dropdown bg/border/text/hover colors -->
-                    <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-black border border-gray-700 rounded-xl shadow-2xl py-1 overflow-hidden">
-                        <a href="claude.html" data-page="claude" class="nav-link block px-4 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-800 transition-all">Claude</a>
-                        <a href="openai.html" data-page="openai" class="nav-link block px-4 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-800 transition-all">OpenAI</a>
+<nav class="fixed top-0 left-0 right-0 z-50 px-4 pt-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-black/80 backdrop-blur-xl border border-gray-800/50 rounded-2xl shadow-2xl shadow-black/20">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    
+                    <!-- Logo/Brand -->
+                    <a href="index.html" class="flex-shrink-0 flex items-center gap-3 group">
+                        <!-- Logo with glow effect -->
+                        <div class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-white to-gray-200 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-white/20">
+                            <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <!-- Text with gradient -->
+                        <span class="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">My AI App</span>
+                    </a>
+                    
+                    <!-- Desktop Links -->
+                    <div class="hidden md:flex items-center space-x-2">
+                        <a href="index.html" data-page="index" class="nav-link px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200">Home</a>
+                        
+                        <!-- Dropdown -->
+                        <div class="relative" id="dropdown-toggle">
+                            <button class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/60 transition-all duration-200">
+                                <span>Chat Models</span>
+                                <ion-icon name="chevron-down-outline" class="w-4 h-4 transition-transform duration-200" id="dropdown-icon"></ion-icon>
+                            </button>
+                            <!-- Enhanced dropdown -->
+                            <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-52 bg-black/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl py-2 overflow-hidden">
+                                <a href="claude.html" data-page="claude" class="nav-link block px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/60 transition-all duration-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                                        <span>Claude</span>
+                                    </div>
+                                </a>
+                                <a href="openai.html" data-page="openai" class="nav-link block px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/60 transition-all duration-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                        <span>OpenAI</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden flex items-center">
+                        <button id="mobile-menu-btn" class="p-2 rounded-xl text-gray-300 hover:text-white hover:bg-gray-800/60 transition-all duration-200">
+                            <ion-icon name="menu-outline" class="w-6 h-6" id="menu-icon"></ion-icon>
+                            <ion-icon name="close-outline" class="w-6 h-6 hidden" id="close-icon"></ion-icon>
+                        </button>
                     </div>
                 </div>
-                
-                <!-- THEME TOGGLE BUTTON REMOVED -->
             </div>
             
-            <!-- Mobile Menu Button -->
-            <div class="md:hidden flex items-center gap-2">
-                <!-- THEME TOGGLE BUTTON (MOBILE) REMOVED -->
-                
-                 <!-- Text color -->
-                <button id="mobile-menu-btn" class="p-2 rounded-lg text-gray-300 transition-all">
-                    <ion-icon name="menu-outline" class="w-6 h-6" id="menu-icon"></ion-icon>
-                    <ion-icon name="close-outline" class="w-6 h-6 hidden" id="close-icon"></ion-icon>
-                </button>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 space-y-1 border-t border-gray-800/50 mt-2 pt-2">
+                <a href="index.html" data-page="index" class="nav-link block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200">Home</a>
+                <a href="claude.html" data-page="claude" class="nav-link block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                        <span>Claude</span>
+                    </div>
+                </a>
+                <a href="openai.html" data-page="openai" class="nav-link block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span>OpenAI</span>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
-    
-    <!-- Mobile Menu -->
-     <!-- Border color -->
-    <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 border-t border-gray-800">
-        <a href="index.html" data-page="index" class="nav-link block px-4 py-2.5 rounded-lg text-base font-medium transition-all">Home</a>
-        <a href="claude.html" data-page="claude" class="nav-link block px-4 py-2.5 rounded-lg text-base font-medium transition-all">Claude</a>
-        <a href="openai.html" data-page="openai" class="nav-link block px-4 py-2.5 rounded-lg text-base font-medium transition-all">OpenAI</a>
-    </div>
 </nav>
 
+<!-- Add spacing below navbar for content -->
+<div class="h-20"></div>
+
+<style>
+    /* Active nav link styles */
+    .nav-link {
+        @apply text-gray-300;
+    }
+    
+    .nav-link:hover {
+        @apply text-white bg-gray-800/60;
+    }
+    
+    .nav-link.active {
+        @apply text-white bg-gradient-to-r from-gray-800 to-gray-700 shadow-lg;
+    }
+    
+    /* Smooth dropdown animation */
+    #dropdown-menu {
+        animation: slideDown 0.2s ease-out;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Mobile menu animation */
+    #mobile-menu {
+        animation: slideDown 0.3s ease-out;
+    }
+</style>
+
+<script>
+    // Dropdown functionality
+    const dropdownToggle = document.getElementById('dropdown-toggle');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const dropdownIcon = document.getElementById('dropdown-icon');
+    
+    dropdownToggle.addEventListener('click', () => {
+        dropdownMenu.classList.toggle('hidden');
+        dropdownIcon.style.transform = dropdownMenu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!dropdownToggle.contains(e.target)) {
+            dropdownMenu.classList.add('hidden');
+            dropdownIcon.style.transform = 'rotate(0deg)';
+        }
+    });
+    
+    // Mobile menu functionality
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuIcon = document.getElementById('menu-icon');
+    const closeIcon = document.getElementById('close-icon');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        menuIcon.classList.toggle('hidden');
+        closeIcon.classList.toggle('hidden');
+    });
+    
+    // Highlight active page
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link').forEach(link => {
+        if (link.getAttribute('data-page') && currentPage.includes(link.getAttribute('data-page'))) {
+            link.classList.add('active');
+        }
