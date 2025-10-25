@@ -9,7 +9,6 @@
     <script src="https://js.puter.com/v2/"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-    <script src="js/main.js" type="module"></script>
 
     <style>
         html, body {
@@ -19,57 +18,117 @@
         
         body::-webkit-scrollbar { width: 8px; }
         body::-webkit-scrollbar-track { background: transparent; }
-        body::-webkit-scrollbar-thumb { @apply bg-gray-400; border-radius: 4px; }
+        body::-webkit-scrollbar-thumb { @apply bg-gray-300; border-radius: 4px; }
         .dark body::-webkit-scrollbar-thumb { @apply bg-gray-700; }
         
         .gradient-text {
-            @apply bg-gradient-to-r from-gray-900 to-gray-700;
+            @apply bg-gradient-to-r from-black to-gray-700;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .dark .gradient-text {
-            @apply from-gray-100 to-gray-400;
+            @apply from-white to-gray-300;
         }
-
+        
         .feature-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-        .dark .feature-card:hover {
-            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
         }
     </style>
+    
+    <script>
+        // Apply theme immediately to prevent flash
+        function applyInitialTheme() {
+            const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+        applyInitialTheme();
+    </script>
 </head>
 <body class="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
 
-    <div id="navbar-placeholder"></div>
+    <!-- Navigation Bar -->
+    <nav class="bg-black dark:bg-white border-b border-gray-800 dark:border-gray-200 sticky top-0 z-50 backdrop-blur-lg bg-opacity-95 dark:bg-opacity-95">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <a href="index.html" class="flex-shrink-0 flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-white dark:bg-black flex items-center justify-center">
+                        <svg class="w-6 h-6 text-black dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-white dark:text-black">My AI App</span>
+                </a>
+                
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="index.html" class="px-4 py-2 rounded-lg text-sm font-semibold text-white dark:text-black bg-gray-800 dark:bg-gray-100">Home</a>
+                    
+                    <div class="relative" id="dropdown-toggle">
+                        <button class="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100">
+                            <span>Chat Models</span>
+                            <ion-icon name="chevron-down-outline" class="w-4 h-4"></ion-icon>
+                        </button>
+                        <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-black dark:bg-white border border-gray-700 dark:border-gray-200 rounded-xl shadow-2xl py-1 overflow-hidden">
+                            <a href="claude.html" class="block px-4 py-2.5 text-sm font-medium text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100">Claude</a>
+                            <a href="openai.html" class="block px-4 py-2.5 text-sm font-medium text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100">OpenAI</a>
+                        </div>
+                    </div>
+                    
+                    <button id="theme-toggle-btn" class="p-2.5 rounded-lg text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100 ml-2">
+                        <ion-icon name="moon-outline" class="w-5 h-5 dark:hidden"></ion-icon>
+                        <ion-icon name="sunny-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
+                    </button>
+                </div>
+                
+                <div class="md:hidden flex items-center gap-2">
+                    <button id="theme-toggle-btn-mobile" class="p-2 rounded-lg text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100">
+                        <ion-icon name="moon-outline" class="w-5 h-5 dark:hidden"></ion-icon>
+                        <ion-icon name="sunny-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
+                    </button>
+                    <button id="mobile-menu-btn" class="p-2 rounded-lg text-gray-300 dark:text-gray-700">
+                        <ion-icon name="menu-outline" class="w-6 h-6"></ion-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 border-t border-gray-800 dark:border-gray-200">
+            <a href="index.html" class="block px-4 py-2.5 rounded-lg text-base font-semibold text-white dark:text-black bg-gray-800 dark:bg-gray-100">Home</a>
+            <a href="claude.html" class="block px-4 py-2.5 rounded-lg text-base font-medium text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100">Claude</a>
+            <a href="openai.html" class="block px-4 py-2.5 rounded-lg text-base font-medium text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100">OpenAI</a>
+        </div>
+    </nav>
 
     <main>
         <!-- Hero Section -->
         <section class="text-center py-20 sm:py-28 lg:py-36 px-4">
             <div class="max-w-5xl mx-auto">
-                <div class="inline-block mb-6 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-full border border-black/10 dark:border-white/10">
-                    <span class="text-sm font-semibold">✨ Powered by Puter.js</span>
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-900 rounded-full mb-8">
+                    <span class="text-2xl">⚡</span>
+                    <span class="text-sm font-semibold">Powered by Next-Gen AI</span>
                 </div>
                 
-                <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-6">
-                    Access <span class="gradient-text">Powerful AI</span> Models
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6">
+                    Chat with <span class="gradient-text">Powerful AI</span>
                 </h1>
                 
-                <p class="mt-6 text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                    Chat with next-generation AI from Claude and OpenAI. 
-                    No API keys, no servers, unlimited potential.
+                <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+                    Experience Claude and OpenAI models directly in your browser. No setup, no limits, just pure AI power.
                 </p>
                 
-                <div class="mt-12 flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="claude.html" class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-2xl hover:scale-105">
-                        <span>Chat with Claude</span>
-                        <ion-icon name="arrow-forward" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></ion-icon>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="claude.html" class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:shadow-2xl">
+                        <span>Start with Claude</span>
+                        <ion-icon name="arrow-forward-outline" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></ion-icon>
                     </a>
-                    <a href="openai.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-black dark:border-white text-black dark:text-white font-bold rounded-xl text-lg transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5 hover:scale-105">
+                    <a href="openai.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-black dark:border-white text-black dark:text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:bg-gray-50 dark:hover:bg-gray-900">
                         <span>Try OpenAI</span>
                     </a>
                 </div>
@@ -77,46 +136,43 @@
         </section>
 
         <!-- Features Section -->
-        <section class="py-24 bg-gray-50 dark:bg-gray-950">
+        <section class="py-20 bg-gray-50 dark:bg-gray-950">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center max-w-3xl mx-auto mb-20">
-                    <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-6">One Platform, All Models</h2>
-                    <p class="text-xl text-gray-600 dark:text-gray-400">
-                        Experience the world's most advanced AI models in one beautiful interface.
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">Everything you need</h2>
+                    <p class="text-lg text-gray-600 dark:text-gray-400">
+                        Built with Puter.js for seamless, unlimited access to the world's best AI models
                     </p>
                 </div>
                 
-                <div class="grid md:grid-cols-3 gap-8">
-                    <!-- Feature 1 -->
-                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border border-gray-200 dark:border-gray-800">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl mb-6 shadow-lg">
-                            ⚡
+                <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
+                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border-2 border-gray-200 dark:border-gray-800">
+                        <div class="w-14 h-14 rounded-xl bg-black dark:bg-white flex items-center justify-center text-3xl mb-6">
+                            <span class="dark:invert">💬</span>
                         </div>
-                        <h3 class="text-2xl font-bold mb-4">Real-time Streaming</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
-                            Watch responses appear instantly as the AI thinks. Natural, fluid conversations without the wait.
+                        <h3 class="text-2xl font-bold mb-3">Real-time Streaming</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Watch responses appear instantly as they're generated. No delays, just natural conversation flow.
                         </p>
                     </div>
                     
-                    <!-- Feature 2 -->
-                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border border-gray-200 dark:border-gray-800">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-3xl mb-6 shadow-lg">
-                            🎨
+                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border-2 border-gray-200 dark:border-gray-800">
+                        <div class="w-14 h-14 rounded-xl bg-black dark:bg-white flex items-center justify-center text-3xl mb-6">
+                            <span class="dark:invert">🖼️</span>
                         </div>
-                        <h3 class="text-2xl font-bold mb-4">Multimodal Magic</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
-                            Upload images, generate art, and explore visual AI. From analysis to creation, all in one place.
+                        <h3 class="text-2xl font-bold mb-3">Vision Support</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Upload images and get AI insights. Perfect for analyzing photos, diagrams, and documents.
                         </p>
                     </div>
                     
-                    <!-- Feature 3 -->
-                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border border-gray-200 dark:border-gray-800">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-3xl mb-6 shadow-lg">
-                            💎
+                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border-2 border-gray-200 dark:border-gray-800">
+                        <div class="w-14 h-14 rounded-xl bg-black dark:bg-white flex items-center justify-center text-3xl mb-6">
+                            <span class="dark:invert">⚙️</span>
                         </div>
-                        <h3 class="text-2xl font-bold mb-4">Developer Ready</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
-                            Beautiful syntax highlighting, one-click code copying, and inline editing for all your code needs.
+                        <h3 class="text-2xl font-bold mb-3">Code Ready</h3>
+                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Get syntax-highlighted code with copy and edit buttons. Built for developers.
                         </p>
                     </div>
                 </div>
@@ -124,30 +180,85 @@
         </section>
 
         <!-- CTA Section -->
-        <section class="py-24 px-4">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-6">
-                    Ready to Experience the Future?
+        <section class="py-20 px-4">
+            <div class="max-w-4xl mx-auto text-center bg-black dark:bg-white rounded-3xl p-12 md:p-16">
+                <h2 class="text-3xl md:text-5xl font-black text-white dark:text-black mb-6">
+                    Ready to experience the future?
                 </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-400 mb-10">
-                    Start chatting with the world's most advanced AI models right now.
+                <p class="text-lg text-gray-300 dark:text-gray-700 mb-8">
+                    Start chatting with advanced AI models right now. No signup required.
                 </p>
-                <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="claude.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-xl text-lg transition-all duration-200 shadow-lg hover:shadow-2xl hover:scale-105">
-                        Get Started
-                    </a>
-                </div>
+                <a href="claude.html" class="inline-flex items-center gap-2 px-8 py-4 bg-white dark:bg-black text-black dark:text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105">
+                    Get Started Free
+                    <ion-icon name="arrow-forward-outline" class="w-5 h-5"></ion-icon>
+                </a>
             </div>
         </section>
     </main>
 
-    <footer class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-base text-gray-600 dark:text-gray-400">
-                Powered by <a href="https://puter.com" target="_blank" class="font-semibold text-black dark:text-white hover:underline">Puter.js</a> • Built with ❤️
+    <footer class="border-t border-gray-200 dark:border-gray-800 py-12 px-4">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-600 dark:text-gray-400">
+                Powered by <a href="https://puter.com" target="_blank" class="font-semibold hover:underline">Puter.js</a>
             </p>
         </div>
     </footer>
 
+    <script>
+        function toggleTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            const newTheme = theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme();
+        }
+
+        function applyTheme() {
+            const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropdownToggle = document.getElementById('dropdown-toggle');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const themeToggleBtnMobile = document.getElementById('theme-toggle-btn-mobile');
+
+            if (dropdownToggle) {
+                dropdownToggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('hidden');
+                });
+            }
+
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', toggleTheme);
+            }
+
+            if (themeToggleBtnMobile) {
+                themeToggleBtnMobile.addEventListener('click', toggleTheme);
+            }
+
+            window.addEventListener('click', (e) => {
+                if (dropdownMenu && !dropdownMenu.classList.contains('hidden') && !dropdownToggle.contains(e.target)) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+
+            applyTheme();
+        });
+    </script>
 </body>
 </html>
