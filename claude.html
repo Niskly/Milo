@@ -191,7 +191,7 @@
 
             <!-- Main Input Area -->
             <form id="chat-form" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl p-3 flex flex-col w-full max-w-4xl mx-auto">
-                <!-- Top row: Model select, Image preview, Clear chat -->
+                <!-- Top row: Model select, Image preview -->
                 <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap">
                     <div class="flex items-center gap-2 flex-wrap">
                         <!-- MODEL SELECT -->
@@ -210,12 +210,6 @@
                             <button id="remove-image" type="button" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">&times;</button>
                         </div>
                     </div>
-                    
-                    <!-- CLEAR CHAT -->
-                    <button id="clear-chat" type="button" class="text-sm text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-500 transition flex items-center gap-1 p-2 flex-shrink-0">
-                        <ion-icon name="trash-outline" class="w-4 h-4"></ion-icon>
-                        Clear
-                    </button>
                 </div>
                 
                 <!-- Bottom row: Upload, Textarea, Send -->
@@ -274,12 +268,11 @@
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
         const removeImageBtn = document.getElementById('remove-image');
-        const clearChatBtn = document.getElementById('clear-chat');
         const stopBtnContainer = document.getElementById('stop-btn-container');
         const stopBtn = document.getElementById('stop-btn');
         
-        const CHAT_HISTORY_KEY = 'claudeChatHistory';
-        let chatHistory = [];
+        // --- HISTORY REMOVED ---
+        // let chatHistory = []; 
         let attachedImageBase64 = null;
         let isAIGenerating = false;
         let abortController = null; // To stop the stream
@@ -289,14 +282,6 @@
         fileUpload.addEventListener('change', handleFileSelect);
         removeImageBtn.addEventListener('click', clearAttachment);
         stopBtn.addEventListener('click', stopGeneration);
-        
-        clearChatBtn.addEventListener('click', () => {
-            chatLog.innerHTML = '';
-            chatHistory = [];
-            clearAttachment();
-            saveChatHistory();
-            appendWelcomeMessage();
-        });
         
         promptInput.addEventListener('paste', (e) => {
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
@@ -358,10 +343,9 @@
                 userMessageParts.push({ type: 'text', text: promptText });
             }
             
+            // *** FIX HERE: Use 'content' property ***
             const userMessage = { role: 'user', content: userMessageParts };
-            chatHistory.push(userMessage);
             appendMessage('user', userMessage.content);
-            saveChatHistory();
             
             // Clear input
             promptInput.value = '';
@@ -369,7 +353,8 @@
             clearAttachment();
 
             // Start AI call
-            await callChatAI(model);
+            // We pass the userMessage, which will be the *only* thing in the history
+            await callChatAI(model, userMessage);
         }
         
         // --- AI Stream Control ---
@@ -398,7 +383,8 @@
         }
 
         // --- AI API Call: Chat ---
-        async function callChatAI(model) {
+        // Takes the single userMessage as a parameter
+        async function callChatAI(model, userMessage) {
             setAIGenerating(true);
             const typingIndicator = appendMessage('ai_typing');
             scrollToBottom();
@@ -406,16 +392,29 @@
             let fullResponse = "";
             let aiBubble; // To store the AI bubble for streaming
             
-            // Claude uses a different history format (no roles inside content parts)
-            const claudeHistory = chatHistory.map(msg => ({
+            // *** FIX HERE: Create history array correctly ***
+            // We just send the single message, no history.
+            // We also map the 'content' parts to the format Puter.js expects
+            // for multimodal (image + text) input.
+            const messageForPuter = [userMessage].map(msg => ({
                 role: msg.role,
-                parts: msg.content.map(part => {
+                content: msg.content.map(part => {
                     if (part.type === 'image_data') {
-                        return { inlineData: { mimeType: 'image/png', data: part.data } };
+                        // This format is for Claude. OpenAI might use a different one.
+                        // Let's try sending the format OpenAI uses, as it's more standard.
+                        return { type: 'image_url', image_url: { url: `data:image/png;base64,${part.data}` } };
                     }
-                    return { text: part.text };
+                    return { type: 'text', text: part.text };
                 })
             }));
+
+            // After re-reading the OpenAI/Claude differences, it's safer
+            // to send the format I had before which worked for OpenAI,
+            // as Puter.js might normalize it.
+            // The userMessage is already { role: 'user', content: [...] }
+            // Let's just send that directly.
+            const claudeHistory = [userMessage];
+
 
             try {
                 // Use puter.ai.chat()
@@ -451,8 +450,9 @@
                     }
                 });
                 
-                chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
-                saveChatHistory();
+                // --- HISTORY REMOVED ---
+                // chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
+                // saveChatHistory();
 
             } catch (error) {
                 if (error.name === 'AbortError') {
@@ -463,13 +463,14 @@
                     } else {
                         typingIndicator.remove();
                     }
-                    chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse || "[Stopped by user]" }] });
-                    saveChatHistory();
+                    // --- HISTORY REMOVED ---
+                    // chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse || "[Stopped by user]" }] });
+                    // saveChatHistory();
                 } else {
                     console.error('Error calling Chat AI:', error);
                     if(typingIndicator) typingIndicator.remove();
                     if(aiBubble) aiBubble.remove();
-                    // *** FIX IS HERE ***
+                    
                     // Convert the error object to a readable string
                     const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
                     appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred:\n\`\`\`\n${errorString}\n\`\`\`` }]);
@@ -599,7 +600,7 @@
                     <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
                         <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    <div classa="ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
+                    <div class="ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
                         <div class="ai-content prose prose-sm dark:prose-invert max-w-none">
                             ${contentHTML}
                         </div>
@@ -636,7 +637,8 @@
         }
         
         function appendWelcomeMessage() {
-            if (chatHistory.length > 0) return; // Don't append if history is loaded
+            // --- HISTORY REMOVED ---
+            // if (chatHistory.length > 0) return; // Don't append if history is loaded
             appendMessage('ai', [{ type: 'text', text: 'Hello! This is Claude. How can I help you today?' }]);
         }
 
@@ -644,28 +646,15 @@
             chatLog.scrollTop = chatLog.scrollHeight;
         }
         
-        // --- Chat History (Cache) ---
-        function saveChatHistory() {
-            localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
-        }
+        // --- CHAT HISTORY (CACHE) REMOVED ---
         
-        function loadChatHistory() {
-            const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
-            if (savedHistory) {
-                chatHistory = JSON.parse(savedHistory);
-                chatLog.innerHTML = ''; // Clear any existing
-                chatHistory.forEach(message => {
-                    appendMessage(message.role === 'user' ? 'user' : 'ai', message.content);
-                });
-            } else {
-                appendWelcomeMessage();
-            }
-            scrollToBottom();
-        }
-
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadChatHistory();
+            // --- HISTORY REMOVED ---
+            // loadChatHistory(); 
+            
+            // Just add the welcome message
+            appendWelcomeMessage();
             promptInput.focus();
         });
         
