@@ -194,4 +194,3 @@ function setActiveNav() {
 // Since this script has 'defer', it runs after the DOM is ready.
 // We can just call loadNavbar() directly.
 loadNavbar();
-
