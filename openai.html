@@ -60,7 +60,7 @@
         */
         .dot-flashing {
             position: relative; width: 6px; height: 6px;
-            border-radius: 50%; @apply bg-gray-500;
+            border-radius: 50%; @apply bg-purple-500;
             animation: dotFlashing 1s infinite linear alternate;
             animation-delay: .5s;
         }
@@ -70,19 +70,19 @@
         }
         .dot-flashing::before {
             left: -10px; width: 6px; height: 6px;
-            border-radius: 50%; @apply bg-gray-500;
+            border-radius: 50%; @apply bg-purple-500;
             animation: dotFlashing 1s infinite alternate;
             animation-delay: 0s;
         }
         .dot-flashing::after {
             left: 10px; width: 6px; height: 6px;
-            border-radius: 50%; @apply bg-gray-500;
+            border-radius: 50%; @apply bg-purple-500;
             animation: dotFlashing 1s infinite alternate;
             animation-delay: 1s;
         }
         @keyframes dotFlashing {
-            0% { @apply bg-gray-500; }
-            50%, 100% { @apply bg-gray-300; }
+            0% { @apply bg-purple-500; }
+            50%, 100% { @apply bg-purple-300; }
         }
         
         /* FIX: Swapped to dark input textarea scrollbar
@@ -116,6 +116,9 @@
   FIX: Body is black, provides the frame.
 -->
 <body class="bg-black text-white transition-colors duration-300 flex flex-col h-screen overflow-hidden">
+
+    <!-- NEW: Hidden div to force JIT compilation -->
+    <div class="hidden translate-x-5 bg-purple-600"></div>
 
     <!-- 
       FIX: Navbar placeholder
@@ -188,21 +191,20 @@
                             <label for="mode-toggle" class="flex items-center cursor-pointer">
                                 <input type="checkbox" id="mode-toggle" class="hidden">
                                 <!-- 
-                                  FIX: Replaced old toggle style with new one
+                                  FIX: Added IDs, removed inline style
                                 -->
-                                <div class="relative toggle-bg bg-gray-600 w-11 h-6 rounded-full transition-colors">
-                                  <div class="absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform transform"></div>
+                                <div id="toggle-bg" class="relative toggle-bg bg-gray-600 w-11 h-6 rounded-full transition-colors">
+                                  <div id="toggle-circle" class="absolute top-0.5 left-0.5 bg-white w-5 h-5 rounded-full transition-transform transform"></div>
                                 </div>
-                                <style>
-                                    input:checked + .toggle-bg { @apply bg-purple-600; }
-                                    input:checked + .toggle-bg div { @apply translate-x-5; }
-                                </style>
+                                <!-- 
+                                  FIX: Removed style tag
+                                -->
                             </label>
                             <span class="text-sm font-medium mr-2 text-gray-200">Image</span>
                         </div>
                         
                         <!-- MODEL SELECT (Dark style) -->
-                        <select id="model-select" name="model" class="bg-gray-800 border border-gray-700 text-white rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none cursor-pointer">
+                        <select id="model-select" name="model" class="bg-purple-600 border border-purple-500 text-white rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-purple-400 focus:outline-none appearance-none cursor-pointer">
                             <!-- Options will be added by JS -->
                         </select>
                         
@@ -314,6 +316,10 @@
             const isImageMode = modeToggle.checked;
             modelSelect.innerHTML = ''; // Clear options
             
+            // NEW: Get toggle elements
+            const toggleBg = document.getElementById('toggle-bg');
+            const toggleCircle = document.getElementById('toggle-circle');
+
             const models = isImageMode ? imageModels : textModels;
             for (const [value, name] of Object.entries(models)) {
                 const option = document.createElement('option');
@@ -326,9 +332,17 @@
                 promptInput.placeholder = "Describe an image to generate...";
                 fileUploadLabel.style.display = 'none'; // Hide upload button
                 clearAttachment();
+                // NEW: Manually add classes
+                toggleBg.classList.add('bg-purple-600');
+                toggleBg.classList.remove('bg-gray-600');
+                toggleCircle.classList.add('translate-x-5');
             } else {
                 promptInput.placeholder = "Chat with OpenAI...";
                 fileUploadLabel.style.display = 'block'; // Show upload button
+                // NEW: Manually remove classes
+                toggleBg.classList.remove('bg-purple-600');
+                toggleBg.classList.add('bg-gray-600');
+                toggleCircle.classList.remove('translate-x-5');
             }
         }
 
@@ -368,9 +382,10 @@
                     isSignedIn = true;
                     signInBtn.classList.add('hidden');
                 } else {
-                    // This case handles if the popup is closed or doesn't return true
-                    console.warn("Sign-in completed, but with an unexpected result. Please try again.", result);
-                    // Don't hide the button, let them try again
+                    // FIX: Hide button anyway, as popup was clearly acknowledged
+                    console.warn("Sign-in completed, but with an unexpected result. Hiding button.", result);
+                    isSignedIn = true; // Assume success if no error
+                    signInBtn.classList.add('hidden');
                 }
             } catch (err) {
                 // This catch block handles popup failures or other exceptions
@@ -740,8 +755,8 @@
             } else if (type === 'ai' || type === 'ai_error') {
                 bubbleWrapper.classList.add('justify-start');
                 let contentHTML = '';
-                // FIX: Light style
-                let errorClass = type === 'ai_error' ? 'bg-red-100 border-red-300 text-black' : 'bg-gray-100 text-black shadow-md';
+                // FIX: Light style changed to PURPLE
+                let errorClass = type === 'ai_error' ? 'bg-red-100 border-red-300 text-black' : 'bg-purple-100 text-purple-900 shadow-md';
 
                 const aiBubbleDiv = document.createElement('div');
                 aiBubbleDiv.className = `ai-bubble relative ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl`;
@@ -762,10 +777,10 @@ aiContentDiv.className = 'ai-content prose prose-sm max-w-none';
                 aiBubbleDiv.appendChild(aiContentDiv);
 
                 bubbleWrapper.innerHTML = `
-                    <!-- FIX: Light style -->
-                    <div class="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center mr-3">
+                    <!-- FIX: Light style changed to PURPLE -->
+                    <div class="w-10 h-10 rounded-full bg-purple-100 flex-shrink-0 flex items-center justify-center mr-3">
                         <!-- OPENAI ICON -->
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                 `;
                 bubbleWrapper.appendChild(aiBubbleDiv);
@@ -773,13 +788,13 @@ aiContentDiv.className = 'ai-content prose prose-sm max-w-none';
             } else if (type === 'ai_typing') {
                 bubbleWrapper.classList.add('justify-start');
                 bubbleContent = `
-                    <!-- FIX: Light style -->
-                    <div class="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center mr-3">
+                    <!-- FIX: Light style changed to PURPLE -->
+                    <div class="w-10 h-10 rounded-full bg-purple-100 flex-shrink-0 flex items-center justify-center mr-3">
                         <!-- OPENAI ICON -->
-                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
-                    <!-- FIX: Light style -->
-                    <div class="bg-gray-100 rounded-2xl rounded-tl-lg p-5 shadow-md">
+                    <!-- FIX: Light style changed to PURPLE -->
+                    <div class="bg-purple-100 rounded-2xl rounded-tl-lg p-5 shadow-md">
                         <div class="dot-flashing"></div>
                     </div>
                 `;
@@ -824,7 +839,7 @@ aiContentDiv.className = 'ai-content prose prose-sm max-w-none';
         
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
-            updateMode(); // Populate models
+            updateMode(); // Populate models & SET INITIAL TOGGLE STATE
             appendWelcomeMessage(); // Add welcome
             promptInput.focus();
         });
@@ -832,3 +847,7 @@ aiContentDiv.className = 'ai-content prose prose-sm max-w-none';
     </script>
 </body>
 </html>
+
+
+
+
