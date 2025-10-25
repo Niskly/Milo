@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude AI Website</title>
+    <!-- 1. Include Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Include Puter.js -->
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        /* Simple loading spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #ffffff;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2">My Claude AI App</h1>
+            <p class="text-lg text-gray-400">Powered by Puter.js & Vercel</p>
+        </header>
+
+        <!-- Form for user input -->
+        <form id="ai-form" class="space-y-4">
+            <div>
+                <label for="prompt" class="block text-sm font-medium text-gray-300 mb-2">Enter your prompt:</label>
+                <textarea id="prompt" name="prompt" rows="4" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="e.g., Explain quantum computing in simple terms..."></textarea>
+            </div>
+
+            <div>
+                <label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">Select a model:</label>
+                <select id="model-select" name="model" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="claude-3-7-sonnet">Claude 3.7 Sonnet (New)</option>
+                    <option value="claude-3-7-opus">Claude 3.7 Opus (New)</option>
+                    <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+                    <option value="claude-sonnet-4">Claude Sonnet 4</option>
+                    <option value="claude-opus-4-1">Claude Opus 4.1</option>
+                    <option value="claude-opus-4">Claude Opus 4</option>
+                </select>
+            </div>
+
+            <button type="submit" id="generate-btn" class="w-full flex justify-center items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                <span id="btn-text">Generate</span>
+                <div id="spinner" class="spinner hidden"></div>
+            </button>
+        </form>
+
+        <!-- Section for displaying results -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-semibold mb-4">Response:</h2>
+            <div id="results-container" class="p-4 bg-gray-800 border border-gray-700 rounded-lg min-h-[150px]">
+                <!-- Using <pre> to preserve whitespace and newlines from the AI response -->
+                <pre id="results" class="whitespace-pre-wrap font-mono"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 3. JavaScript logic to tie it all together
+        const aiForm = document.getElementById('ai-form');
+        const promptInput = document.getElementById('prompt');
+        const modelSelect = document.getElementById('model-select');
+        const resultsEl = document.getElementById('results');
+        const generateBtn = document.getElementById('generate-btn');
+        const btnText = document.getElementById('btn-text');
+        const spinner = document.getElementById('spinner');
+
+        // Handle form submission
+        aiForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent the form from reloading the page
+
+            const prompt = promptInput.value;
+            const model = modelSelect.value;
+
+            if (!prompt) {
+                resultsEl.textContent = 'Please enter a prompt.';
+                return;
+            }
+
+            // Show loading state
+            resultsEl.textContent = ''; // Clear previous results
+            generateBtn.disabled = true;
+            btnText.textContent = 'Generating...';
+            spinner.classList.remove('hidden');
+
+            try {
+                // Call Puter.js AI chat function with streaming
+                const response = await puter.ai.chat(prompt, {
+                    model: model,
+                    stream: true
+                });
+
+                // Stream the response
+                for await (const part of response) {
+                    if (part?.text) {
+                        resultsEl.textContent += part.text;
+                        // Optional: auto-scroll as content is added
+                        resultsEl.parentElement.scrollTop = resultsEl.parentElement.scrollHeight;
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error generating response:', error);
+                resultsEl.textContent = `An error occurred: ${error.message}`;
+            } finally {
+                // Restore button to normal state
+                generateBtn.disabled = false;
+                btnText.textContent = 'Generate';
+                spinner.classList.add('hidden');
+            }
+        });
+    </script>
+
+</body>
+</html>
