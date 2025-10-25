@@ -20,6 +20,45 @@ function applyTheme() {
     } else {
         document.documentElement.classList.remove('dark');
     }
+    
+    // Update theme toggle icons
+    updateThemeIcons(theme);
+}
+
+function updateThemeIcons(theme) {
+    // Desktop button
+    const desktopBtn = document.getElementById('theme-toggle-btn');
+    if (desktopBtn) {
+        const moonIcon = desktopBtn.querySelector('ion-icon[name="moon-outline"]');
+        const sunIcon = desktopBtn.querySelector('ion-icon[name="sunny-outline"]');
+        
+        if (moonIcon && sunIcon) {
+            if (theme === 'dark') {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+    }
+    
+    // Mobile button
+    const mobileBtn = document.getElementById('theme-toggle-btn-mobile');
+    if (mobileBtn) {
+        const moonIcon = mobileBtn.querySelector('ion-icon[name="moon-outline"]');
+        const sunIcon = mobileBtn.querySelector('ion-icon[name="sunny-outline"]');
+        
+        if (moonIcon && sunIcon) {
+            if (theme === 'dark') {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            } else {
+                moonIcon.style.display = 'block';
+                sunIcon.style.display = 'none';
+            }
+        }
+    }
 }
 
 // --- 2. Navbar Loading ------------------------------------------------------
