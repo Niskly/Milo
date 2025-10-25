@@ -5,13 +5,21 @@
 
 // --- 1. Theme Logic ---------------------------------------------------------
 
+/**
+ * Toggles the theme between 'light' and 'dark' in localStorage
+ * and calls applyTheme() to update the UI.
+ */
 function toggleTheme() {
-    const currentTheme = localStorage.getItem('theme') || 'light';
+    const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', newTheme);
     applyTheme();
 }
 
+/**
+ * Reads the theme from localStorage and applies it to the
+ * <html> element (adding/removing 'dark' class) and updates toggle icons.
+ */
 function applyTheme() {
     const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     
@@ -25,6 +33,11 @@ function applyTheme() {
     updateThemeIcons(theme);
 }
 
+/**
+ * Updates the visibility of moon and sun icons on both
+ * desktop and mobile toggle buttons based on the current theme.
+ * @param {string} theme - The current theme ('dark' or 'light').
+ */
 function updateThemeIcons(theme) {
     // Desktop button
     const desktopBtn = document.getElementById('theme-toggle-btn');
@@ -63,6 +76,10 @@ function updateThemeIcons(theme) {
 
 // --- 2. Navbar Loading ------------------------------------------------------
 
+/**
+ * Fetches 'components/navbar.html' and injects it into
+ * the '#navbar-placeholder' div, then calls initNavbar().
+ */
 async function loadNavbar() {
     const placeholder = document.getElementById('navbar-placeholder');
     if (!placeholder) {
@@ -77,6 +94,7 @@ async function loadNavbar() {
         const navbarHTML = await response.text();
         placeholder.innerHTML = navbarHTML;
         
+        // Now that the navbar HTML is loaded, initialize its event listeners
         initNavbar();
 
     } catch (error) {
@@ -85,6 +103,10 @@ async function loadNavbar() {
     }
 }
 
+/**
+ * Initializes all event listeners for the dynamically loaded navbar elements
+ * (dropdowns, mobile menu, theme toggles).
+ */
 function initNavbar() {
     const dropdownToggle = document.getElementById('dropdown-toggle');
     const dropdownMenu = document.getElementById('dropdown-menu');
@@ -129,7 +151,7 @@ function initNavbar() {
         });
     }
     
-    // Theme Toggle Buttons
+    // Theme Toggle Buttons (both desktop and mobile)
     const themeToggleBtns = [
         document.getElementById('theme-toggle-btn'),
         document.getElementById('theme-toggle-btn-mobile')
@@ -146,7 +168,7 @@ function initNavbar() {
 
     // Close dropdown if clicked outside
     window.addEventListener('click', (e) => {
-        if (dropdownMenu && !dropdownMenu.classList.contains('hidden') && !dropdownToggle.contains(e.target)) {
+        if (dropdownMenu && !dropdownMenu.classList.contains('hidden') && dropdownToggle && !dropdownToggle.contains(e.target)) {
             dropdownMenu.classList.add('hidden');
             if (dropdownIcon) {
                 dropdownIcon.style.transform = 'rotate(0deg)';
@@ -154,12 +176,18 @@ function initNavbar() {
         }
     });
 
+    // Set the active nav link style
     setActiveNav();
-    applyTheme(); // Apply theme *after* navbar is loaded to style icons
+    // Apply theme *after* navbar is loaded to style the icons correctly
+    applyTheme();
 }
 
 // --- 3. Active Nav Link Highlighting ----------------------------------------
 
+/**
+ * Checks the current page URL and applies active styles
+ * to the corresponding navigation link.
+ */
 function setActiveNav() {
     let currentPage = window.location.pathname.split('/').pop();
     if (currentPage === '' || currentPage === 'index.html') {
@@ -174,12 +202,10 @@ function setActiveNav() {
         const linkPage = link.getAttribute('data-page');
         
         if (linkPage === currentPage) {
-            // FIX: Swapped active styles
             // Active styles (Light: gray bg, black text | Dark: dark gray bg, white text)
             link.classList.add('font-semibold', 'text-black', 'dark:text-white', 'bg-gray-100', 'dark:bg-gray-800');
             link.classList.remove('text-gray-700', 'dark:text-gray-300');
         } else {
-            // FIX: Swapped default styles
             // Default styles (Light: gray text | Dark: light gray text)
             link.classList.add('text-gray-700', 'dark:text-gray-300');
             link.classList.remove('font-semibold', 'text-black', 'dark:text-white', 'bg-gray-100', 'dark:bg-gray-800');
@@ -189,17 +215,7 @@ function setActiveNav() {
 
 // --- 4. Initial Execution ---------------------------------------------------
 
-function applyInitialTheme() {
-    const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-}
-
-// This runs when the script is first parsed (same as inline script in index.html)
-applyInitialTheme(); 
-
-// This waits for the HTML document to be fully loaded
+// The inline script in index.html handles the *initial* theme load.
+// This script waits for the DOM to be ready, then loads the navbar.
 document.addEventListener('DOMContentLoaded', loadNavbar);
+
