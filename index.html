@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- 
   Set permanently to dark mode.
-  No more inline script.
+  Purple, black and white theme.
 -->
 <html lang="en" class="dark">
 <head>
@@ -21,26 +21,108 @@
         
         body::-webkit-scrollbar { width: 8px; }
         body::-webkit-scrollbar-track { background: transparent; }
-        /* Scrollbar is dark now */
-        body::-webkit-scrollbar-thumb { @apply bg-gray-700; border-radius: 4px; }
+        body::-webkit-scrollbar-thumb { background: #7c3aed; border-radius: 4px; }
         
         .feature-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
         .feature-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-8px);
+            border-color: #a855f7;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);
+        }
+        
+        .gradient-border {
+            position: relative;
+            background: #000;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border-radius: inherit;
+            z-index: -1;
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.3);
+        }
+        
+        .hero-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.4);
+        }
+        
+        .btn-secondary {
+            border: 2px solid;
+            border-image: linear-gradient(135deg, #7c3aed, #a855f7) 1;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, 0.1);
+            transform: scale(1.05);
         }
     </style>
     
-    <!-- 
-      'defer' MAKES THIS SCRIPT RUN AFTER THE HTML IS PARSED
-    -->
     <script src="js/main.js" defer></script>
 </head>
-<!-- 
-  BODY styles are now just the dark mode styles by default.
-  The "dark:" prefixes will work because <html> has class="dark".
--->
+
 <body class="bg-black text-white transition-colors duration-300">
 
     <!-- This placeholder will be filled by js/main.js -->
@@ -48,27 +130,30 @@
 
     <main>
         <!-- Hero Section -->
-        <section class="text-center py-20 sm:py-28 lg:py-36 px-4">
-            <div class="max-w-5xl mx-auto">
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 rounded-full mb-8">
+        <section class="relative text-center py-20 sm:py-28 lg:py-36 px-4 overflow-hidden">
+            <!-- Animated background glow -->
+            <div class="hero-glow" style="top: -300px; left: 50%; transform: translateX(-50%);"></div>
+            
+            <div class="max-w-5xl mx-auto relative z-10">
+                <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-900/50 to-purple-800/50 border border-purple-500/30 rounded-full mb-8 glow-effect">
                     <span class="text-2xl">⚡</span>
-                    <span class="text-sm font-semibold">Powered by Next-Gen AI</span>
+                    <span class="text-sm font-semibold gradient-text">Powered by Next-Gen AI</span>
                 </div>
                 
                 <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6">
-                    Chat with Powerful AI
+                    Chat with <span class="gradient-text">Powerful AI</span>
                 </h1>
                 
-                <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+                <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-12 leading-relaxed">
                     Experience Claude and OpenAI models directly in your browser. No setup, no limits, just pure AI power.
                 </p>
                 
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="claude.html" class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:shadow-2xl">
+                    <a href="claude.html" class="group inline-flex items-center justify-center gap-2 px-8 py-4 btn-primary text-white font-bold rounded-xl text-lg">
                         <span>Start with Claude</span>
                         <ion-icon name="arrow-forward-outline" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></ion-icon>
                     </a>
-                    <a href="openai.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:bg-gray-900">
+                    <a href="openai.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 btn-secondary text-white font-bold rounded-xl text-lg">
                         <span>Try OpenAI</span>
                     </a>
                 </div>
@@ -76,42 +161,44 @@
         </section>
 
         <!-- Features Section -->
-        <section class="py-20 bg-gray-950">
+        <section class="py-20 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-3xl mx-auto mb-16">
-                    <h2 class="text-4xl md:text-5xl font-black mb-4">Everything you need</h2>
-                    <p class="text-lg text-gray-400">
+                    <h2 class="text-4xl md:text-5xl font-black mb-4">
+                        Everything you <span class="gradient-text">need</span>
+                    </h2>
+                    <p class="text-lg text-gray-300">
                         Built with Puter.js for seamless, unlimited access to the world's best AI models
                     </p>
                 </div>
                 
                 <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
-                    <div class="feature-card bg-gray-900 p-8 rounded-2xl border-2 border-gray-800">
-                        <div class="w-14 h-14 rounded-xl bg-white flex items-center justify-center text-3xl mb-6">
-                            <span class="dark:invert">💬</span>
+                    <div class="feature-card bg-gradient-to-br from-gray-900 to-black p-8 rounded-2xl border-2 border-gray-800 relative z-10">
+                        <div class="w-14 h-14 rounded-xl gradient-bg flex items-center justify-center text-3xl mb-6 glow-effect">
+                            <span>💬</span>
                         </div>
                         <h3 class="text-2xl font-bold mb-3">Real-time Streaming</h3>
-                        <p class="text-gray-400 leading-relaxed">
+                        <p class="text-gray-300 leading-relaxed">
                             Watch responses appear instantly as they're generated. No delays, just natural conversation flow.
                         </p>
                     </div>
                     
-                    <div class="feature-card bg-gray-900 p-8 rounded-2xl border-2 border-gray-800">
-                        <div class="w-14 h-14 rounded-xl bg-white flex items-center justify-center text-3xl mb-6">
-                            <span class="dark:invert">🖼️</span>
+                    <div class="feature-card bg-gradient-to-br from-gray-900 to-black p-8 rounded-2xl border-2 border-gray-800 relative z-10">
+                        <div class="w-14 h-14 rounded-xl gradient-bg flex items-center justify-center text-3xl mb-6 glow-effect">
+                            <span>🖼️</span>
                         </div>
                         <h3 class="text-2xl font-bold mb-3">Vision Support</h3>
-                        <p class="text-gray-400 leading-relaxed">
+                        <p class="text-gray-300 leading-relaxed">
                             Upload images and get AI insights. Perfect for analyzing photos, diagrams, and documents.
                         </p>
                     </div>
                     
-                    <div class="feature-card bg-gray-900 p-8 rounded-2xl border-2 border-gray-800">
-                        <div class="w-14 h-14 rounded-xl bg-white flex items-center justify-center text-3xl mb-6">
-                            <span class="dark:invert">⚙️</span>
+                    <div class="feature-card bg-gradient-to-br from-gray-900 to-black p-8 rounded-2xl border-2 border-gray-800 relative z-10">
+                        <div class="w-14 h-14 rounded-xl gradient-bg flex items-center justify-center text-3xl mb-6 glow-effect">
+                            <span>⚙️</span>
                         </div>
                         <h3 class="text-2xl font-bold mb-3">Code Ready</h3>
-                        <p class="text-gray-400 leading-relaxed">
+                        <p class="text-gray-300 leading-relaxed">
                             Get syntax-highlighted code with copy and edit buttons. Built for developers.
                         </p>
                     </div>
@@ -119,30 +206,58 @@
             </div>
         </section>
 
+        <!-- Stats Section -->
+        <section class="py-20 px-4">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="p-8">
+                        <div class="text-5xl font-black gradient-text mb-2">∞</div>
+                        <p class="text-gray-400 font-semibold">Unlimited Messages</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="text-5xl font-black gradient-text mb-2">2+</div>
+                        <p class="text-gray-400 font-semibold">AI Models</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="text-5xl font-black gradient-text mb-2">0</div>
+                        <p class="text-gray-400 font-semibold">Setup Required</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- CTA Section -->
         <section class="py-20 px-4">
-            <div class="max-w-4xl mx-auto text-center bg-white rounded-3xl p-12 md:p-16">
-                <h2 class="text-3xl md:text-5xl font-black text-black mb-6">
-                    Ready to experience the future?
-                </h2>
-                <p class="text-lg text-gray-700 mb-8">
-                    Start chatting with advanced AI models right now. No signup required.
-                </p>
-                <a href="claude.html" class="inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105">
-                    Get Started Free
-                    <ion-icon name="arrow-forward-outline" class="w-5 h-5"></ion-icon>
-                </a>
+            <div class="max-w-4xl mx-auto text-center gradient-bg rounded-3xl p-12 md:p-16 glow-effect relative overflow-hidden">
+                <!-- Decorative elements -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-5xl font-black text-white mb-6">
+                        Ready to experience the future?
+                    </h2>
+                    <p class="text-lg text-purple-100 mb-8">
+                        Start chatting with advanced AI models right now. No signup required.
+                    </p>
+                    <a href="claude.html" class="inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:bg-gray-900">
+                        Get Started Free
+                        <ion-icon name="arrow-forward-outline" class="w-5 h-5"></ion-icon>
+                    </a>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer class="border-t border-gray-800 py-12 px-4">
+    <footer class="border-t border-purple-900/30 py-12 px-4">
         <div class="max-w-7xl mx-auto text-center">
             <p class="text-gray-400">
-                Powered by <a href="https://puter.com" target="_blank" class="font-semibold hover:underline">Puter.js</a>
+                Powered by <a href="https://puter.com" target="_blank" class="font-semibold gradient-text hover:underline">Puter.js</a>
+            </p>
+            <p class="text-gray-500 text-sm mt-2">
+                © 2024 My AI App. All rights reserved.
             </p>
         </div>
     </footer>
 </body>
 </html>
-
