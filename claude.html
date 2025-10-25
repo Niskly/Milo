@@ -11,52 +11,52 @@
     <!-- 2. Include Puter.js -->
     <script src="https://js.puter.com/v2/"></script>
     
-    <!-- 3. Icons (Heroicons) -->
+    <!-- 3. Icons -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     
     <!-- 4. Libraries for Code Highlighting & Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <!-- Using a more modern, clean theme for code -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
 
     <style>
         /* --- General Styles --- */
-        html, body {
+        html {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             scroll-behavior: smooth;
         }
         
-        /* --- Chat Styles --- */
-        #chat-log {
-            scrollbar-width: thin;
-            scrollbar-color: #6b7280 #f3f4f6;
-        }
-        #chat-log::-webkit-scrollbar { width: 8px; }
-        #chat-log::-webkit-scrollbar-track { background: #f3f4f6; }
-        #chat-log::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
-        #chat-log::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-
-        .dark #chat-log {
-            scrollbar-color: #4b5563 #1f2937;
-        }
-        .dark #chat-log::-webkit-scrollbar-track { background: #1f2937; }
-        .dark #chat-log::-webkit-scrollbar-thumb { background: #4b5563; }
-        .dark #chat-log::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-
-        .chat-bubble-ai .ai-content p { @apply mb-3 last:mb-0; }
-        .chat-bubble-ai .ai-content ul { @apply list-disc list-inside mb-3 pl-4; }
-        .chat-bubble-ai .ai-content ol { @apply list-decimal list-inside mb-3 pl-4; }
-        .chat-bubble-ai .ai-content pre { @apply bg-gray-100 dark:bg-gray-950 rounded-md p-4 mb-3 relative text-sm; }
+        /* --- Scrollbar --- */
+        #chat-log { scrollbar-width: thin; scrollbar-color: #9ca3af #f1f5f9; }
+        #chat-log::-webkit-scrollbar { width: 6px; }
+        #chat-log::-webkit-scrollbar-track { background: #f1f5f9; }
+        #chat-log::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 3px; }
         
+        .dark #chat-log { scrollbar-color: #4b5563 #1e293b; }
+        .dark #chat-log::-webkit-scrollbar-track { background: #1e293b; }
+        .dark #chat-log::-webkit-scrollbar-thumb { background: #4b5563; }
+
+        /* --- Chat Bubble Content Styling (prose-*) --- */
+        .ai-content p { @apply mb-4 last:mb-0; }
+        .ai-content ul, .ai-content ol { @apply list-inside mb-4 pl-2 space-y-1; }
+        .ai-content ul { @apply list-disc; }
+        .ai-content ol { @apply list-decimal; }
+        .ai-content li { @apply leading-relaxed; }
+        .ai-content code:not(pre code) { @apply text-sm bg-slate-200 dark:bg-slate-700 rounded px-1.5 py-0.5 font-mono; }
+        .ai-content pre { @apply bg-slate-900 rounded-lg p-4 mb-4 relative text-sm; }
+        .ai-content a { @apply text-blue-500 hover:underline; }
+
+        /* --- Copy Button for Code --- */
         .copy-btn {
-            @apply absolute top-2 right-2 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 px-2 py-1 rounded transition-all duration-200;
+            @apply absolute top-2.5 right-2.5 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-50 hover:opacity-100;
         }
 
         /* --- AI Typing Spinner --- */
         .dot-flashing {
-            position: relative; width: 8px; height: 8px;
-            border-radius: 50%; @apply bg-gray-500;
+            position: relative; width: 6px; height: 6px;
+            border-radius: 50%; @apply bg-slate-500;
             animation: dotFlashing 1s infinite linear alternate;
             animation-delay: .5s;
         }
@@ -65,51 +65,67 @@
             position: absolute; top: 0;
         }
         .dot-flashing::before {
-            left: -12px; width: 8px; height: 8px;
-            border-radius: 50%; @apply bg-gray-500;
+            left: -10px; width: 6px; height: 6px;
+            border-radius: 50%; @apply bg-slate-500;
             animation: dotFlashing 1s infinite alternate;
             animation-delay: 0s;
         }
         .dot-flashing::after {
-            left: 12px; width: 8px; height: 8px;
-            border-radius: 50%; @apply bg-gray-500;
+            left: 10px; width: 6px; height: 6px;
+            border-radius: 50%; @apply bg-slate-500;
             animation: dotFlashing 1s infinite alternate;
             animation-delay: 1s;
         }
         @keyframes dotFlashing {
-            0% { @apply bg-gray-500; }
-            50%, 100% { @apply bg-gray-300; }
+            0% { @apply bg-slate-500; }
+            50%, 100% { @apply bg-slate-300; }
         }
-        .dark .dot-flashing, .dark .dot-flashing::before, .dark .dot-flashing::after { @apply bg-gray-400; }
+        .dark .dot-flashing, .dark .dot-flashing::before, .dark .dot-flashing::after { @apply bg-slate-400; }
         .dark @keyframes dotFlashing {
-            0% { @apply bg-gray-400; }
-            50%, 100% { @apply bg-gray-600; }
+            0% { @apply bg-slate-400; }
+            50%, 100% { @apply bg-slate-600; }
         }
+        
+        /* --- Input Textarea --- */
+        #prompt-input {
+            scrollbar-width: thin;
+            scrollbar-color: #9ca3af #f1f5f9;
+        }
+        #prompt-input::-webkit-scrollbar { width: 4px; }
+        #prompt-input::-webkit-scrollbar-track { background: transparent; }
+        #prompt-input::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 2px; }
+        .dark #prompt-input { scrollbar-color: #4b5563 #1e293b; }
+        .dark #prompt-input::-webkit-scrollbar-thumb { background: #4b5563; }
+        
     </style>
     
     <script>
         // Set theme on initial load
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
         } else {
             document.documentElement.classList.remove('dark');
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f1f5f9');
         }
 
         function toggleTheme() {
             if (localStorage.theme === 'dark') {
                 localStorage.theme = 'light';
                 document.documentElement.classList.remove('dark');
+                document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f1f5f9');
             } else {
                 localStorage.theme = 'dark';
                 document.documentElement.classList.add('dark');
+                document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
             }
         }
     </script>
 </head>
-<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 flex flex-col h-screen overflow-hidden">
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 flex flex-col h-screen overflow-hidden">
 
     <!-- ========== Navigation Bar ========== -->
-    <nav class="bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+    <nav class="bg-white/70 dark:bg-slate-900/70 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo/Brand -->
@@ -120,23 +136,22 @@
                 
                 <!-- Desktop Links -->
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Home</a>
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Home</a>
                     
                     <!-- Dropdown -->
                     <div class="relative" id="dropdown-toggle">
-                        <button class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <button class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
                             <span>Chat Models</span>
                             <ion-icon name="chevron-down-outline" class="w-4 h-4 ml-1"></ion-icon>
                         </button>
-                        <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1">
-                            <!-- Active state for this page -->
-                            <a href="claude.html" class="block px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-gray-100 dark:bg-gray-900">Claude</a>
-                            <a href="openai.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">OpenAI</a>
+                        <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-1">
+                            <a href="claude.html" class="block px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 bg-slate-100 dark:bg-slate-900">Claude</a>
+                            <a href="openai.html" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">OpenAI</a>
                         </div>
                     </div>
                     
                     <!-- Theme Toggle -->
-                    <button onclick="toggleTheme()" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <button onclick="toggleTheme()" class="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
                         <ion-icon name="moon-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
                         <ion-icon name="sunny-outline" class="w-5 h-5 block dark:hidden"></ion-icon>
                     </button>
@@ -144,11 +159,11 @@
                 
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden flex items-center">
-                     <button onclick="toggleTheme()" class="p-2 mr-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                     <button onclick="toggleTheme()" class="p-2 mr-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
                         <ion-icon name="moon-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
                         <ion-icon name="sunny-outline" class="w-5 h-5 block dark:hidden"></ion-icon>
                     </button>
-                    <button id="mobile-menu-btn" class="p-2 rounded-md text-gray-600 dark:text-gray-300">
+                    <button id="mobile-menu-btn" class="p-2 rounded-md text-slate-600 dark:text-slate-300">
                         <ion-icon name="menu-outline" class="w-6 h-6"></ion-icon>
                     </button>
                 </div>
@@ -157,60 +172,79 @@
         
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">Home</a>
-            <a href="claude.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800">Claude</a>
-            <a href="openai.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">OpenAI</a>
+            <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">Home</a>
+            <a href="claude.html" class="block px-3 py-2 rounded-md text-base font-medium text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800">Claude</a>
+            <a href="openai.html" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">OpenAI</a>
         </div>
     </nav>
 
     <!-- ========== Chat Section ========== -->
-    <section class="flex-1 flex flex-col h-full min-h-0">
-        <!-- Chat Header -->
-        <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <h1 class="text-xl font-bold">Claude Chat</h1>
-                <select id="model-select" name="model" class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-1.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
-                    <option value="claude-3-7-opus">Claude 3.7 Opus</option>
-                    <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
-                    <option value="claude-sonnet-4">Claude Sonnet 4</option>
-                </select>
-            </div>
-            <button id="clear-chat" class="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition">Clear Chat</button>
-        </div>
-
+    <div class="flex-1 flex flex-col h-full min-h-0 relative">
         <!-- Chat Log -->
-        <main id="chat-log" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800/50">
-            <!-- Initial Message -->
+        <main id="chat-log" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+            <!-- Messages will be injected here by JavaScript -->
         </main>
 
+        <!-- Gradient fade at the bottom -->
+        <div class="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-slate-100 dark:from-slate-900 to-transparent pointer-events-none"></div>
+
         <!-- Chat Input Footer -->
-        <footer class="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
-            <form id="chat-form" class="flex items-start gap-3">
-                <!-- File Upload Button -->
-                <label for="file-upload" class="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
-                </label>
-                <input type="file" id="file-upload" accept="image/*" class="hidden">
-                
-                <!-- Input Area -->
-                <div class="flex-1 flex flex-col">
-                    <!-- Image Preview -->
-                    <div id="image-preview-container" class="relative w-20 h-20 mb-2 hidden">
-                        <img id="image-preview" class="w-full h-full rounded-lg object-cover border border-gray-300 dark:border-gray-600">
-                        <button id="remove-image" type="button" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">&times;</button>
+        <footer class="sticky bottom-0 p-4 md:p-6 bg-transparent z-10">
+            
+            <!-- STOP GENERATING BUTTON -->
+            <div id="stop-btn-container" class="flex justify-center mb-2 hidden">
+                <button id="stop-btn" class="flex items-center gap-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:bg-slate-50 dark:hover:bg-slate-600 transition">
+                    <ion-icon name="stop-circle-outline" class="w-5 h-5"></ion-icon>
+                    Stop Generating
+                </button>
+            </div>
+
+            <!-- Main Input Area -->
+            <form id="chat-form" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl p-3 flex flex-col w-full max-w-4xl mx-auto">
+                <!-- Top row: Model select, Image preview, Clear chat -->
+                <div class="flex items-center justify-between w-full mb-2 min-h-[40px]">
+                    <div class="flex items-center gap-2">
+                        <!-- MODEL SELECT -->
+                        <select id="model-select" name="model" class="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none cursor-pointer">
+                            <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
+                            <option value="claude-3-7-opus">Claude 3.7 Opus</option>
+                            <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+                            <option value="claude-sonnet-4">Claude Sonnet 4</option>
+                        </select>
+                        
+                        <!-- IMAGE PREVIEW -->
+                        <div id="image-preview-container" class="relative w-10 h-10 hidden">
+                            <img id="image-preview" class="w-full h-full rounded-lg object-cover border-2 border-blue-500">
+                            <button id="remove-image" type="button" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">&times;</button>
+                        </div>
                     </div>
-                    <!-- Text Input -->
-                    <textarea id="prompt-input" class="flex-1 p-3 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" placeholder="Type your message or attach an image..." rows="1" oninput="autoGrow(this)"></textarea>
+                    
+                    <!-- CLEAR CHAT -->
+                    <button id="clear-chat" type="button" class="text-sm text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-500 transition flex items-center gap-1 p-2">
+                        <ion-icon name="trash-outline" class="w-4 h-4"></ion-icon>
+                        Clear
+                    </button>
                 </div>
                 
-                <!-- Send Button -->
-                <button type="submit" id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition duration-200 self-end">
-                    <ion-icon name="arrow-up-outline" class="w-5 h-5"></ion-icon>
-                </button>
+                <!-- Bottom row: Upload, Textarea, Send -->
+                <div class="flex items-start gap-3">
+                    <!-- FILE UPLOAD -->
+                    <label for="file-upload" class="cursor-pointer text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        <ion-icon name="attach-outline" class="w-6 h-6"></ion-icon>
+                    </label>
+                    <input type="file" id="file-upload" accept="image/*" class="hidden">
+                    
+                    <!-- TEXT INPUT -->
+                    <textarea id="prompt-input" class="flex-1 p-3 bg-transparent focus:outline-none resize-none max-h-48" placeholder="Chat with Claude..." rows="1" oninput="autoGrow(this)"></textarea>
+                    
+                    <!-- SEND BUTTON -->
+                    <button type="submit" id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg transition duration-200 self-end disabled:bg-slate-400 disabled:dark:bg-slate-600 disabled:cursor-not-allowed">
+                        <ion-icon name="arrow-up-outline" class="w-6 h-6"></ion-icon>
+                    </button>
+                </div>
             </form>
         </footer>
-    </section>
+    </div>
 
     <!-- ========== JavaScript Logic ========== -->
     <script>
@@ -220,22 +254,13 @@
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
 
-        // Desktop Dropdown
         if (dropdownToggle) {
-            dropdownToggle.addEventListener('click', () => {
-                dropdownMenu.classList.toggle('hidden');
-            });
+            dropdownToggle.addEventListener('click', () => dropdownMenu.classList.toggle('hidden'));
         }
-        
-        // Mobile Menu
         if (mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
+            mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
         }
-
-        // Close dropdown if clicked outside
-        window.addEventListener('click', function(e) {
+        window.addEventListener('click', (e) => {
             if (dropdownToggle && !dropdownToggle.contains(e.target)) {
                 dropdownMenu.classList.add('hidden');
             }
@@ -247,7 +272,7 @@
             element.style.height = (element.scrollHeight) + 'px';
         }
 
-        // --- Chat App Logic ---
+        // --- Chat App Globals ---
         const chatLog = document.getElementById('chat-log');
         const chatForm = document.getElementById('chat-form');
         const promptInput = document.getElementById('prompt-input');
@@ -258,22 +283,29 @@
         const imagePreview = document.getElementById('image-preview');
         const removeImageBtn = document.getElementById('remove-image');
         const clearChatBtn = document.getElementById('clear-chat');
+        const stopBtnContainer = document.getElementById('stop-btn-container');
+        const stopBtn = document.getElementById('stop-btn');
 
+        const CHAT_HISTORY_KEY = 'claudeChatHistory';
         let chatHistory = [];
         let attachedImageBase64 = null;
+        let isAIGenerating = false;
+        let abortController = null; // To stop the stream
 
+        // --- Event Listeners ---
         chatForm.addEventListener('submit', handleSendMessage);
         fileUpload.addEventListener('change', handleFileSelect);
         removeImageBtn.addEventListener('click', clearAttachment);
+        stopBtn.addEventListener('click', stopGeneration);
         
         clearChatBtn.addEventListener('click', () => {
             chatLog.innerHTML = '';
             chatHistory = [];
             clearAttachment();
-            appendMessage('ai', [{ type: 'text', text: 'Hello! How can I help you today?' }]);
+            saveChatHistory();
+            appendWelcomeMessage();
         });
         
-        // Handle paste event for images
         promptInput.addEventListener('paste', (e) => {
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (const item of items) {
@@ -285,14 +317,19 @@
                 }
             }
         });
+        
+        promptInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        });
 
+        // --- File & Image Handling ---
         function handleFileSelect(event) {
             const file = event.target.files[0];
-            if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                alert('Only image files are allowed.');
-                return;
-            }
+            if (!file || !file.type.startsWith('image/')) return;
+            
             const reader = new FileReader();
             reader.onload = (e) => {
                 attachedImageBase64 = e.target.result;
@@ -309,12 +346,16 @@
             fileUpload.value = null;
         }
 
+        // --- Main Send Logic ---
         async function handleSendMessage(e) {
             e.preventDefault();
+            if (isAIGenerating) return; // Don't send if AI is already working
+
             const promptText = promptInput.value.trim();
             const model = modelSelect.value;
             if (!promptText && !attachedImageBase64) return;
 
+            // Construct user message
             const userMessageParts = [];
             if (attachedImageBase64) {
                 const base64Data = attachedImageBase64.split(',')[1];
@@ -326,81 +367,122 @@
 
             chatHistory.push({ role: 'user', content: userMessageParts });
             appendMessage('user', userMessageParts);
+            saveChatHistory();
+            
+            // Clear input
             promptInput.value = '';
             autoGrow(promptInput);
             clearAttachment();
 
+            // Start AI call
             await callClaudeAI(model);
         }
         
-        // Allow sending with Enter key (Shift+Enter for new line)
-        promptInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                chatForm.dispatchEvent(new Event('submit'));
-            }
-        });
-
-        async function callClaudeAI(model) {
-            const typingIndicator = appendMessage('ai_typing');
-            chatLog.scrollTop = chatLog.scrollHeight;
-            sendBtn.disabled = true;
-
-            try {
-                const response = await puter.ai.chat(chatHistory, { model: model, stream: true });
-                
-                typingIndicator.remove();
-                const aiBubble = appendMessage('ai', []); // Add empty bubble
-                const aiContentElement = aiBubble.querySelector('.ai-content');
-                
-                let fullResponse = "";
-                let streamingElement = document.createElement('p');
-                aiContentElement.appendChild(streamingElement);
-
-                for await (const part of response) {
-                    if (part?.text) {
-                        fullResponse += part.text;
-                        // This is a temporary stream of plain text.
-                        // We will re-render with Markdown once it's complete.
-                        streamingElement.textContent = fullResponse;
-                        chatLog.scrollTop = chatLog.scrollHeight;
-                    }
-                }
-
-                // Process full response with Markdown & Code Highlighting
-                const htmlContent = marked.parse(fullResponse);
-                aiContentElement.innerHTML = htmlContent;
-
-                // Find all <pre><code> blocks and apply highlighting + copy button
-                aiContentElement.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightBlock(block);
-                    addCopyButton(block.parentElement); // Add to the <pre> tag
-                });
-                
-                chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
-
-            } catch (error)
-            {
-                console.error('Error calling AI:', error);
-                if(typingIndicator) typingIndicator.remove();
-                appendMessage('ai', [{ type: 'text', text: `Sorry, an error occurred: ${error.message}` }]);
-            } 
-            finally {
+        // --- AI Stream Control ---
+        function setAIGenerating(isGenerating) {
+            isAIGenerating = isGenerating;
+            if (isGenerating) {
+                abortController = new AbortController(); // Create new controller for this request
+                sendBtn.disabled = true;
+                promptInput.disabled = true;
+                stopBtnContainer.classList.remove('hidden');
+            } else {
+                abortController = null; // Clear controller
                 sendBtn.disabled = false;
+                promptInput.disabled = false;
                 promptInput.focus();
-                chatLog.scrollTop = chatLog.scrollHeight;
+                stopBtnContainer.classList.add('hidden');
+            }
+        }
+        
+        function stopGeneration() {
+            if (abortController) {
+                abortController.abort(); // Signal the stream to stop
+                setAIGenerating(false);
+                console.log("AI Generation stopped by user.");
             }
         }
 
+        // --- AI API Call ---
+        async function callClaudeAI(model) {
+            setAIGenerating(true);
+            const typingIndicator = appendMessage('ai_typing');
+            scrollToBottom();
+
+            let fullResponse = "";
+            let aiBubble; // To store the AI bubble for streaming
+            
+            try {
+                const response = await puter.ai.chat(chatHistory, { 
+                    model: model, 
+                    stream: true,
+                    signal: abortController.signal // Pass the signal
+                });
+                
+                typingIndicator.remove();
+                aiBubble = appendMessage('ai', []); // Add empty bubble
+                const aiContentElement = aiBubble.querySelector('.ai-content');
+                
+                // We'll build the content in a temporary div to parse markdown parts
+                let streamedText = "";
+                
+                for await (const part of response) {
+                    if (part?.text) {
+                        streamedText += part.text;
+                        // Render markdown in real-time
+                        aiContentElement.innerHTML = marked.parse(streamedText);
+                        scrollToBottom();
+                    }
+                }
+                
+                fullResponse = streamedText; // Final complete response
+
+                // Final processing
+                aiContentElement.innerHTML = marked.parse(fullResponse);
+                aiContentElement.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightBlock(block);
+                    addCopyButton(block.parentElement);
+                });
+                
+                chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
+                saveChatHistory();
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    // Stream was stopped by user
+                    if (aiBubble) {
+                        // If we have partial text, save it
+                        const aiContentElement = aiBubble.querySelector('.ai-content');
+                        fullResponse = aiContentElement.innerText + " ... [Stopped by user]";
+                        aiContentElement.innerHTML = marked.parse(fullResponse);
+                    } else {
+                        // If stopped before any output
+                        typingIndicator.remove();
+                    }
+                    chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse || "[Stopped by user]" }] });
+                    saveChatHistory();
+                } else {
+                    console.error('Error calling AI:', error);
+                    if(typingIndicator) typingIndicator.remove();
+                    if(aiBubble) aiBubble.remove();
+                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred: ${error.message}` }]);
+                }
+            } 
+            finally {
+                setAIGenerating(false); // Re-enable input
+                scrollToBottom();
+            }
+        }
+
+        // --- DOM Manipulation ---
         function addCopyButton(preElement) {
             const button = document.createElement('button');
             button.className = 'copy-btn';
-            button.textContent = 'Copy';
+            button.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
             
             button.addEventListener('click', () => {
                 const code = preElement.querySelector('code').innerText;
                 try {
-                    // Fallback for clipboard API in iFrames
                     const textarea = document.createElement('textarea');
                     textarea.value = code;
                     textarea.style.position = 'absolute';
@@ -410,70 +492,120 @@
                     document.execCommand('copy');
                     document.body.removeChild(textarea);
                     
-                    button.textContent = 'Copied!';
-                    setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+                    button.innerHTML = '<ion-icon name="checkmark-outline" class="w-4 h-4"></ion-icon> <span>Copied!</span>';
+                    setTimeout(() => { 
+                        button.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
+                    }, 2000);
                 } catch (err) {
-                    console.error('Failed to copy text: ', err);
-                    button.textContent = 'Error';
+                    button.innerHTML = '<span>Error</span>';
                 }
             });
             
-            preElement.style.position = 'relative'; // Anchor for the button
+            preElement.style.position = 'relative';
             preElement.appendChild(button);
         }
 
         function appendMessage(type, contentParts = []) {
             const bubbleWrapper = document.createElement('div');
+            bubbleWrapper.className = 'chat-message-wrapper w-full flex';
+            
+            let bubbleContent = '';
             
             if (type === 'user') {
-                bubbleWrapper.className = 'chat-bubble-user flex justify-end';
-                const bubble = document.createElement('div');
-                bubble.className = 'bg-blue-600 text-white rounded-lg p-3 max-w-xl lg:max-w-3xl shadow';
+                bubbleWrapper.classList.add('justify-end');
+                let textContent = '';
+                let imgContent = '';
+                
                 contentParts.forEach(part => {
                     if (part.type === 'text') {
-                        const p = document.createElement('p');
-                        p.className = 'whitespace-pre-wrap'; // Preserve newlines
-                        p.textContent = part.text;
-                        bubble.appendChild(p);
+                        textContent = `<p class="whitespace-pre-wrap">${part.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>`;
                     } else if (part.type === 'image_data') {
-                        const img = document.createElement('img');
-                        img.src = `data:image/png;base64,${part.data}`;
-                        img.className = 'rounded-lg max-w-xs mb-2';
-                        bubble.prepend(img); // Show image above text
+                        imgContent = `<img src="data:image/png;base64,${part.data}" class="rounded-lg max-w-xs mb-2 border border-blue-200">`;
                     }
                 });
-                bubbleWrapper.appendChild(bubble);
-
-            } else if (type === 'ai') {
-                bubbleWrapper.className = 'chat-bubble-ai';
-                bubbleWrapper.innerHTML = `
-                    <div class="bg-white dark:bg-gray-700 rounded-lg p-4 max-w-xl lg:max-w-3xl shadow text-gray-900 dark:text-gray-100">
-                        <div class="ai-content prose prose-sm dark:prose-invert max-w-none"></div>
+                
+                bubbleContent = `
+                    <div class="bg-blue-600 text-white rounded-2xl rounded-tr-lg p-4 max-w-xl lg:max-w-3xl shadow-md">
+                        ${imgContent}
+                        ${textContent}
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold ml-3">
+                        <ion-icon name="person-outline" class="w-6 h-6"></ion-icon>
                     </div>
                 `;
-                if (contentParts.length > 0) {
-                    const aiContentElement = bubbleWrapper.querySelector('.ai-content');
-                    aiContentElement.innerHTML = marked.parse(contentParts[0].text);
-                }
+
+            } else if (type === 'ai' || type === 'ai_error') {
+                bubbleWrapper.classList.add('justify-start');
+                let text = (contentParts[0]?.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                let errorClass = type === 'ai_error' ? 'bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700' : 'bg-white dark:bg-slate-800 shadow-md';
+                
+                bubbleContent = `
+                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <div class="ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
+                        <div class="ai-content prose prose-sm dark:prose-invert max-w-none">
+                            ${marked.parse(text)}
+                        </div>
+                    </div>
+                `;
                 
             } else if (type === 'ai_typing') {
-                bubbleWrapper.className = 'chat-bubble-ai';
-                bubbleWrapper.innerHTML = `
-                    <div class="bg-white dark:bg-gray-700 rounded-lg p-4 max-w-min shadow">
+                bubbleWrapper.classList.add('justify-start');
+                bubbleContent = `
+                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl rounded-tl-lg p-5 shadow-md">
                         <div class="dot-flashing"></div>
                     </div>
                 `;
             }
 
+            bubbleWrapper.innerHTML = bubbleContent;
             chatLog.appendChild(bubbleWrapper);
-            chatLog.scrollTop = chatLog.scrollHeight;
             return bubbleWrapper;
+        }
+        
+        function appendWelcomeMessage() {
+            appendMessage('ai', [{ type: 'text', text: 'Hello! This is Claude. How can I help you today?' }]);
+        }
+
+        function scrollToBottom() {
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+        
+        // --- Chat History (Cache) ---
+        function saveChatHistory() {
+            localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
+        }
+        
+        function loadChatHistory() {
+            const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
+            if (savedHistory) {
+                chatHistory = JSON.parse(savedHistory);
+                chatLog.innerHTML = ''; // Clear any existing
+                chatHistory.forEach(message => {
+                    appendMessage(message.role === 'user' ? 'user' : 'ai', message.content);
+                });
+                // Re-apply code highlighting
+                chatLog.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightBlock(block);
+                    addCopyButton(block.parentElement);
+                });
+            } else {
+                appendWelcomeMessage();
+            }
+            scrollToBottom();
         }
 
         // --- Init ---
-        appendMessage('ai', [{ type: 'text', text: 'Hello! This is Claude. How can I help you today?' }]);
-        promptInput.focus();
+        document.addEventListener('DOMContentLoaded', () => {
+            loadChatHistory();
+            promptInput.focus();
+        });
         
     </script>
 </body>
 </html>
+
