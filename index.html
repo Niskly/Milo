@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<!-- The 'dark' class will be added here by the inline script if needed -->
-<html lang="en" class="">
+<!-- 
+  Set permanently to dark mode.
+  No more inline script.
+-->
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,8 +21,8 @@
         
         body::-webkit-scrollbar { width: 8px; }
         body::-webkit-scrollbar-track { background: transparent; }
-        body::-webkit-scrollbar-thumb { @apply bg-gray-300; border-radius: 4px; }
-        .dark body::-webkit-scrollbar-thumb { @apply bg-gray-700; }
+        /* Scrollbar is dark now */
+        body::-webkit-scrollbar-thumb { @apply bg-gray-700; border-radius: 4px; }
         
         .feature-card {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -30,28 +33,15 @@
     </style>
     
     <!-- 
-      THIS SCRIPT RUNS INSTANTLY TO PREVENT THE "FLASH"
-    -->
-    <script>
-        (function() {
-            const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            if (theme === 'light') {
-                document.documentElement.classList.remove('dark');
-            } else {
-                document.documentElement.classList.add('dark');
-            }
-        })();
-    </script>
-    
-    <!-- 
       'defer' MAKES THIS SCRIPT RUN AFTER THE HTML IS PARSED
     -->
     <script src="js/main.js" defer></script>
 </head>
 <!-- 
-  CORRECT BODY CLASSES
+  BODY styles are now just the dark mode styles by default.
+  The "dark:" prefixes will work because <html> has class="dark".
 -->
-<body class="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
+<body class="bg-black text-white transition-colors duration-300">
 
     <!-- This placeholder will be filled by js/main.js -->
     <div id="navbar-placeholder"></div>
@@ -60,7 +50,7 @@
         <!-- Hero Section -->
         <section class="text-center py-20 sm:py-28 lg:py-36 px-4">
             <div class="max-w-5xl mx-auto">
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-900 rounded-full mb-8">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 rounded-full mb-8">
                     <span class="text-2xl">⚡</span>
                     <span class="text-sm font-semibold">Powered by Next-Gen AI</span>
                 </div>
@@ -69,16 +59,16 @@
                     Chat with Powerful AI
                 </h1>
                 
-                <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+                <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
                     Experience Claude and OpenAI models directly in your browser. No setup, no limits, just pure AI power.
                 </p>
                 
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="claude.html" class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:shadow-2xl">
+                    <a href="claude.html" class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:shadow-2xl">
                         <span>Start with Claude</span>
                         <ion-icon name="arrow-forward-outline" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></ion-icon>
                     </a>
-                    <a href="openai.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-black dark:border-white text-black dark:text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:bg-gray-50 dark:hover:bg-gray-900">
+                    <a href="openai.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105 hover:bg-gray-900">
                         <span>Try OpenAI</span>
                     </a>
                 </div>
@@ -86,42 +76,42 @@
         </section>
 
         <!-- Features Section -->
-        <section class="py-20 bg-gray-50 dark:bg-gray-950">
+        <section class="py-20 bg-gray-950">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-3xl mx-auto mb-16">
                     <h2 class="text-4xl md:text-5xl font-black mb-4">Everything you need</h2>
-                    <p class="text-lg text-gray-600 dark:text-gray-400">
+                    <p class="text-lg text-gray-400">
                         Built with Puter.js for seamless, unlimited access to the world's best AI models
                     </p>
                 </div>
                 
                 <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
-                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border-2 border-gray-200 dark:border-gray-800">
-                        <div class="w-14 h-14 rounded-xl bg-black dark:bg-white flex items-center justify-center text-3xl mb-6">
+                    <div class="feature-card bg-gray-900 p-8 rounded-2xl border-2 border-gray-800">
+                        <div class="w-14 h-14 rounded-xl bg-white flex items-center justify-center text-3xl mb-6">
                             <span class="dark:invert">💬</span>
                         </div>
                         <h3 class="text-2xl font-bold mb-3">Real-time Streaming</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <p class="text-gray-400 leading-relaxed">
                             Watch responses appear instantly as they're generated. No delays, just natural conversation flow.
                         </p>
                     </div>
                     
-                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border-2 border-gray-200 dark:border-gray-800">
-                        <div class="w-14 h-14 rounded-xl bg-black dark:bg-white flex items-center justify-center text-3xl mb-6">
+                    <div class="feature-card bg-gray-900 p-8 rounded-2xl border-2 border-gray-800">
+                        <div class="w-14 h-14 rounded-xl bg-white flex items-center justify-center text-3xl mb-6">
                             <span class="dark:invert">🖼️</span>
                         </div>
                         <h3 class="text-2xl font-bold mb-3">Vision Support</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <p class="text-gray-400 leading-relaxed">
                             Upload images and get AI insights. Perfect for analyzing photos, diagrams, and documents.
                         </p>
                     </div>
                     
-                    <div class="feature-card bg-white dark:bg-gray-900 p-8 rounded-2xl border-2 border-gray-200 dark:border-gray-800">
-                        <div class="w-14 h-14 rounded-xl bg-black dark:bg-white flex items-center justify-center text-3xl mb-6">
+                    <div class="feature-card bg-gray-900 p-8 rounded-2xl border-2 border-gray-800">
+                        <div class="w-14 h-14 rounded-xl bg-white flex items-center justify-center text-3xl mb-6">
                             <span class="dark:invert">⚙️</span>
                         </div>
                         <h3 class="text-2xl font-bold mb-3">Code Ready</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <p class="text-gray-400 leading-relaxed">
                             Get syntax-highlighted code with copy and edit buttons. Built for developers.
                         </p>
                     </div>
@@ -131,14 +121,14 @@
 
         <!-- CTA Section -->
         <section class="py-20 px-4">
-            <div class="max-w-4xl mx-auto text-center bg-black dark:bg-white rounded-3xl p-12 md:p-16">
-                <h2 class="text-3xl md:text-5xl font-black text-white dark:text-black mb-6">
+            <div class="max-w-4xl mx-auto text-center bg-white rounded-3xl p-12 md:p-16">
+                <h2 class="text-3xl md:text-5xl font-black text-black mb-6">
                     Ready to experience the future?
                 </h2>
-                <p class="text-lg text-gray-300 dark:text-gray-700 mb-8">
+                <p class="text-lg text-gray-700 mb-8">
                     Start chatting with advanced AI models right now. No signup required.
                 </p>
-                <a href="claude.html" class="inline-flex items-center gap-2 px-8 py-4 bg-white dark:bg-black text-black dark:text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105">
+                <a href="claude.html" class="inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-bold rounded-xl text-lg transition-all duration-200 hover:scale-105">
                     Get Started Free
                     <ion-icon name="arrow-forward-outline" class="w-5 h-5"></ion-icon>
                 </a>
@@ -146,12 +136,13 @@
         </section>
     </main>
 
-    <footer class="border-t border-gray-200 dark:border-gray-800 py-12 px-4">
+    <footer class="border-t border-gray-800 py-12 px-4">
         <div class="max-w-7xl mx-auto text-center">
-            <p class="text-gray-600 dark:text-gray-400">
+            <p class="text-gray-400">
                 Powered by <a href="https://puter.com" target="_blank" class="font-semibold hover:underline">Puter.js</a>
             </p>
         </div>
     </footer>
 </body>
 </html>
+
