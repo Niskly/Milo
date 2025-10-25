@@ -24,11 +24,11 @@
                     
                     <!-- Desktop Links -->
                     <div class="hidden md:flex items-center space-x-2">
-                        <a href="index.html" data-page="index" class="nav-link px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200">Home</a>
+                        <a href="index.html" data-page="index" class="nav-link px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-black/40 border border-purple-700/50">Home</a>
                         
                         <!-- Dropdown -->
                         <div class="relative" id="dropdown-toggle">
-                            <button class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-purple-200 hover:text-white hover:bg-purple-800/60 transition-all duration-200">
+                            <button class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-purple-200 hover:text-white transition-all duration-200 bg-black/40 border border-purple-700/50 hover:border-purple-600">
                                 <span>Chat Models</span>
                                 <ion-icon name="chevron-down-outline" class="w-4 h-4 transition-transform duration-200" id="dropdown-icon"></ion-icon>
                             </button>
@@ -62,7 +62,12 @@
             
             <!-- Mobile Menu -->
             <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 space-y-1 border-t border-purple-800/50 mt-2 pt-2">
-                <a href="index.html" data-page="index" class="nav-link block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200">Home</a>
+                <a href="index.html" data-page="index" class="nav-link block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🏠</span>
+                        <span>Home</span>
+                    </div>
+                </a>
                 <a href="claude.html" data-page="claude" class="nav-link block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200">
                     <div class="flex items-center gap-3">
                         <div class="w-2 h-2 rounded-full bg-purple-400"></div>
