@@ -38,13 +38,16 @@
         .dark #chat-log::-webkit-scrollbar-thumb { background: #4b5563; }
 
         /* --- Chat Bubble Content Styling (prose-*) --- */
-        .ai-content p { @apply mb-4 last:mb-0; }
+        .ai-content p { @apply mb-4 last:mb0; }
         .ai-content ul, .ai-content ol { @apply list-inside mb-4 pl-2 space-y-1; }
         .ai-content ul { @apply list-disc; }
         .ai-content ol { @apply list-decimal; }
         .ai-content li { @apply leading-relaxed; }
         .ai-content code:not(pre code) { @apply text-sm bg-slate-200 dark:bg-slate-700 rounded px-1.5 py-0.5 font-mono; }
-        .ai-content pre { @apply bg-slate-900 rounded-lg p-4 mb-4 relative text-sm; }
+        
+        /* --- FIX IS HERE --- */
+        .ai-content pre { @apply bg-slate-900 rounded-lg p-4 mb-4 relative text-sm overflow-x-auto; }
+        
         .ai-content a { @apply text-blue-500 hover:underline; }
         .ai-content img { @apply rounded-lg border border-slate-200 dark:border-slate-700; }
 
@@ -271,8 +274,6 @@
         const stopBtnContainer = document.getElementById('stop-btn-container');
         const stopBtn = document.getElementById('stop-btn');
         
-        // --- HISTORY REMOVED ---
-        // let chatHistory = []; 
         let attachedImageBase64 = null;
         let isAIGenerating = false;
         let abortController = null; // To stop the stream
@@ -337,13 +338,13 @@
             const userMessageParts = [];
             if (attachedImageBase64) {
                 const base64Data = attachedImageBase64.split(',')[1];
+                // Use the data format Claude expects
                 userMessageParts.push({ type: 'image_data', data: base64Data });
             }
             if (promptText) {
                 userMessageParts.push({ type: 'text', text: promptText });
             }
             
-            // *** FIX HERE: Use 'content' property ***
             const userMessage = { role: 'user', content: userMessageParts };
             appendMessage('user', userMessage.content);
             
@@ -353,7 +354,6 @@
             clearAttachment();
 
             // Start AI call
-            // We pass the userMessage, which will be the *only* thing in the history
             await callChatAI(model, userMessage);
         }
         
@@ -383,38 +383,16 @@
         }
 
         // --- AI API Call: Chat ---
-        // Takes the single userMessage as a parameter
         async function callChatAI(model, userMessage) {
             setAIGenerating(true);
             const typingIndicator = appendMessage('ai_typing');
             scrollToBottom();
 
             let fullResponse = "";
-            let aiBubble; // To store the AI bubble for streaming
+            let aiBubble;
             
-            // *** FIX HERE: Create history array correctly ***
             // We just send the single message, no history.
-            // We also map the 'content' parts to the format Puter.js expects
-            // for multimodal (image + text) input.
-            const messageForPuter = [userMessage].map(msg => ({
-                role: msg.role,
-                content: msg.content.map(part => {
-                    if (part.type === 'image_data') {
-                        // This format is for Claude. OpenAI might use a different one.
-                        // Let's try sending the format OpenAI uses, as it's more standard.
-                        return { type: 'image_url', image_url: { url: `data:image/png;base64,${part.data}` } };
-                    }
-                    return { type: 'text', text: part.text };
-                })
-            }));
-
-            // After re-reading the OpenAI/Claude differences, it's safer
-            // to send the format I had before which worked for OpenAI,
-            // as Puter.js might normalize it.
-            // The userMessage is already { role: 'user', content: [...] }
-            // Let's just send that directly.
             const claudeHistory = [userMessage];
-
 
             try {
                 // Use puter.ai.chat()
@@ -450,10 +428,6 @@
                     }
                 });
                 
-                // --- HISTORY REMOVED ---
-                // chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
-                // saveChatHistory();
-
             } catch (error) {
                 if (error.name === 'AbortError') {
                     if (aiBubble) {
@@ -463,9 +437,6 @@
                     } else {
                         typingIndicator.remove();
                     }
-                    // --- HISTORY REMOVED ---
-                    // chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse || "[Stopped by user]" }] });
-                    // saveChatHistory();
                 } else {
                     console.error('Error calling Chat AI:', error);
                     if(typingIndicator) typingIndicator.remove();
@@ -637,8 +608,6 @@
         }
         
         function appendWelcomeMessage() {
-            // --- HISTORY REMOVED ---
-            // if (chatHistory.length > 0) return; // Don't append if history is loaded
             appendMessage('ai', [{ type: 'text', text: 'Hello! This is Claude. How can I help you today?' }]);
         }
 
@@ -646,14 +615,8 @@
             chatLog.scrollTop = chatLog.scrollHeight;
         }
         
-        // --- CHAT HISTORY (CACHE) REMOVED ---
-        
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
-            // --- HISTORY REMOVED ---
-            // loadChatHistory(); 
-            
-            // Just add the welcome message
             appendWelcomeMessage();
             promptInput.focus();
         });
