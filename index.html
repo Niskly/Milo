@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class=""> <!-- `dark` class is added by js/main.js -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,8 +15,9 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
-    <!-- 4. Our New Main JavaScript File -->
-    <script src="js/main.js" type="module" defer></script>
+    <!-- 4. Load the main JS file -->
+    <!-- This file also handles applying the initial theme -->
+    <script src="js/main.js" type="module"></script>
 
     <style>
         /* --- General Styles --- */
@@ -28,50 +29,52 @@
         /* Custom scrollbar */
         body::-webkit-scrollbar { width: 8px; }
         body::-webkit-scrollbar-track { background: transparent; }
-        /* Light scrollbar */
-        body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-        /* Dark scrollbar */
-        body.dark::-webkit-scrollbar-thumb { background: #374151; }
+        /* Light mode scrollbar */
+        body::-webkit-scrollbar-thumb { @apply bg-gray-400; border-radius: 4px; }
+        /* Dark mode scrollbar */
+        .dark body::-webkit-scrollbar-thumb { @apply bg-gray-700; }
         
-        /* UPDATED: Gradient text for Black/White Theme */
+        /* * THEME FIX IS HERE: Gradient text
+         * This style makes the text black in light mode and white in dark mode.
+         */
         .gradient-text {
-            @apply bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900;
+            @apply bg-gradient-to-r from-gray-900 to-gray-700; /* Dark text for light mode */
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .dark .gradient-text {
-             @apply from-gray-100 via-gray-300 to-gray-100;
+            @apply from-gray-100 to-gray-400; /* Light text for dark mode */
         }
     </style>
-    
 </head>
-<!-- UPDATED: Body classes for pure black/white theme -->
+<!-- UPDATED: Pure black/white theme -->
 <body class="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
 
-    <!-- ========== Navigation Bar Placeholder ========== -->
-    <!-- js/main.js will load components/navbar.html here -->
+    <!-- 
+      * This div is the placeholder. 
+      * js/main.js will load components/navbar.html into here.
+    -->
     <div id="navbar-placeholder"></div>
 
     <!-- ========== Main Content ========== -->
     <main>
         <!-- Hero section -->
-        <section class="text-center py-24 sm:py-32 lg:py-40">
+        <section class.="text-center py-24 sm:py-32 lg:py-40">
             <div class="max-w-4xl mx-auto px-4">
                 <h1 class="text-5xl md:text-7xl font-extrabold tracking-tighter">
                     Access <span class="gradient-text">Powerful AI</span> Models
                 </h1>
-                <p class="mt-6 text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+                <p class="mt-6 text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Chat with next-generation AI from Claude and OpenAI directly in your browser. 
                     No API keys, no servers, no limits.
                 </p>
                 <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-                    <!-- UPDATED: High-contrast Black/White buttons -->
-                    <a href="claude.html" 
-                       class="inline-block px-8 py-3 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg text-lg transform transition duration-200 shadow-lg hover:shadow-gray-500/30 hover:scale-105">
+                    <!-- Primary Button (Inverted) -->
+                    <a href="claude.html" class="inline-block px-8 py-3 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg text-lg transition duration-200 shadow-lg hover:scale-105">
                         Chat with Claude
                     </a>
-                    <a href="openai.html" 
-                       class="inline-block px-8 py-3 bg-transparent border-2 border-black dark:border-white text-black dark:text-white font-bold rounded-lg text-lg transform transition duration-200 shadow-lg hover:shadow-gray-500/30 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-900">
+                    <!-- Secondary Button (Outline) -->
+                    <a href="openai.html" classs="inline-block px-8 py-3 bg-transparent border-2 border-gray-800 dark:border-gray-200 text-black dark:text-white font-bold rounded-lg text-lg transition duration-200 hover:scale-105 hover:bg-gray-100 dark:hover:bg-gray-900">
                         Try OpenAI
                     </a>
                 </div>
@@ -79,11 +82,10 @@
         </section>
 
         <!-- Feature section -->
-        <!-- UPDATED: Contrasting background for this section -->
-        <section class="py-24 bg-gray-50 dark:bg-gray-950">
+        <section class="py-24 bg-gray-100 dark:bg-gray-950">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-2xl mx-auto">
-                    <h2 class="text-3xl font-extrabold tracking-tight text-black dark:text-white">One Platform, All Models</h2>
+                    <h2 class="text-3xl font-extrabold tracking-tight">One Platform, All Models</h2>
                     <p class="mt-4 text-lg text-gray-600 dark:text-gray-300">
                         Using Puter.js, this app gives you free, unlimited access to the world's most advanced AI.
                     </p>
@@ -91,28 +93,27 @@
                 
                 <div class="mt-16 grid md:grid-cols-3 gap-8">
                     <!-- Feature 1 -->
-                    <!-- UPDATED: Cards are white/black with border -->
-                    <div class="bg-white dark:bg-black p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-800">
-                        <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                            <ion-icon name="chatbubbles-outline" class="w-6 h-6 text-black dark:text-white"></ion-icon>
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-800">
+                        <div class="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-2xl">
+                            💬
                         </div>
-                        <h3 class="mt-4 text-xl font-semibold text-black dark:text-white">💬 Real-time Chat</h3>
+                        <h3 class="mt-4 text-xl font-semibold">Real-time Chat</h3>
                         <p class="mt-2 text-gray-600 dark:text-gray-400">Stream responses instantly. No waiting, just a natural conversation.</p>
                     </div>
                     <!-- Feature 2 -->
-                    <div class="bg-white dark:bg-black p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-800">
-                        <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                             <ion-icon name="image-outline" class="w-6 h-6 text-black dark:text-white"></ion-icon>
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-800">
+                        <div class="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-2xl">
+                            🖼️
                         </div>
-                        <h3 class="mt-4 text-xl font-semibold text-black dark:text-white">🖼️ Multimodal Input</h3>
+                        <h3 class="mt-4 text-xl font-semibold">Multimodal Input</h3>
                         <p class="mt-2 text-gray-600 dark:text-gray-400">Upload images and ask questions. Get insights on photos, charts, and more.</p>
                     </div>
                     <!-- Feature 3 -->
-                    <div class="bg-white dark:bg-black p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-800">
-                        <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                             <ion-icon name="code-slash-outline" class="w-6 h-6 text-black dark:text-white"></ion-icon>
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-800">
+                        <div class="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-2xl">
+                            💻
                         </div>
-                        <h3 class="mt-4 text-xl font-semibold text-black dark:text-white">💻 Developer Friendly</h3>
+                        <h3 class="mt-4 text-xl font-semibold">Developer Friendly</h3>
                         <p class="mt-2 text-gray-600 dark:text-gray-400">Get syntax-highlighted code blocks with a one-click copy button.</p>
                     </div>
                 </div>
@@ -121,15 +122,17 @@
     </main>
 
     <!-- ========== Footer ========== -->
-    <footer class="bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
+    <footer class="bg-gray-900 dark:bg-gray-950">
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-base text-gray-500 dark:text-gray-400">
-                Powered by <a href="https://puter.com" target="_blank" class="font-medium text-gray-700 dark:text-gray-300 hover:underline">Puter.js</a>.
+            <p class="text-center text-base text-gray-400">
+                Powered by <a href="https://puter.com" target="_blank" class="font-medium text-blue-400 hover:underline">Puter.js</a>.
             </p>
         </div>
     </footer>
     
-    <!-- NO JAVASCRIPT NEEDED HERE - IT'S ALL IN js/main.js -->
+    <!-- NO MORE JAVASCRIPT LOGIC HERE -->
+    <!-- Everything is handled by js/main.js -->
+
 </body>
 </html>
 
