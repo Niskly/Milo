@@ -1,15 +1,16 @@
 <!-- ========== Navigation Bar ========== -->
 <!-- This HTML is loaded by js/main.js -->
-<nav class="bg-white/70 dark:bg-black/70 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+<!-- UPDATED: Inverted theme: black bg in light mode, white bg in dark mode -->
+<nav class="bg-black/90 dark:bg-white/90 backdrop-blur-lg border-b border-gray-800 dark:border-gray-200 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
             
-            <!-- Logo/Brand (Black/White) -->
+            <!-- Logo/Brand (White/Black) -->
             <a href="index.html" class="flex-shrink-0 flex items-center gap-2">
-                <!-- UPDATED: Logo is now text-black dark:text-white -->
-                <svg class="w-8 h-8 text-black dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                <!-- UPDATED: Text is now text-black dark:text-white -->
-                <span class="text-xl font-bold text-black dark:text-white">My AI App</span>
+                <!-- UPDATED: Logo is now text-white dark:text-black -->
+                <svg class="w-8 h-8 text-white dark:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                <!-- UPDATED: Text is now text-white dark:text-black -->
+                <span class="text-xl font-bold text-white dark:text-black">My AI App</span>
             </a>
             
             <!-- Desktop Links -->
@@ -19,19 +20,21 @@
                 
                 <!-- Dropdown -->
                 <div class="relative" id="dropdown-toggle">
-                    <button class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <!-- UPDATED: Link text for inverted theme -->
+                    <button class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-300 dark:text-gray-600 hover:bg-gray-800 dark:hover:bg-gray-100">
                         <span>Chat Models</span>
                         <ion-icon name="chevron-down-outline" class="w-4 h-4 ml-1"></ion-icon>
                     </button>
-                    <!-- UPDATED: Dropdown menu uses dark gray for contrast -->
-                    <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1">
+                    <!-- UPDATED: Dropdown menu is inverted -->
+                    <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-black dark:bg-white border border-gray-700 dark:border-gray-200 rounded-lg shadow-lg py-1">
                         <a href="claude.html" data-page="claude" class="nav-link block px-4 py-2 text-sm">Claude</a>
                         <a href="openai.html" data-page="openai" class="nav-link block px-4 py-2 text-sm">OpenAI</a>
                     </div>
                 </div>
                 
                 <!-- Theme Toggle -->
-                <button id="theme-toggle-btn" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <!-- UPDATED: Icon text for inverted theme -->
+                <button id="theme-toggle-btn" class="p-2 rounded-full text-gray-300 dark:text-gray-600 hover:bg-gray-800 dark:hover:bg-gray-100">
                     <ion-icon name="moon-outline" class="w-5 h-5" style="display: none;"></ion-icon>
                     <ion-icon name="sunny-outline" class="w-5 h-5" style="display: none;"></ion-icon>
                 </button>
@@ -39,11 +42,12 @@
             
             <!-- Mobile Menu Button -->
             <div class="md:hidden flex items-center">
-                <button id="theme-toggle-btn-mobile" class="p-2 mr-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <!-- UPDATED: Icon text for inverted theme -->
+                <button id="theme-toggle-btn-mobile" class="p-2 mr-2 rounded-full text-gray-300 dark:text-gray-600 hover:bg-gray-800 dark:hover:bg-gray-100">
                     <ion-icon name="moon-outline" class="w-5 h-5" style="display: none;"></ion-icon>
                     <ion-icon name="sunny-outline" class="w-5 h-5" style="display: none;"></ion-icon>
                 </button>
-                <button id="mobile-menu-btn" class="p-2 rounded-md text-gray-600 dark:text-gray-300">
+                <button id="mobile-menu-btn" class="p-2 rounded-md text-gray-300 dark:text-gray-600">
                     <ion-icon name="menu-outline" class="w-6 h-6"></ion-icon>
                 </button>
             </div>
@@ -51,7 +55,8 @@
     </div>
     
     <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200 dark:border-gray-800">
+    <!-- UPDATED: Inverted mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-700 dark:border-gray-200">
         <a href="index.html" data-page="index" class="nav-link block px-3 py-2 rounded-md text-base font-medium">Home</a>
         <a href="claude.html" data-page="claude" class="nav-link block px-3 py-2 rounded-md text-base font-medium">Claude</a>
         <a href="openai.html" data-page="openai" class="nav-link block px-3 py-2 rounded-md text-base font-medium">OpenAI</a>
