@@ -3,125 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude AI Website</title>
-    <!-- 1. Include Tailwind CSS for styling -->
+    <title>Claude AI Chat</title>
+    <!-- 1. Include Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 2. Include Puter.js -->
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        /* Simple loading spinner */
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #ffffff;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
+        /* Custom scrollbar for webkit browsers */
+        #chat-log::-webkit-scrollbar {
+            width: 6px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        #chat-log::-webkit-scrollbar-track {
+            background: #2d3748; /* gray-800 */
+        }
+        #chat-log::-webkit-scrollbar-thumb {
+            background: #4a5568; /* gray-600 */
+            border-radius: 3px;
+        }
+        #chat-log::-webkit-scrollbar-thumb:hover {
+            background: #718096; /* gray-500 */
+        }
+        /* Simple spinner for the AI "typing..." bubble */
+        .dot-flashing {
+            position: relative;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background-color: #a0aec0; /* gray-400 */
+            color: #a0aec0;
+            animation: dotFlashing 1s infinite linear alternate;
+            animation-delay: .5s;
+        }
+        .dot-flashing::before, .dot-flashing::after {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            top: 0;
+        }
+        .dot-flashing::before {
+            left: -12px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background-color: #a0aec0;
+            color: #a0aec0;
+            animation: dotFlashing 1s infinite alternate;
+            animation-delay: 0s;
+        }
+        .dot-flashing::after {
+            left: 12px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background-color: #a0aec0;
+            color: #a0aec0;
+            animation: dotFlashing 1s infinite alternate;
+            animation-delay: 1s;
+        }
+        @keyframes dotFlashing {
+            0% { background-color: #a0aec0; }
+            50%, 100% { background-color: rgba(160, 174, 192, 0.2); }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white font-sans min-h-screen p-4 md:p-8">
+<body class="bg-gray-900 text-white font-sans flex flex-col h-screen">
 
-    <div class="max-w-3xl mx-auto">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold mb-2">My Claude AI App</h1>
-            <p class="text-lg text-gray-400">Powered by Puter.js & Vercel</p>
-        </header>
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <h1 class="text-xl font-bold">Claude AI Chat</h1>
+            <select id="model-select" name="model" class="bg-gray-700 border border-gray-600 rounded-md p-1.5 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
+                <option value="claude-3-7-opus">Claude 3.7 Opus</option>
+                <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+                <option value="claude-sonnet-4">Claude Sonnet 4</option>
+            </select>
+        </div>
+        <button id="clear-chat" class="text-sm text-gray-400 hover:text-white transition">Clear Chat</button>
+    </header>
 
-        <!-- Form for user input -->
-        <form id="ai-form" class="space-y-4">
-            <div>
-                <label for="prompt" class="block text-sm font-medium text-gray-300 mb-2">Enter your prompt:</label>
-                <textarea id="prompt" name="prompt" rows="4" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="e.g., Explain quantum computing in simple terms..."></textarea>
-            </div>
-
-            <div>
-                <label for="model-select" class="block text-sm font-medium text-gray-300 mb-2">Select a model:</label>
-                <select id="model-select" name="model" class="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <option value="claude-3-7-sonnet">Claude 3.7 Sonnet (New)</option>
-                    <option value="claude-3-7-opus">Claude 3.7 Opus (New)</option>
-                    <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
-                    <option value="claude-sonnet-4">Claude Sonnet 4</option>
-                    <option value="claude-opus-4-1">Claude Opus 4.1</option>
-                    <option value="claude-opus-4">Claude Opus 4</option>
-                </select>
-            </div>
-
-            <button type="submit" id="generate-btn" class="w-full flex justify-center items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
-                <span id="btn-text">Generate</span>
-                <div id="spinner" class="spinner hidden"></div>
-            </button>
-        </form>
-
-        <!-- Section for displaying results -->
-        <div class="mt-8">
-            <h2 class="text-2xl font-semibold mb-4">Response:</h2>
-            <div id="results-container" class="p-4 bg-gray-800 border border-gray-700 rounded-lg min-h-[150px]">
-                <!-- Using <pre> to preserve whitespace and newlines from the AI response -->
-                <pre id="results" class="whitespace-pre-wrap font-mono"></pre>
+    <!-- Chat Log -->
+    <main id="chat-log" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- AI Welcome Message -->
+        <div class="chat-bubble-ai">
+            <div class="bg-gray-700 rounded-lg p-3 max-w-xl">
+                <p>Hello! How can I help you today? You can also attach an image.</p>
             </div>
         </div>
-    </div>
+        <!-- Chat messages will be dynamically added here -->
+    </main>
+
+    <!-- Chat Input Area -->
+    <footer class="p-4 bg-gray-800 border-t border-gray-700">
+        <form id="chat-form" class="flex items-center gap-3">
+            <!-- File Upload Button -->
+            <label for="file-upload" class="cursor-pointer text-gray-400 hover:text-white p-2 rounded-full transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/>
+                </svg>
+            </label>
+            <input type="file" id="file-upload" accept="image/*" class="hidden">
+
+            <!-- Image Preview -->
+            <div id="image-preview-container" class="relative hidden">
+                <img id="image-preview" class="w-12 h-12 rounded-lg object-cover">
+                <button id="remove-image" type="button" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">&times;</button>
+            </div>
+
+            <!-- Text Input -->
+            <input type="text" id="prompt-input" class="flex-1 p-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Type your message or attach an image...">
+
+            <!-- Send Button -->
+            <button type="submit" id="send-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-5 rounded-lg transition duration-200">
+                Send
+            </button>
+        </form>
+    </footer>
 
     <script>
-        // 3. JavaScript logic to tie it all together
-        const aiForm = document.getElementById('ai-form');
-        const promptInput = document.getElementById('prompt');
+        // 3. JavaScript logic for the chat app
+        const chatLog = document.getElementById('chat-log');
+        const chatForm = document.getElementById('chat-form');
+        const promptInput = document.getElementById('prompt-input');
         const modelSelect = document.getElementById('model-select');
-        const resultsEl = document.getElementById('results');
-        const generateBtn = document.getElementById('generate-btn');
-        const btnText = document.getElementById('btn-text');
-        const spinner = document.getElementById('spinner');
+        const sendBtn = document.getElementById('send-btn');
+        const fileUpload = document.getElementById('file-upload');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image');
+        const clearChatBtn = document.getElementById('clear-chat');
 
-        // Handle form submission
-        aiForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Prevent the form from reloading the page
+        // This array will hold the entire conversation history
+        let chatHistory = [];
+        // This will store the base64 string of the uploaded image
+        let attachedImageBase64 = null;
 
-            const prompt = promptInput.value;
+        // --- Event Listeners ---
+
+        // Handle form submission (sending a message)
+        chatForm.addEventListener('submit', handleSendMessage);
+
+        // Handle file selection
+        fileUpload.addEventListener('change', handleFileSelect);
+
+        // Handle removing the attached image
+        removeImageBtn.addEventListener('click', clearAttachment);
+        
+        // Handle clearing the chat
+        clearChatBtn.addEventListener('click', () => {
+            chatLog.innerHTML = ''; // Clear the UI
+            chatHistory = []; // Clear the history
+            clearAttachment(); // Clear any attached image
+            // Add the welcome message back
+            appendMessage('ai', [{ type: 'text', text: 'Hello! How can I help you today? You can also attach an image.' }]);
+        });
+
+
+        // --- Core Functions ---
+
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Use FileReader to convert image to Base64
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                attachedImageBase64 = e.target.result;
+                imagePreview.src = attachedImageBase64;
+                imagePreviewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearAttachment() {
+            attachedImageBase64 = null;
+            imagePreview.src = '';
+            imagePreviewContainer.classList.add('hidden');
+            fileUpload.value = null; // Reset the file input
+        }
+
+        async function handleSendMessage(e) {
+            e.preventDefault();
+            const promptText = promptInput.value.trim();
             const model = modelSelect.value;
 
-            if (!prompt) {
-                resultsEl.textContent = 'Please enter a prompt.';
+            // Don't send if both text and image are empty
+            if (!promptText && !attachedImageBase64) {
                 return;
             }
 
-            // Show loading state
-            resultsEl.textContent = ''; // Clear previous results
-            generateBtn.disabled = true;
-            btnText.textContent = 'Generating...';
-            spinner.classList.remove('hidden');
+            // 1. Construct the user's message parts
+            const userMessageParts = [];
+            if (promptText) {
+                userMessageParts.push({ type: 'text', text: promptText });
+            }
+            if (attachedImageBase64) {
+                // Remove the "data:image/png;base64," prefix for the API
+                const base64Data = attachedImageBase64.split(',')[1];
+                userMessageParts.push({ type: 'image_data', data: base64Data });
+            }
+
+            // 2. Add user message to history and UI
+            chatHistory.push({ role: 'user', content: userMessageParts });
+            appendMessage('user', userMessageParts);
+
+            // 3. Clear inputs
+            promptInput.value = '';
+            clearAttachment();
+
+            // 4. Call the AI
+            await callClaudeAI(model);
+        }
+
+        async function callClaudeAI(model) {
+            // Show a "typing..." indicator
+            const typingIndicator = appendMessage('ai_typing');
+            chatLog.scrollTop = chatLog.scrollHeight;
+            sendBtn.disabled = true;
 
             try {
-                // Call Puter.js AI chat function with streaming
-                const response = await puter.ai.chat(prompt, {
+                // Call Puter.js with the *entire chat history*
+                const response = await puter.ai.chat(chatHistory, {
                     model: model,
                     stream: true
                 });
+                
+                // Remove "typing..." and add a new blank bubble for the response
+                typingIndicator.remove();
+                const aiBubble = appendMessage('ai', [{ type: 'text', text: '' }]);
+                // Find the <p> tag inside the bubble to stream text into
+                const aiTextElement = aiBubble.querySelector('p');
+                
+                let fullResponse = "";
 
                 // Stream the response
                 for await (const part of response) {
                     if (part?.text) {
-                        resultsEl.textContent += part.text;
-                        // Optional: auto-scroll as content is added
-                        resultsEl.parentElement.scrollTop = resultsEl.parentElement.scrollHeight;
+                        fullResponse += part.text;
+                        aiTextElement.textContent = fullResponse; // Update the bubble content
+                        chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll
                     }
                 }
 
-            } catch (error) {
-                console.error('Error generating response:', error);
-                resultsEl.textContent = `An error occurred: ${error.message}`;
-            } finally {
-                // Restore button to normal state
-                generateBtn.disabled = false;
-                btnText.textContent = 'Generate';
-                spinner.classList.add('hidden');
-            }
-        });
-    </script>
+                // Add the final, complete AI response to history
+                chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
 
+            } catch (error) {
+                console.error('Error calling AI:', error);
+                appendMessage('ai', [{ type: 'text', text: `Sorry, an error occurred: ${error.message}` }]);
+            } finally {
+                sendBtn.disabled = false; // Re-enable the send button
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+        }
+
+        /**
+         * A helper function to create and append chat bubbles to the chat log.
+         * type: 'user', 'ai', or 'ai_typing'
+         * contentParts: An array of parts, e.g., [{ type: 'text', text: '...' }, { type: 'image_data', data: '...' }]
+         */
+        function appendMessage(type, contentParts = []) {
+            const bubbleWrapper = document.createElement('div');
+            
+            if (type === 'user') {
+                bubbleWrapper.className = 'chat-bubble-user flex justify-end';
+                const bubble = document.createElement('div');
+                bubble.className = 'bg-blue-600 rounded-lg p-3 max-w-xl';
+                
+                contentParts.forEach(part => {
+                    if (part.type === 'text') {
+                        const p = document.createElement('p');
+                        p.textContent = part.text;
+                        bubble.appendChild(p);
+                    } else if (part.type === 'image_data') {
+                        const img = document.createElement('img');
+                        // We use the *full* base64 string (with prefix) for display
+                        img.src = `data:image/png;base64,${part.data}`;
+                        img.className = 'rounded-lg max-w-xs mt-2';
+                        bubble.prepend(img); // Show image above text
+                    }
+                });
+                bubbleWrapper.appendChild(bubble);
+
+            } else if (type === 'ai') {
+                bubbleWrapper.className = 'chat-bubble-ai';
+                const bubble = document.createElement('div');
+                bubble.className = 'bg-gray-700 rounded-lg p-3 max-w-xl';
+                // AI messages are assumed to be text only for this app
+                const p = document.createElement('p');
+                p.textContent = contentParts[0]?.text || '';
+                bubble.appendChild(p);
+                bubbleWrapper.appendChild(bubble);
+
+            } else if (type === 'ai_typing') {
+                bubbleWrapper.className = 'chat-bubble-ai';
+                bubbleWrapper.innerHTML = `
+                    <div class="bg-gray-700 rounded-lg p-3 max-w-xl">
+                        <div class="dot-flashing"></div>
+                    </div>
+                `;
+            }
+
+            chatLog.appendChild(bubbleWrapper);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            return bubbleWrapper; // Return the element in case we need to modify it
+        }
+
+    </script>
 </body>
 </html>
+
