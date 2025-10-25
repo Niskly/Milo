@@ -18,9 +18,8 @@
     <!-- 4. Libraries for Code Highlighting & Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <!-- Using a more modern, clean theme for code -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
-
+    
     <style>
         /* --- General Styles --- */
         html {
@@ -47,11 +46,7 @@
         .ai-content code:not(pre code) { @apply text-sm bg-slate-200 dark:bg-slate-700 rounded px-1.5 py-0.5 font-mono; }
         .ai-content pre { @apply bg-slate-900 rounded-lg p-4 mb-4 relative text-sm; }
         .ai-content a { @apply text-blue-500 hover:underline; }
-
-        /* --- Copy Button for Code --- */
-        .copy-btn {
-            @apply absolute top-2.5 right-2.5 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-50 hover:opacity-100;
-        }
+        .ai-content img { @apply rounded-lg border border-slate-200 dark:border-slate-700; }
 
         /* --- AI Typing Spinner --- */
         .dot-flashing {
@@ -96,7 +91,6 @@
         #prompt-input::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 2px; }
         .dark #prompt-input { scrollbar-color: #4b5563 #1e293b; }
         .dark #prompt-input::-webkit-scrollbar-thumb { background: #4b5563; }
-        
     </style>
     
     <script>
@@ -202,14 +196,16 @@
             <!-- Main Input Area -->
             <form id="chat-form" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl p-3 flex flex-col w-full max-w-4xl mx-auto">
                 <!-- Top row: Model select, Image preview, Clear chat -->
-                <div class="flex items-center justify-between w-full mb-2 min-h-[40px]">
-                    <div class="flex items-center gap-2">
+                <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <!-- MODEL SELECT -->
                         <select id="model-select" name="model" class="bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none appearance-none cursor-pointer">
+                            <option value="claude-sonnet-4">Claude Sonnet 4</option>
+                            <option value="claude-opus-4">Claude Opus 4</option>
+                            <option value="claude-opus-4-1">Claude Opus 4.1</option>
+                            <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
                             <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
                             <option value="claude-3-7-opus">Claude 3.7 Opus</option>
-                            <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
-                            <option value="claude-sonnet-4">Claude Sonnet 4</option>
                         </select>
                         
                         <!-- IMAGE PREVIEW -->
@@ -220,7 +216,7 @@
                     </div>
                     
                     <!-- CLEAR CHAT -->
-                    <button id="clear-chat" type="button" class="text-sm text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-500 transition flex items-center gap-1 p-2">
+                    <button id="clear-chat" type="button" class="text-sm text-slate-500 hover:text-red-500 dark:text-slate-400 dark:hover:text-red-500 transition flex items-center gap-1 p-2 flex-shrink-0">
                         <ion-icon name="trash-outline" class="w-4 h-4"></ion-icon>
                         Clear
                     </button>
@@ -276,8 +272,8 @@
         const chatLog = document.getElementById('chat-log');
         const chatForm = document.getElementById('chat-form');
         const promptInput = document.getElementById('prompt-input');
-        const modelSelect = document.getElementById('model-select');
         const sendBtn = document.getElementById('send-btn');
+        const modelSelect = document.getElementById('model-select');
         const fileUpload = document.getElementById('file-upload');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
@@ -285,7 +281,7 @@
         const clearChatBtn = document.getElementById('clear-chat');
         const stopBtnContainer = document.getElementById('stop-btn-container');
         const stopBtn = document.getElementById('stop-btn');
-
+        
         const CHAT_HISTORY_KEY = 'claudeChatHistory';
         let chatHistory = [];
         let attachedImageBase64 = null;
@@ -350,10 +346,11 @@
         async function handleSendMessage(e) {
             e.preventDefault();
             if (isAIGenerating) return; // Don't send if AI is already working
-
+            
             const promptText = promptInput.value.trim();
-            const model = modelSelect.value;
             if (!promptText && !attachedImageBase64) return;
+            
+            const model = modelSelect.value;
 
             // Construct user message
             const userMessageParts = [];
@@ -364,9 +361,10 @@
             if (promptText) {
                 userMessageParts.push({ type: 'text', text: promptText });
             }
-
-            chatHistory.push({ role: 'user', content: userMessageParts });
-            appendMessage('user', userMessageParts);
+            
+            const userMessage = { role: 'user', content: userMessageParts };
+            chatHistory.push(userMessage);
+            appendMessage('user', userMessage.content);
             saveChatHistory();
             
             // Clear input
@@ -375,19 +373,19 @@
             clearAttachment();
 
             // Start AI call
-            await callClaudeAI(model);
+            await callChatAI(model);
         }
         
         // --- AI Stream Control ---
         function setAIGenerating(isGenerating) {
             isAIGenerating = isGenerating;
             if (isGenerating) {
-                abortController = new AbortController(); // Create new controller for this request
+                abortController = new AbortController();
                 sendBtn.disabled = true;
                 promptInput.disabled = true;
                 stopBtnContainer.classList.remove('hidden');
             } else {
-                abortController = null; // Clear controller
+                abortController = null;
                 sendBtn.disabled = false;
                 promptInput.disabled = false;
                 promptInput.focus();
@@ -397,14 +395,14 @@
         
         function stopGeneration() {
             if (abortController) {
-                abortController.abort(); // Signal the stream to stop
+                abortController.abort();
                 setAIGenerating(false);
                 console.log("AI Generation stopped by user.");
             }
         }
 
-        // --- AI API Call ---
-        async function callClaudeAI(model) {
+        // --- AI API Call: Chat ---
+        async function callChatAI(model) {
             setAIGenerating(true);
             const typingIndicator = appendMessage('ai_typing');
             scrollToBottom();
@@ -412,36 +410,49 @@
             let fullResponse = "";
             let aiBubble; // To store the AI bubble for streaming
             
+            // Claude uses a different history format (no roles inside content parts)
+            const claudeHistory = chatHistory.map(msg => ({
+                role: msg.role,
+                parts: msg.content.map(part => {
+                    if (part.type === 'image_data') {
+                        return { inlineData: { mimeType: 'image/png', data: part.data } };
+                    }
+                    return { text: part.text };
+                })
+            }));
+
             try {
-                const response = await puter.ai.chat(chatHistory, { 
+                // Use puter.ai.chat()
+                const response = await puter.ai.chat(claudeHistory, { 
                     model: model, 
                     stream: true,
-                    signal: abortController.signal // Pass the signal
+                    signal: abortController.signal 
                 });
                 
                 typingIndicator.remove();
                 aiBubble = appendMessage('ai', []); // Add empty bubble
                 const aiContentElement = aiBubble.querySelector('.ai-content');
                 
-                // We'll build the content in a temporary div to parse markdown parts
                 let streamedText = "";
                 
                 for await (const part of response) {
                     if (part?.text) {
                         streamedText += part.text;
-                        // Render markdown in real-time
                         aiContentElement.innerHTML = marked.parse(streamedText);
                         scrollToBottom();
                     }
                 }
                 
-                fullResponse = streamedText; // Final complete response
+                fullResponse = streamedText;
 
                 // Final processing
                 aiContentElement.innerHTML = marked.parse(fullResponse);
-                aiContentElement.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightBlock(block);
-                    addCopyButton(block.parentElement);
+                aiContentElement.querySelectorAll('pre').forEach((preElement) => {
+                    const codeBlock = preElement.querySelector('code');
+                    if (codeBlock) {
+                        hljs.highlightBlock(codeBlock);
+                        addCodeBlockButtons(preElement);
+                    }
                 });
                 
                 chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse }] });
@@ -449,60 +460,97 @@
 
             } catch (error) {
                 if (error.name === 'AbortError') {
-                    // Stream was stopped by user
                     if (aiBubble) {
-                        // If we have partial text, save it
                         const aiContentElement = aiBubble.querySelector('.ai-content');
                         fullResponse = aiContentElement.innerText + " ... [Stopped by user]";
                         aiContentElement.innerHTML = marked.parse(fullResponse);
                     } else {
-                        // If stopped before any output
                         typingIndicator.remove();
                     }
                     chatHistory.push({ role: 'model', content: [{ type: 'text', text: fullResponse || "[Stopped by user]" }] });
                     saveChatHistory();
                 } else {
-                    console.error('Error calling AI:', error);
+                    console.error('Error calling Chat AI:', error);
                     if(typingIndicator) typingIndicator.remove();
                     if(aiBubble) aiBubble.remove();
-                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred: ${error.message}` }]);
+                    // *** FIX IS HERE ***
+                    appendMessage('ai_error', [{ type: 'text', text: `Sorry, an error occurred: ${error}` }]);
                 }
             } 
             finally {
-                setAIGenerating(false); // Re-enable input
+                setAIGenerating(false);
                 scrollToBottom();
             }
         }
 
         // --- DOM Manipulation ---
-        function addCopyButton(preElement) {
-            const button = document.createElement('button');
-            button.className = 'copy-btn';
-            button.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
+        function addCodeBlockButtons(preElement) {
+            const codeBlock = preElement.querySelector('code');
+            if (!codeBlock) return;
+
+            // Container for buttons
+            const btnContainer = document.createElement('div');
+            btnContainer.className = 'absolute top-2.5 right-2.5 flex gap-2';
             
-            button.addEventListener('click', () => {
-                const code = preElement.querySelector('code').innerText;
+            // Copy Button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
+            copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
+            
+            copyBtn.addEventListener('click', () => {
+                const textarea = preElement.querySelector('textarea.code-editor');
+                const code = textarea ? textarea.value : codeBlock.innerText;
+                
                 try {
-                    const textarea = document.createElement('textarea');
-                    textarea.value = code;
-                    textarea.style.position = 'absolute';
-                    textarea.style.left = '-9999px';
-                    document.body.appendChild(textarea);
-                    textarea.select();
+                    const tempTextarea = document.createElement('textarea');
+                    tempTextarea.value = code;
+                    tempTextarea.style.position = 'absolute';
+                    tempTextarea.style.left = '-9999px';
+                    document.body.appendChild(tempTextarea);
+                    tempTextarea.select();
                     document.execCommand('copy');
-                    document.body.removeChild(textarea);
+                    document.body.removeChild(tempTextarea);
                     
-                    button.innerHTML = '<ion-icon name="checkmark-outline" class="w-4 h-4"></ion-icon> <span>Copied!</span>';
+                    copyBtn.innerHTML = '<ion-icon name="checkmark-outline" class="w-4 h-4"></ion-icon> <span>Copied!</span>';
                     setTimeout(() => { 
-                        button.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
+                        copyBtn.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon> <span>Copy</span>';
                     }, 2000);
                 } catch (err) {
-                    button.innerHTML = '<span>Error</span>';
+                    copyBtn.innerHTML = '<span>Error</span>';
                 }
             });
             
-            preElement.style.position = 'relative';
-            preElement.appendChild(button);
+            // Edit/Save Button
+            const editBtn = document.createElement('button');
+            editBtn.className = 'flex items-center gap-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-2 py-1 rounded-md transition-all duration-200 opacity-70 hover:opacity-100';
+            editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
+            
+            editBtn.addEventListener('click', () => {
+                let textarea = preElement.querySelector('textarea.code-editor');
+                
+                if (textarea) { // --- We are SAVING ---
+                    const newCode = textarea.value;
+                    codeBlock.innerText = newCode;
+                    hljs.highlightBlock(codeBlock);
+                    preElement.removeChild(textarea);
+                    codeBlock.style.display = '';
+                    editBtn.innerHTML = '<ion-icon name="create-outline" class="w-4 h-4"></ion-icon> <span>Edit</span>';
+                } else { // --- We are EDITING ---
+                    textarea = document.createElement('textarea');
+                    textarea.value = codeBlock.innerText;
+                    textarea.className = 'code-editor w-full h-48 bg-slate-900 text-slate-200 font-mono text-sm p-4 rounded-b-lg border-t border-slate-700 resize-y focus:outline-none';
+                    textarea.style.fontFamily = 'monospace';
+                    
+                    preElement.appendChild(textarea);
+                    codeBlock.style.display = 'none'; // Hide the highlighted code
+                    editBtn.innerHTML = '<ion-icon name="save-outline" class="w-4 h-4"></ion-icon> <span>Save</span>';
+                    textarea.focus();
+                }
+            });
+
+            btnContainer.appendChild(copyBtn);
+            btnContainer.appendChild(editBtn);
+            preElement.appendChild(btnContainer);
         }
 
         function appendMessage(type, contentParts = []) {
@@ -530,14 +578,20 @@
                         ${textContent}
                     </div>
                     <div class="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-white font-bold ml-3">
-                        <ion-icon name="person-outline" class="w-6 h-6"></ion-icon>
+                        <ion-icon name="person-outline" class="w-6 h-6"></ion-Gicon>
                     </div>
                 `;
 
             } else if (type === 'ai' || type === 'ai_error') {
                 bubbleWrapper.classList.add('justify-start');
-                let text = (contentParts[0]?.text || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                let contentHTML = '';
                 let errorClass = type === 'ai_error' ? 'bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700' : 'bg-white dark:bg-slate-800 shadow-md';
+
+                contentParts.forEach(part => {
+                    if (part.type === 'text') {
+                        contentHTML += marked.parse(part.text);
+                    }
+                });
                 
                 bubbleContent = `
                     <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center mr-3">
@@ -545,7 +599,7 @@
                     </div>
                     <div class="ai-bubble ${errorClass} rounded-2xl rounded-tl-lg p-5 max-w-xl lg:max-w-3xl text-slate-900 dark:text-slate-100">
                         <div class="ai-content prose prose-sm dark:prose-invert max-w-none">
-                            ${marked.parse(text)}
+                            ${contentHTML}
                         </div>
                     </div>
                 `;
@@ -568,6 +622,7 @@
         }
         
         function appendWelcomeMessage() {
+            if (chatHistory.length > 0) return; // Don't append if history is loaded
             appendMessage('ai', [{ type: 'text', text: 'Hello! This is Claude. How can I help you today?' }]);
         }
 
@@ -588,10 +643,14 @@
                 chatHistory.forEach(message => {
                     appendMessage(message.role === 'user' ? 'user' : 'ai', message.content);
                 });
-                // Re-apply code highlighting
-                chatLog.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightBlock(block);
-                    addCopyButton(block.parentElement);
+                
+                // Re-apply code highlighting and buttons
+                chatLog.querySelectorAll('pre').forEach((preElement) => {
+                    const codeBlock = preElement.querySelector('code');
+                    if (codeBlock) {
+                        hljs.highlightBlock(codeBlock);
+                        addCodeBlockButtons(preElement);
+                    }
                 });
             } else {
                 appendWelcomeMessage();
