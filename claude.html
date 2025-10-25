@@ -126,10 +126,18 @@
         </main>
 
         <!-- 
-          Chat Input Footer
-          NEW: Set to bg-black
+          Gradient fade to hide messages scrolling under input 
+          FIX: Gradient is now from black to transparent, to match the chat box
         -->
-        <footer class="sticky bottom-0 p-4 md:p-6 bg-black z-10 border-t border-gray-800">
+        <div class="sticky bottom-0 h-48 bg-gradient-to-t from-black to-transparent pointer-events-none z-0"></div>
+
+        <!-- 
+          Chat Input Footer
+          FIX: Removed bg-black and border-t from footer.
+          The form itself provides the floating "black" background.
+          FIX: -mt-48 to pull it up over the gradient
+        -->
+        <footer class="sticky bottom-0 p-4 md:p-6 z-10 -mt-48">
             
             <!-- STOP GENERATING BUTTON (Dark style) -->
             <div id="stop-btn-container" class="flex justify-center mb-2 hidden">
@@ -141,17 +149,40 @@
 
             <!-- 
               Main Input Area
-              FIX 1: Removed floating style, set to bg-black
+              FIX: Re-styled to match image (floating, rounded, black)
+              FIX: Re-structured layout (textarea top, controls bottom)
             -->
-            <form id="chat-form" class="p-2.5 flex flex-col w-full max-w-4xl mx-auto">
-                <!-- Top row: Model select, Image preview -->
-                <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap">
+            <form id="chat-form" class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-2.5 flex flex-col w-full max-w-4xl mx-auto">
+                
+                <!-- TEXT INPUT (Dark style) - NOW ON TOP -->
+                <textarea id="prompt-input" class="w-full p-2.5 bg-transparent focus:outline-none resize-none max-h-48 text-white placeholder:text-gray-400" placeholder="Chat with Claude..." rows="1" oninput="autoGrow(this)"></textarea>
+                
+                <!-- CONTROLS ROW - NOW ON BOTTOM -->
+                <div class="flex items-center justify-between w-full mt-2 min-h-[40px]">
+                    <!-- Left-side controls -->
                     <div class="flex items-center gap-2 flex-wrap">
+                        <!-- 
+                          SIGN IN BUTTON 
+                          FIX: Changed from blue to "blackish" (dark gray)
+                        -->
+                        <button type="button" id="sign-in-btn" class="bg-gray-800 border border-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-700">Sign In</button>
                         
-                        <!-- NEW: Sign In Button -->
-                        <button type="button" id="sign-in-btn" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">Sign In</button>
+                        <!-- FILE UPLOAD (Dark style) -->
+                        <label for="file-upload" class="cursor-pointer text-gray-400 hover:text-blue-400 p-2.5 rounded-lg hover:bg-gray-800 transition">
+                            <ion-icon name="attach-outline" class="w-6 h-6"></ion-icon>
+                        </label>
+                        <input type="file" id="file-upload" accept="image/*" class="hidden">
                         
-                        <!-- NEW: Custom Model Dropdown (Dark style) -->
+                        <!-- IMAGE PREVIEW -->
+                        <div id="image-preview-container" class="relative w-10 h-10 hidden">
+                            <img id="image-preview" class="w-full h-full rounded-lg object-cover border-2 border-blue-500">
+                            <button id="remove-image" type="button" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">&times;</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Right-side controls -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <!-- Custom Model Dropdown (Dark style) -->
                         <div class="relative">
                             <!-- This is the hidden select that stores the value -->
                             <select id="model-select" name="model" class="hidden">
@@ -170,32 +201,15 @@
                             </div>
                         </div>
                         
-                        <!-- IMAGE PREVIEW -->
-                        <div id="image-preview-container" class="relative w-10 h-10 hidden">
-                            <img id="image-preview" class="w-full h-full rounded-lg object-cover border-2 border-blue-500">
-                            <button id="remove-image" type="button" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">&times;</button>
-                        </div>
+                        <!-- 
+                          SEND BUTTON
+                          Kept as white button, black icon
+                          FIX: Changed from self-end to self-center
+                        -->
+                        <button type="submit" id="send-btn" class="bg-white hover:bg-gray-200 text-black font-bold p-2.5 rounded-full transition duration-200 self-center disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed w-10 h-10 flex items-center justify-center">
+                            <ion-icon name="arrow-up-outline" class="w-5 h-5"></ion-icon>
+                        </button>
                     </div>
-                </div>
-                
-                <!-- Bottom row: Upload, Textarea, Send -->
-                <div class="flex items-start gap-2.5">
-                    <!-- FILE UPLOAD (Dark style) -->
-                    <label for="file-upload" class="cursor-pointer text-gray-400 hover:text-blue-400 p-2.5 rounded-lg hover:bg-gray-800 transition">
-                        <ion-icon name="attach-outline" class="w-6 h-6"></ion-icon>
-                    </label>
-                    <input type="file" id="file-upload" accept="image/*" class="hidden">
-                    
-                    <!-- TEXT INPUT (Dark style) -->
-                    <textarea id="prompt-input" class="flex-1 p-2.5 bg-transparent focus:outline-none resize-none max-h-48 text-white placeholder:text-gray-400" placeholder="Chat with Claude..." rows="1" oninput="autoGrow(this)"></textarea>
-                    
-                    <!-- 
-                      SEND BUTTON
-                      Kept as white button, black icon
-                    -->
-                    <button type="submit" id="send-btn" class="bg-white hover:bg-gray-200 text-black font-bold p-2.5 rounded-full transition duration-200 self-end disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed w-10 h-10 flex items-center justify-center">
-                        <ion-icon name="arrow-up-outline" class="w-5 h-5"></ion-icon>
-                    </button>
                 </div>
             </form>
         </footer>
@@ -514,7 +528,7 @@
                     buttonElement.innerHTML = '<ion-icon name="copy-outline" class="w-4 h-4"></ion-icon>';
                 }, 2000);
             } catch (err) {
-                buttonElement.innerHTML = '<ion-icon name="alert-circle-outline" class="w-4 h-4"></ion-icon>';
+                buttonElement.innerHTML = '<ion-icon name="alert-circle-outline" class="w-4 h-4"></ion-warning>';
             }
         }
 
@@ -758,11 +772,4 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
 
