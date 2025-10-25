@@ -22,12 +22,12 @@
         .dark body::-webkit-scrollbar-thumb { @apply bg-gray-700; }
         
         .gradient-text {
-            @apply bg-gradient-to-r from-black to-gray-700;
+            @apply bg-gradient-to-r from-gray-500 to-gray-400;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .dark .gradient-text {
-            @apply from-white to-gray-300;
+            @apply from-gray-400 to-gray-300;
         }
         
         .feature-card {
@@ -81,14 +81,14 @@
                         </div>
                     </div>
                     
-                    <button id="theme-toggle-btn" class="p-2.5 rounded-lg text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100 ml-2">
+                    <button id="theme-toggle-btn" class="p-2.5 rounded-lg text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100 ml-2 transition-all">
                         <ion-icon name="moon-outline" class="w-5 h-5 dark:hidden"></ion-icon>
                         <ion-icon name="sunny-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
                     </button>
                 </div>
                 
                 <div class="md:hidden flex items-center gap-2">
-                    <button id="theme-toggle-btn-mobile" class="p-2 rounded-lg text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100">
+                    <button id="theme-toggle-btn-mobile" class="p-2 rounded-lg text-gray-300 dark:text-gray-700 hover:bg-gray-800 dark:hover:bg-gray-100 transition-all">
                         <ion-icon name="moon-outline" class="w-5 h-5 dark:hidden"></ion-icon>
                         <ion-icon name="sunny-outline" class="w-5 h-5 hidden dark:block"></ion-icon>
                     </button>
