@@ -141,9 +141,9 @@
 
             <!-- 
               Main Input Area
-              NEW: Dark style (bg-gray-900)
+              FIX 3: Set to bg-black, removed border and shadow
             -->
-            <form id="chat-form" class="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl p-2.5 flex flex-col w-full max-w-4xl mx-auto">
+            <form id="chat-form" class="bg-black p-2.5 flex flex-col w-full max-w-4xl mx-auto">
                 <!-- Top row: Model select, Image preview -->
                 <div class="flex items-center justify-between w-full mb-2 min-h-[40px] flex-wrap">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -397,7 +397,8 @@
                         typingIndicator.remove();
                     }
                 } else {
-                    console.error('Error calling Chat AI:', error);
+                    // FIX 2: Stringify the error object in the console
+                    console.error('Error calling Chat AI:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
                     if(typingIndicator) typingIndicator.remove();
                     if(aiBubble) aiBubble.remove();
                     
@@ -695,13 +696,7 @@
         
         // --- Init ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // NEW: Authenticate anonymously to prevent login popup
-            try {
-                await puter.auth.anonymous();
-            } catch (err) {
-                console.error("Anonymous auth failed", err);
-                appendMessage('ai_error', [{ type: 'text', text: `Failed to authenticate with Puter: \n\`\`\`\n${err.message}\n\`\`\`` }]);
-            }
+            // FIX 1: Removed the puter.auth.anonymous() block
             
             initModelDropdown(); // Set up the custom dropdown
             appendWelcomeMessage();
@@ -718,5 +713,3 @@
     </script>
 </body>
 </html>
-
-
