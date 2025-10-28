@@ -1,0 +1,22 @@
+{
+  "name": "manhwa-reader",
+  "version": "1.0.0",
+  "description": "My personal manhwa app",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lucide-react": "^0.395.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "vercel": "^34.2.0"
+  }
+}
+
