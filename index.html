@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- This is critical for mobile responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manhwa Reader</title>
+
+    <!-- 1. Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. Load the 'Inter' font (clean and modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- 
+      3. This 'importmap' is SUPER important. 
+      It tells the browser that when our .jsx file says 'import react', 
+      it should go download it from this URL. 
+      This lets us use React without a complex build setup.
+    -->
+    <script
+      async
+      src="https://ga.jspm.io/npm:es-module-shims@1.10.0/dist/es-module-shims.js"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@18.3.1",
+          "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+          "lucide-react": "https://esm.sh/lucide-react@0.395.0",
+          "firebase/app": "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js",
+          "firebase/auth": "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js",
+          "firebase/firestore": "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"
+        }
+      }
+    </script>
+
+    <!-- 4. Base styles for the app -->
+    <style>
+      /* Apply the Inter font and dark mode */
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #111111; /* Dark background (neutral-900) */
+        color: #f5f5f5; /* Light text (neutral-100) */
+        /* Prevents layout shift from scrollbar */
+        overflow-y: scroll; 
+      }
+      
+      /* Simple, modern scrollbar for dark mode */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1f1f1f; /* Dark track */
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #444; /* Scrollbar handle */
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Handle on hover */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 
+      5. This is the 'root' div. 
+      Our entire React app will be injected here.
+      All the "good looking" stuff happens inside this div.
+    -->
+    <div id="root"></div>
+
+    <!-- 
+      6. This script loads our React app. 
+      We will create this file in the NEXT step.
+    -->
+    <script type="module" src="/manhwa-app.jsx"></script>
+  </body>
+</html>
+
